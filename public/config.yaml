@@ -1,0 +1,5 @@
+baseURL: http://bemg.github.io/blog
+languageCode: en-us
+title: BeMg
+
+theme : 'hyde'
