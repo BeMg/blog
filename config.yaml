@@ -1,5 +1,8 @@
-baseURL: https://bemg.github.io/blog/
+baseURL: http://bemg.github.io/blog/
 languageCode: en-us
 title: BeMg
 
-theme : 'hyde'
+theme: one
+
+params:
+    navigation: ["archives.md", "about.md"]

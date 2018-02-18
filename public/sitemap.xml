@@ -3,17 +3,17 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://bemg.github.io/blog/</loc>
+    <loc>http://bemg.github.io/blog/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://bemg.github.io/blog/categories/</loc>
+    <loc>http://bemg.github.io/blog/categories/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://bemg.github.io/blog/tags/</loc>
+    <loc>http://bemg.github.io/blog/tags/</loc>
     <priority>0</priority>
   </url>
   
