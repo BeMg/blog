@@ -3,13 +3,23 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://bemg.github.io/blog/posts/reading-list/</loc>
+    <lastmod>2018-02-20T13:46:39+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://bemg.github.io/blog/posts/learn-english/</loc>
+    <lastmod>2018-02-20T13:46:33+08:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://bemg.github.io/blog/posts/first/</loc>
     <lastmod>2018-02-17T12:21:33+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://bemg.github.io/blog/</loc>
-    <lastmod>2018-02-17T12:21:33+08:00</lastmod>
+    <lastmod>2018-02-20T13:46:39+08:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -20,7 +30,7 @@
   
   <url>
     <loc>https://bemg.github.io/blog/posts/</loc>
-    <lastmod>2018-02-17T12:21:33+08:00</lastmod>
+    <lastmod>2018-02-20T13:46:39+08:00</lastmod>
     <priority>0</priority>
   </url>
   
