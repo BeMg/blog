@@ -15,6 +15,28 @@ draft: true
 
 LLVM是一個完整的編譯器基礎建設(compiler infrastructure)，與`GNU GCC`相比，最大的差異在於大量的將compile的過程高度模組化，可以進行任意的抽換。從 source code 到 machine code，每一個階段都有相對應的module。
 
+## 安裝(build from source)
+
+```bash
+apt-get update
+apt-get install sudo subversion python-dev g++ cmake
+svn co http://llvm.org/svn/llvm-project/llvm/trunk llvm
+cd llvm/tools
+svn co http://llvm.org/svn/llvm-project/cfe/trunk clang
+cd ../..
+cd llvm/tools/clang/tools
+svn co http://llvm.org/svn/llvm-project/clang-tools-extra/trunk extra
+cd ../../../..
+cd llvm/tools
+svn co http://llvm.org/svn/llvm-project/lld/trunk lld
+cd ../..
+cd llvm
+mkdir build
+cd build
+cmake ..
+make
+```
+
 ## 架構
 
 ### compiler 架構
@@ -27,9 +49,8 @@ LLVM是一個完整的編譯器基礎建設(compiler infrastructure)，與`GNU G
     - 包含lexer、parser
 - Optimizer
     - 針對於IR進行最佳化，以追求更快的效能或者節省資源。
-        - 移除不需要的程式碼(Dead code elimination)
-        - 
     - 在有中間語言的情況下，不需要針對每一種target language撰寫優化。
+    - 也不需要撰寫多種不同的語言轉換。
 - BackEnd
     - 將IR 轉換為 target language
     - instruction selection
@@ -41,8 +62,6 @@ LLVM是一個完整的編譯器基礎建設(compiler infrastructure)，與`GNU G
 ### LLVM 的 架構
 
 
-
-### compile 過程
 
 Source code -> clang(lexer -> parser -> AST) -> LLVM IR -> LLVM bitcode -> object code(machine code) -> linker
 
