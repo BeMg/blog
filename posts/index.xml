@@ -94,7 +94,15 @@ make
 
 &lt;h3 id=&#34;實際跑一次看看&#34;&gt;實際跑一次看看&lt;/h3&gt;
 
-&lt;p&gt;而用實際上的llvm的module&lt;/p&gt;
+&lt;p&gt;而用實際上的llvm的module，達成從&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;        clang            llvm-as                 lli
+C code -------&amp;gt; llvm IR ---------&amp;gt; llvm bitcode -----&amp;gt; result
+                          llc                 GNU ld
+                llvm IR -------&amp;gt; object code --------&amp;gt; binary file
+                        | llc                          GNU gcc
+                        -------&amp;gt; naive assembly code ----------&amp;gt; binary file
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;#include &amp;lt;stdio.h&amp;gt;
 #include &amp;lt;string.h&amp;gt;
@@ -111,6 +119,19 @@ int main() {
     return 0;
 }
 &lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;執行結果為366&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;clang利用特定指令使其在編譯過程中停止，並且生成中間產物。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;clang -emit-llvm -c test.c&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;clang -emit-llvm -S test.c&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/bRy0JPr.png&#34; alt=&#34;test.ll&#34; /&gt;&lt;/p&gt;
 
 &lt;h2 id=&#34;參考資料&#34;&gt;參考資料&lt;/h2&gt;
 </description>
