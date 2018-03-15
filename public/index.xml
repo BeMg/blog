@@ -6,10 +6,115 @@
     <description>Recent content on BeMg</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 25 Feb 2018 12:04:05 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 26 Feb 2018 19:03:58 +0800</lastBuildDate>
     
         <atom:link href="https://bemg.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>LLVM 筆記 (更新中)</title>
+      <link>https://bemg.github.io/blog/posts/llvm-notes/</link>
+      <pubDate>Mon, 26 Feb 2018 19:03:58 +0800</pubDate>
+      
+      <guid>https://bemg.github.io/blog/posts/llvm-notes/</guid>
+      <description>
+
+&lt;h2 id=&#34;目錄&#34;&gt;目錄&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;前言&lt;/li&gt;
+&lt;li&gt;架構&lt;/li&gt;
+&lt;li&gt;實驗&lt;/li&gt;
+&lt;li&gt;參考資料&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;
+
+&lt;p&gt;LLVM是一個完整的編譯器基礎建設(compiler infrastructure)，與&lt;code&gt;GNU GCC&lt;/code&gt;相比，最大的差異在於大量的將compile的過程高度模組化，可以進行任意的抽換。從 source code 到 machine code，每一個階段都有相對應的module。&lt;/p&gt;
+
+&lt;h2 id=&#34;安裝&#34;&gt;安裝&lt;/h2&gt;
+
+&lt;p&gt;從原始碼開始從頭編譯&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;apt-get update
+apt-get install -y sudo subversion python-dev g++ cmake
+svn co http://llvm.org/svn/llvm-project/llvm/trunk llvm
+cd llvm/tools
+svn co http://llvm.org/svn/llvm-project/cfe/trunk clang
+cd ../..
+cd llvm/tools/clang/tools
+svn co http://llvm.org/svn/llvm-project/clang-tools-extra/trunk extra
+cd ../../../..
+cd llvm/tools
+svn co http://llvm.org/svn/llvm-project/lld/trunk lld
+cd ../..
+cd llvm
+mkdir build
+cd build
+cmake -G &amp;quot;Unix Makefiles&amp;quot; -DCMAKE_BUILD_TYPE=Release ..
+make
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;架構&#34;&gt;架構&lt;/h2&gt;
+
+&lt;h3 id=&#34;compiler-架構&#34;&gt;compiler 架構&lt;/h3&gt;
+
+&lt;p&gt;在常見的compiler中，常見這類三段式的設計。
+&lt;img src=&#34;https://i.imgur.com/miah8lO.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;FrontEnd
+
+&lt;ul&gt;
+&lt;li&gt;將Source code 轉換為 IR or AST&lt;/li&gt;
+&lt;li&gt;包含lexer、parser&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Optimizer
+
+&lt;ul&gt;
+&lt;li&gt;針對於IR進行最佳化，以追求更快的效能或者節省資源。&lt;/li&gt;
+&lt;li&gt;在有中間語言的情況下，不需要針對每一種target language撰寫優化。&lt;/li&gt;
+&lt;li&gt;也不需要撰寫多種不同的語言轉換。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;BackEnd
+
+&lt;ul&gt;
+&lt;li&gt;將IR 轉換為 target language&lt;/li&gt;
+&lt;li&gt;instruction selection&lt;/li&gt;
+&lt;li&gt;register allocation&lt;/li&gt;
+&lt;li&gt;instruction scheduling&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;而 LLVM 也是按照這三個階段的 compiler 設計為基準開發而成。&lt;/p&gt;
+
+&lt;h3 id=&#34;llvm-的-架構&#34;&gt;LLVM 的 架構&lt;/h3&gt;
+
+&lt;p&gt;Source code -&amp;gt; clang(lexer -&amp;gt; parser -&amp;gt; AST) -&amp;gt; LLVM IR -&amp;gt; LLVM bitcode -&amp;gt; object code(machine code) -&amp;gt; linker&lt;/p&gt;
+
+&lt;h3 id=&#34;實際跑一次看看&#34;&gt;實際跑一次看看&lt;/h3&gt;
+
+&lt;p&gt;而用實際上的llvm的module&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;string.h&amp;gt;
+
+int main() {
+    int a = 2 + 5;
+    int b = a + 10 + 30;
+    int c = a * b + 30 + a;
+    
+    char s[100];
+    sprintf(s, &amp;quot;%d&amp;quot;, c);
+    puts(s);
+
+    return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;參考資料&#34;&gt;參考資料&lt;/h2&gt;
+</description>
+    </item>
     
     <item>
       <title>Fcitx 輸入法與新酷音</title>
