@@ -65,10 +65,18 @@ make
 
 Source code -> clang(lexer -> parser -> AST) -> LLVM IR -> LLVM bitcode -> object code(machine code) -> linker
 
-
 ### 實際跑一次看看
 
-而用實際上的llvm的module
+而用實際上的llvm的module，達成從
+
+```
+        clang            llvm-as                 lli
+C code -------> llvm IR ---------> llvm bitcode -----> result
+                          llc                 GNU ld
+                llvm IR -------> object code --------> binary file
+                        | llc                          GNU gcc
+                        -------> naive assembly code ----------> binary file
+```
 
 ```c
 #include <stdio.h>
@@ -87,6 +95,13 @@ int main() {
 }
 ```
 
+> 執行結果為366
+
+clang利用特定指令使其在編譯過程中停止，並且生成中間產物。
+
+- `clang -emit-llvm -c test.c`
+- `clang -emit-llvm -S test.c`
+
+![test.ll](https://i.imgur.com/bRy0JPr.png)
 
 ## 參考資料
-

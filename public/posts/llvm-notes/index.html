@@ -171,7 +171,15 @@ make
 
 <h3 id="實際跑一次看看">實際跑一次看看</h3>
 
-<p>而用實際上的llvm的module</p>
+<p>而用實際上的llvm的module，達成從</p>
+
+<pre><code>        clang            llvm-as                 lli
+C code -------&gt; llvm IR ---------&gt; llvm bitcode -----&gt; result
+                          llc                 GNU ld
+                llvm IR -------&gt; object code --------&gt; binary file
+                        | llc                          GNU gcc
+                        -------&gt; naive assembly code ----------&gt; binary file
+</code></pre>
 
 <pre><code class="language-c">#include &lt;stdio.h&gt;
 #include &lt;string.h&gt;
@@ -188,6 +196,19 @@ int main() {
     return 0;
 }
 </code></pre>
+
+<blockquote>
+<p>執行結果為366</p>
+</blockquote>
+
+<p>clang利用特定指令使其在編譯過程中停止，並且生成中間產物。</p>
+
+<ul>
+<li><code>clang -emit-llvm -c test.c</code></li>
+<li><code>clang -emit-llvm -S test.c</code></li>
+</ul>
+
+<p><img src="https://i.imgur.com/bRy0JPr.png" alt="test.ll" /></p>
 
 <h2 id="參考資料">參考資料</h2>
 
