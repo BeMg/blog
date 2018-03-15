@@ -15,11 +15,13 @@ draft: true
 
 LLVM是一個完整的編譯器基礎建設(compiler infrastructure)，與`GNU GCC`相比，最大的差異在於大量的將compile的過程高度模組化，可以進行任意的抽換。從 source code 到 machine code，每一個階段都有相對應的module。
 
-## 安裝(build from source)
+## 安裝
+
+從原始碼開始從頭編譯
 
 ```bash
 apt-get update
-apt-get install sudo subversion python-dev g++ cmake
+apt-get install -y sudo subversion python-dev g++ cmake
 svn co http://llvm.org/svn/llvm-project/llvm/trunk llvm
 cd llvm/tools
 svn co http://llvm.org/svn/llvm-project/cfe/trunk clang
@@ -33,7 +35,7 @@ cd ../..
 cd llvm
 mkdir build
 cd build
-cmake ..
+cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
 make
 ```
 
@@ -61,9 +63,29 @@ make
 
 ### LLVM 的 架構
 
-
-
 Source code -> clang(lexer -> parser -> AST) -> LLVM IR -> LLVM bitcode -> object code(machine code) -> linker
+
+
+### 實際跑一次看看
+
+而用實際上的llvm的module
+
+```c
+#include <stdio.h>
+#include <string.h>
+
+int main() {
+    int a = 2 + 5;
+    int b = a + 10 + 30;
+    int c = a * b + 30 + a;
+    
+    char s[100];
+    sprintf(s, "%d", c);
+    puts(s);
+
+    return 0;
+}
+```
 
 
 ## 參考資料
