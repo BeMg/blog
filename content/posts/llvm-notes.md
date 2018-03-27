@@ -15,6 +15,8 @@ draft: false
 
 LLVM是一個完整的編譯器基礎建設(compiler infrastructure)，與`GNU GCC`相比，最大的差異在於大量的將compile的過程高度模組化，可以進行任意的抽換。從 source code 到 machine code，每一個階段都有相對應的module。
 
+本篇文章雖然以LLVM 為標題，可是實際上多半都在整理編譯器的相關知識，畢竟LLVM大部分都是在實做這些編譯器的技術。
+
 ## 安裝
 
 從原始碼開始從頭編譯
@@ -49,6 +51,8 @@ make
 - FrontEnd
     - 將Source code 轉換為 IR or AST
     - 包含lexer、parser
+    - lexer： Regular Expression
+    - parser：Context-free grammar -> ANTLR 之類的
 - Optimizer
     - 針對於IR進行最佳化，以追求更快的效能或者節省資源。
     - 在有中間語言的情況下，不需要針對每一種target language撰寫優化。
@@ -100,8 +104,34 @@ int main() {
 clang利用特定指令使其在編譯過程中停止，並且生成中間產物。
 
 - `clang -emit-llvm -c test.c`
-- `clang -emit-llvm -S test.c`
+- `clang -emit-Optimizerllvm -S test.c`
 
 ![test.ll](https://i.imgur.com/bRy0JPr.png)
+
+## Front End
+
+Clang是llvm官方的front end，主要針對C, C++和Objective-C和等語言而作。最主要負責的工作為將source code 轉換成 AST (Abstract Syntax Tree)，在將其轉換為 llvm IR。
+
+雖然說是前端，不過實際上的使用的時候可以加入多樣參數，完成編譯程式的每一個環節。
+
+> 在編譯期間加入 -### 參數可以查看clang究竟調用了多少額外的工具
+
+### AST
+
+##Optimizer
+
+### IR
+
+### SSA
+
+## Back End
+
+### DAG
+
+
+
+
+
+
 
 ## 參考資料
