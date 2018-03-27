@@ -109,6 +109,8 @@ window.onload = ready;
 
 <p>LLVM是一個完整的編譯器基礎建設(compiler infrastructure)，與<code>GNU GCC</code>相比，最大的差異在於大量的將compile的過程高度模組化，可以進行任意的抽換。從 source code 到 machine code，每一個階段都有相對應的module。</p>
 
+<p>本篇文章雖然以LLVM 為標題，可是實際上多半都在整理編譯器的相關知識，畢竟LLVM大部分都是在實做這些編譯器的技術。</p>
+
 <h2 id="安裝">安裝</h2>
 
 <p>從原始碼開始從頭編譯</p>
@@ -145,6 +147,8 @@ make
 <ul>
 <li>將Source code 轉換為 IR or AST</li>
 <li>包含lexer、parser</li>
+<li>lexer： Regular Expression</li>
+<li>parser：Context-free grammar -&gt; ANTLR 之類的</li>
 </ul></li>
 <li>Optimizer
 
@@ -205,10 +209,32 @@ int main() {
 
 <ul>
 <li><code>clang -emit-llvm -c test.c</code></li>
-<li><code>clang -emit-llvm -S test.c</code></li>
+<li><code>clang -emit-Optimizerllvm -S test.c</code></li>
 </ul>
 
 <p><img src="https://i.imgur.com/bRy0JPr.png" alt="test.ll" /></p>
+
+<h2 id="front-end">Front End</h2>
+
+<p>Clang是llvm官方的front end，主要針對C, C++和Objective-C和等語言而作。最主要負責的工作為將source code 轉換成 AST (Abstract Syntax Tree)，在將其轉換為 llvm IR。</p>
+
+<p>雖然說是前端，不過實際上的使用的時候可以加入多樣參數，完成編譯程式的每一個環節。</p>
+
+<blockquote>
+<p>在編譯期間加入 -### 參數可以查看clang究竟調用了多少額外的工具</p>
+</blockquote>
+
+<h3 id="ast">AST</h3>
+
+<p>##Optimizer</p>
+
+<h3 id="ir">IR</h3>
+
+<h3 id="ssa">SSA</h3>
+
+<h2 id="back-end">Back End</h2>
+
+<h3 id="dag">DAG</h3>
 
 <h2 id="參考資料">參考資料</h2>
 
