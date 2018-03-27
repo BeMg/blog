@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<title>Elasticsearch 筆記</title>
+	
+	<meta name="description" content="">
+	<meta name="image" content="">
+	
+	<meta itemprop="name" content="Elasticsearch 筆記">
+	<meta itemprop="description" content="">
+	<meta itemprop="image" content="">
+	
+	<meta name="og:title" content="Elasticsearch 筆記">
+	<meta name="og:description" content="">
+	
+	<meta name="og:url" content="https://bemg.github.io/blog/posts/elastic-notes/">
+	<meta name="og:site_name" content="Elasticsearch 筆記">
+	<meta name="og:type" content="article">
+	
+	<meta name="article:tag" content="">
+	<link rel="stylesheet" type="text/css" href="https://bemg.github.io/blog/css/style.css">
+	
+	
+	
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+
+</head>
+
+<body>
+
+<header>
+	
+	<a href="https://bemg.github.io/blog/" style="float: left;color:#777;"><strong>BeMg</strong></a>
+	
+	&nbsp;&nbsp;&nbsp;&nbsp;
+	
+	
+	
+	<a href="https://bemg.github.io/blog/index.xml" style="color:#777;float: right;"><strong><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></strong></a>
+</header>
+
+
+<div id="loadingMask" style="width: 100%; height: 100%; position: fixed; background: #fff;"></div>
+<script>
+function fadeOut(el) {
+  el.style.opacity = 1;
+
+  var last = +new Date();
+  var tick = function() {
+    el.style.opacity = +el.style.opacity - (new Date() - last) / 80;
+    last = +new Date();
+    
+
+    if (el.style.opacity > 0) {
+      (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
+    } else {
+      el.style.display='none';
+    }
+  };
+
+  tick();
+}
+
+function ready(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+         el = document.getElementById('loadingMask');
+         fadeOut(el);
+        var elements = document.querySelectorAll("img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("alt")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("alt"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+
+    } else {
+        document.addEventListener('DOMContentLoaded', fn);
+    }
+}
+window.onload = ready;
+</script>
+
+<div class="content">
+  <h1>Elasticsearch 筆記 <aside></aside></h1>
+  
+
+<h1 id="elasticsearch">elasticsearch</h1>
+
+<h2 id="簡介">簡介</h2>
+
+<p>基於java，所以要先裝<code>java &gt;= 8</code>。跑起來之後長的很像一台server，並且透過REST API進行資料的增減與搜尋的<code>query</code>。</p>
+
+<p>傳送給elastic的資料格式以<code>JSON</code>為主。</p>
+
+<p>elastic search 運作起來很像是database 下面簡單列出與database之間的對應關係。</p>
+
+<ul>
+<li>Node &lt;-&gt; DB server</li>
+<li>Index &lt;-&gt; database</li>
+<li>Type &lt;-&gt; Table</li>
+<li>document &lt;-&gt; row</li>
+<li>Field &lt;-&gt; column</li>
+</ul>
+
+<h2 id="使用">使用</h2>
+
+<p>不經修改，預設<code>elasticsearch</code>會使用<code>localhost:9200</code>作為他的接口。所以可以藉由這個路徑進行操作。</p>
+
+<blockquote>
+<p>官方推薦在<code>terminal</code>使用<code>curl</code>進行操作</p>
+</blockquote>
+
+<ul>
+<li>查看目前有的<code>index</code></li>
+</ul>
+
+<pre><code>GET /_cat/indices?v
+</code></pre>
+
+<pre><code>health status index uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+yellow open   hw1   l8nmMoxjSYypWv0LZ0IWpA   5   1     530278            0      1.2gb          1.2gb
+</code></pre>
+
+<ul>
+<li>加入一筆index</li>
+</ul>
+
+<pre><code>curl -XPOST 'locjson't:9200/test/news' -d &quot;{ \&quot;title\&quot;: \&quot;yee\&quot;, \&quot;body\&quot;: 1234 }&quot; -H 'Content-Type: application/
+</code></pre>
+
+<pre><code>{&quot;_index&quot;:&quot;test&quot;,&quot;_type&quot;:&quot;news&quot;,&quot;_id&quot;:&quot;LCmeGWIBVfCh6W9Xihub&quot;,&quot;_version&quot;:1,&quot;result&quot;:&quot;created&quot;,&quot;_shards&quot;:{&quot;total&quot;:2,&quot;successful&quot;:1,&quot;failed&quot;:0},&quot;_seq_no&quot;:0,&quot;_primary_term&quot;:1}
+</code></pre>
+
+<blockquote>
+<p>如果不填入id的話，它會自動給一個隨機的id</p>
+</blockquote>
+
+<ul>
+<li>移除整個index</li>
+</ul>
+
+<pre><code>DELETE /index_name
+</code></pre>
+
+<pre><code>成功回傳true
+</code></pre>
+
+<ul>
+<li>執行多筆指令(bulk)</li>
+</ul>
+
+<pre><code>curl -XPOST 'localhost:9200/_bulk' -d {query}
+</code></pre>
+
+<blockquote>
+<p>一次只加入一筆資料速度挺慢的，初步推測是因為頻繁進行硬碟I/O的緣故，故一次新增多筆index。有效的解決這個問題</p>
+</blockquote>
+
+<h2 id="elasticsearch-py">elasticsearch-py</h2>
+
+<p>網路上有人將上訴的<code>REST API</code>，包裝成python的<code>module</code>。所以可以藉由此套件對elastic進行操作。</p>
+
+<pre><code class="language-python">from elasticsearch import Elasticsearch
+es = Elasticsearch()
+
+# 我只有使用到兩個指令 bulk, search
+
+es.bulk(body=action)
+es.search(index='hw1', body={
+     &quot;query&quot;: {
+
+     &quot;multi_match&quot;: {
+
+     &quot;query&quot; : keyword,
+
+     &quot;fields&quot; : \[&quot;title&quot;, &quot;body&quot;\]
+    }
+}
+
+</code></pre>
+
+<h2 id="json-操作">JSON 操作</h2>
+
+<p>由於elasticsearch多使用JSON傳遞資料，在此紀錄一下一些常用的操作。</p>
+
+<ul>
+<li>寫入JSON到檔案</li>
+</ul>
+
+<pre><code class="language-python">with open(filename, &quot;w&quot;) as f:
+    json.dump(data, f, ensure_ascii=False)
+</code></pre>
+
+<blockquote>
+<p>ensure_ascii -&gt; 設定為False，中文字才會顯示正常，不然會變成一串不是給人看的英文與數字</p>
+</blockquote>
+
+<ul>
+<li>讀取JSON從檔案</li>
+</ul>
+
+<pre><code class="language-python">with open(filename, &quot;r&quot;) as f:
+    data = json.load(f)
+</code></pre>
+
+<ul>
+<li>從object生成JSON</li>
+</ul>
+
+<pre><code class="language-python">j = json.dumps(data)
+</code></pre>
+
+<ul>
+<li>從JSON字串生成object</li>
+</ul>
+
+<pre><code class="language-python">data = json.loads(j)
+</code></pre>
+
+<h2 id="從原始資料到前端">從原始資料到前端</h2>
+
+<ul>
+<li>從原始資料到JSON檔</li>
+</ul>
+
+<pre><code class="language-python">import os
+import json
+import glob
+
+filename = glob.glob(&quot;ettoday*.rec&quot;)
+
+data = \[\]
+for fn in filename:
+    cnt = 0
+    with open(fn, &quot;r&quot;) as f:
+        while True:
+            cnt += 1
+            pos = f.tell()
+            useless = f.readline()
+            url = f.readline()
+            url = url\[3:\]
+            url = url.strip('\\n')
+            title = f.readline()
+            title = title\[3:\]
+            title = title.strip('\\n')
+            useless = f.readline()
+            maintext = f.readline()
+            maintext = maintext.strip()
+            after_pos = f.tell()
+            print(&quot;{}: {}&quot;.format(fn, cnt))
+            \# print(&quot;{}:{}:{}&quot;.format(url, title, maintext))
+            if pos == after_pos:
+                break
+            else:
+                data.append({
+                    'url':url, 
+                    'title':title, 
+                    'body':maintext})
+
+with open('news.json', &quot;w&quot;) as f:
+    json.dump(data, f, ensure_ascii=False)
+</code></pre>
+
+<ul>
+<li>從json讀取進elastic</li>
+</ul>
+
+<pre><code class="language-python">from elasticsearch import Elasticsearch
+import json
+
+with open('./news_data/news.json') as f:
+    Data = json.load(f)
+
+es = Elasticsearch()
+    
+action = ''
+cnt = 0
+for data in Data:
+    query = '{&quot;index&quot;: {&quot;\_index&quot;: &quot;hw1&quot;, &quot;\_type&quot;: &quot;news&quot;}}\\n' + json.dumps(data, ensure_ascii=False)
+    action += query + '\\n'
+    cnt += 1
+    print(cnt)
+    if cnt % 1000 == 0:
+        es.bulk(body=action)
+        action = ''
+
+es.bulk(body=action)
+</code></pre>
+
+<ul>
+<li>對elastic執行query</li>
+</ul>
+
+<pre><code class="language-python">def query(keyword): 
+    es = Elasticsearch() 
+    tmp = es.search(index='hw1', body={ &quot;query&quot;: { &quot;multi_match&quot;: { &quot;query&quot; : keyword, &quot;fields&quot; : [&quot;title&quot;, &quot;body&quot;] } } }) 
+    tmp = tmp['hits']['hits'] 
+    res = [] 
+    for i in tmp: 
+        res.append(i['_source']) 
+    return res
+</code></pre>
+
+</div>
+
+
+
+
+<footer>
+	<p>© 2017-2018, all rights reserved.</a>
+</footer>
+</body>
+</html>

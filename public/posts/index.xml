@@ -6,10 +6,237 @@
     <description>Recent content in Posts on BeMg</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 26 Feb 2018 19:03:58 +0800</lastBuildDate>
+    <lastBuildDate>Wed, 28 Feb 2018 13:22:58 +0800</lastBuildDate>
     
         <atom:link href="https://bemg.github.io/blog/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Elasticsearch 筆記</title>
+      <link>https://bemg.github.io/blog/posts/elastic-notes/</link>
+      <pubDate>Wed, 28 Feb 2018 13:22:58 +0800</pubDate>
+      
+      <guid>https://bemg.github.io/blog/posts/elastic-notes/</guid>
+      <description>
+
+&lt;h1 id=&#34;elasticsearch&#34;&gt;elasticsearch&lt;/h1&gt;
+
+&lt;h2 id=&#34;簡介&#34;&gt;簡介&lt;/h2&gt;
+
+&lt;p&gt;基於java，所以要先裝&lt;code&gt;java &amp;gt;= 8&lt;/code&gt;。跑起來之後長的很像一台server，並且透過REST API進行資料的增減與搜尋的&lt;code&gt;query&lt;/code&gt;。&lt;/p&gt;
+
+&lt;p&gt;傳送給elastic的資料格式以&lt;code&gt;JSON&lt;/code&gt;為主。&lt;/p&gt;
+
+&lt;p&gt;elastic search 運作起來很像是database 下面簡單列出與database之間的對應關係。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Node &amp;lt;-&amp;gt; DB server&lt;/li&gt;
+&lt;li&gt;Index &amp;lt;-&amp;gt; database&lt;/li&gt;
+&lt;li&gt;Type &amp;lt;-&amp;gt; Table&lt;/li&gt;
+&lt;li&gt;document &amp;lt;-&amp;gt; row&lt;/li&gt;
+&lt;li&gt;Field &amp;lt;-&amp;gt; column&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;使用&#34;&gt;使用&lt;/h2&gt;
+
+&lt;p&gt;不經修改，預設&lt;code&gt;elasticsearch&lt;/code&gt;會使用&lt;code&gt;localhost:9200&lt;/code&gt;作為他的接口。所以可以藉由這個路徑進行操作。&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;官方推薦在&lt;code&gt;terminal&lt;/code&gt;使用&lt;code&gt;curl&lt;/code&gt;進行操作&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查看目前有的&lt;code&gt;index&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt;GET /_cat/indices?v
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;health status index uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+yellow open   hw1   l8nmMoxjSYypWv0LZ0IWpA   5   1     530278            0      1.2gb          1.2gb
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;加入一筆index&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt;curl -XPOST &#39;locjson&#39;t:9200/test/news&#39; -d &amp;quot;{ \&amp;quot;title\&amp;quot;: \&amp;quot;yee\&amp;quot;, \&amp;quot;body\&amp;quot;: 1234 }&amp;quot; -H &#39;Content-Type: application/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;{&amp;quot;_index&amp;quot;:&amp;quot;test&amp;quot;,&amp;quot;_type&amp;quot;:&amp;quot;news&amp;quot;,&amp;quot;_id&amp;quot;:&amp;quot;LCmeGWIBVfCh6W9Xihub&amp;quot;,&amp;quot;_version&amp;quot;:1,&amp;quot;result&amp;quot;:&amp;quot;created&amp;quot;,&amp;quot;_shards&amp;quot;:{&amp;quot;total&amp;quot;:2,&amp;quot;successful&amp;quot;:1,&amp;quot;failed&amp;quot;:0},&amp;quot;_seq_no&amp;quot;:0,&amp;quot;_primary_term&amp;quot;:1}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;如果不填入id的話，它會自動給一個隨機的id&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+&lt;li&gt;移除整個index&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt;DELETE /index_name
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;成功回傳true
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;執行多筆指令(bulk)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt;curl -XPOST &#39;localhost:9200/_bulk&#39; -d {query}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;一次只加入一筆資料速度挺慢的，初步推測是因為頻繁進行硬碟I/O的緣故，故一次新增多筆index。有效的解決這個問題&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&#34;elasticsearch-py&#34;&gt;elasticsearch-py&lt;/h2&gt;
+
+&lt;p&gt;網路上有人將上訴的&lt;code&gt;REST API&lt;/code&gt;，包裝成python的&lt;code&gt;module&lt;/code&gt;。所以可以藉由此套件對elastic進行操作。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from elasticsearch import Elasticsearch
+es = Elasticsearch()
+
+# 我只有使用到兩個指令 bulk, search
+
+es.bulk(body=action)
+es.search(index=&#39;hw1&#39;, body={
+     &amp;quot;query&amp;quot;: {
+
+     &amp;quot;multi_match&amp;quot;: {
+
+     &amp;quot;query&amp;quot; : keyword,
+
+     &amp;quot;fields&amp;quot; : \[&amp;quot;title&amp;quot;, &amp;quot;body&amp;quot;\]
+    }
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;json-操作&#34;&gt;JSON 操作&lt;/h2&gt;
+
+&lt;p&gt;由於elasticsearch多使用JSON傳遞資料，在此紀錄一下一些常用的操作。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;寫入JSON到檔案&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;with open(filename, &amp;quot;w&amp;quot;) as f:
+    json.dump(data, f, ensure_ascii=False)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;ensure_ascii -&amp;gt; 設定為False，中文字才會顯示正常，不然會變成一串不是給人看的英文與數字&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+&lt;li&gt;讀取JSON從檔案&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;with open(filename, &amp;quot;r&amp;quot;) as f:
+    data = json.load(f)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;從object生成JSON&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;j = json.dumps(data)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;從JSON字串生成object&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;data = json.loads(j)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;從原始資料到前端&#34;&gt;從原始資料到前端&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;從原始資料到JSON檔&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import os
+import json
+import glob
+
+filename = glob.glob(&amp;quot;ettoday*.rec&amp;quot;)
+
+data = \[\]
+for fn in filename:
+    cnt = 0
+    with open(fn, &amp;quot;r&amp;quot;) as f:
+        while True:
+            cnt += 1
+            pos = f.tell()
+            useless = f.readline()
+            url = f.readline()
+            url = url\[3:\]
+            url = url.strip(&#39;\\n&#39;)
+            title = f.readline()
+            title = title\[3:\]
+            title = title.strip(&#39;\\n&#39;)
+            useless = f.readline()
+            maintext = f.readline()
+            maintext = maintext.strip()
+            after_pos = f.tell()
+            print(&amp;quot;{}: {}&amp;quot;.format(fn, cnt))
+            \# print(&amp;quot;{}:{}:{}&amp;quot;.format(url, title, maintext))
+            if pos == after_pos:
+                break
+            else:
+                data.append({
+                    &#39;url&#39;:url, 
+                    &#39;title&#39;:title, 
+                    &#39;body&#39;:maintext})
+
+with open(&#39;news.json&#39;, &amp;quot;w&amp;quot;) as f:
+    json.dump(data, f, ensure_ascii=False)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;從json讀取進elastic&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from elasticsearch import Elasticsearch
+import json
+
+with open(&#39;./news_data/news.json&#39;) as f:
+    Data = json.load(f)
+
+es = Elasticsearch()
+    
+action = &#39;&#39;
+cnt = 0
+for data in Data:
+    query = &#39;{&amp;quot;index&amp;quot;: {&amp;quot;\_index&amp;quot;: &amp;quot;hw1&amp;quot;, &amp;quot;\_type&amp;quot;: &amp;quot;news&amp;quot;}}\\n&#39; + json.dumps(data, ensure_ascii=False)
+    action += query + &#39;\\n&#39;
+    cnt += 1
+    print(cnt)
+    if cnt % 1000 == 0:
+        es.bulk(body=action)
+        action = &#39;&#39;
+
+es.bulk(body=action)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;對elastic執行query&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def query(keyword): 
+    es = Elasticsearch() 
+    tmp = es.search(index=&#39;hw1&#39;, body={ &amp;quot;query&amp;quot;: { &amp;quot;multi_match&amp;quot;: { &amp;quot;query&amp;quot; : keyword, &amp;quot;fields&amp;quot; : [&amp;quot;title&amp;quot;, &amp;quot;body&amp;quot;] } } }) 
+    tmp = tmp[&#39;hits&#39;][&#39;hits&#39;] 
+    res = [] 
+    for i in tmp: 
+        res.append(i[&#39;_source&#39;]) 
+    return res
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>LLVM 筆記 (更新中)</title>
@@ -305,11 +532,19 @@ int main() {
 
 &lt;p&gt;很遺憾的是，很多時候沒有辦法聽懂內容跟單字量有相當高的相關，根本就不理解那個單字，是要怎麼可以從一連串的發音中辨識出來想要提供的含意。&lt;/p&gt;
 
+&lt;blockquote&gt;
+&lt;p&gt;根據我一個英文很好的同學表示，裡面的單字水準真的是比較高。或許該找一下有沒有比較符合我這個英文水準的好頻道。&lt;/p&gt;
+&lt;/blockquote&gt;
+
 &lt;h2 id=&#34;現階段的努力&#34;&gt;現階段的努力&lt;/h2&gt;
 
 &lt;p&gt;總結上述的問題，充實我的英文單字量是刻不容緩的工作。&lt;/p&gt;
 
 &lt;p&gt;起先我拿出了我塵封已久的高中7000單字書，步上了過去高中的單字學習法。重溫了高中的單字學習的過程中，我進行了幾項對於方法的修正。我不再要求可以對於英文單字每一個字母都可以熟記，雖然因為在於高中時期需要熟記拼字才可以有辦法成功的寫英文考卷。&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;很快的，7000單字都已經被我輸入到anki之中了，現在就是見識它的威力的時刻。&lt;/p&gt;
+&lt;/blockquote&gt;
 
 &lt;p&gt;我使用了一些輔助的被單字軟體&lt;/p&gt;
 
@@ -318,6 +553,17 @@ int main() {
 
 &lt;ul&gt;
 &lt;li&gt;免費的，可以用xml或者css客製化字卡的外觀。並且遵循著學習遺忘曲線進行單字的複習。&lt;/li&gt;
+&lt;li&gt;我現在的設置為50個新單字 250 複習的單字&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;更新&#34;&gt;更新&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;2018/03/27
+
+&lt;ul&gt;
+&lt;li&gt;得到了一些新的想法，對於單字卡來說。正面：一個生字搭配一個例句，背面：單字的中文解釋。這樣的搭配可以有效的記憶中文解釋，而且這個搭配也是正常閱讀的時候所擁有的上下文。&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
