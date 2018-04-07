@@ -6,10 +6,56 @@
     <description>Recent content in Posts on BeMg</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 28 Feb 2018 13:22:58 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 07 Apr 2018 16:22:57 +0800</lastBuildDate>
     
         <atom:link href="https://bemg.github.io/blog/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Selenium notes</title>
+      <link>https://bemg.github.io/blog/posts/selenium-intro/</link>
+      <pubDate>Sat, 07 Apr 2018 16:22:57 +0800</pubDate>
+      
+      <guid>https://bemg.github.io/blog/posts/selenium-intro/</guid>
+      <description>
+
+&lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;
+
+&lt;p&gt;對於使用javascript動態產生的網頁來說，單純的抓取html會缺失許多資訊。我們可以透過selenium執行javascript，生成我們所需要的資訊。&lt;/p&gt;
+
+&lt;p&gt;selenium原本是被設計來進行自動化測試的，但是我們只需要它執行javascript的功能。&lt;/p&gt;
+
+&lt;h2 id=&#34;安裝&#34;&gt;安裝&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;pip3 install selenium
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;在此使用chrome作為範例。&lt;/p&gt;
+
+&lt;p&gt;到&lt;a href=&#34;https://sites.google.com/a/chromium.org/chromedriver/getting-started&#34;&gt;官網&lt;/a&gt;下載chromedrive。並且將其加入至PATH中，或者在使用時指定其位置。&lt;/p&gt;
+
+&lt;h2 id=&#34;使用&#34;&gt;使用&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
+# 加入參數
+chrome_options = Options()
+chrome_options.add_argument(&amp;quot;--headless&amp;quot;)
+
+# 啟動
+drive = webdriver.Chrome(chrome_options=chrome_options)
+
+# 讀取網頁
+drive.get(url)
+
+# 取得source
+drive.page_source
+
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>Elasticsearch 筆記</title>
@@ -260,6 +306,15 @@ es.bulk(body=action)
 &lt;p&gt;LLVM是一個完整的編譯器基礎建設(compiler infrastructure)，與&lt;code&gt;GNU GCC&lt;/code&gt;相比，最大的差異在於大量的將compile的過程高度模組化，可以進行任意的抽換。從 source code 到 machine code，每一個階段都有相對應的module。&lt;/p&gt;
 
 &lt;p&gt;本篇文章雖然以LLVM 為標題，可是實際上多半都在整理編譯器的相關知識，畢竟LLVM大部分都是在實做這些編譯器的技術。&lt;/p&gt;
+
+&lt;h2 id=&#34;版本&#34;&gt;版本&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;OS: Ubuntu 16.04&lt;/li&gt;
+&lt;li&gt;LLVM: 7.0&lt;/li&gt;
+&lt;li&gt;Clang: 7.0&lt;/li&gt;
+&lt;li&gt;GCC: 5.4&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;h2 id=&#34;安裝&#34;&gt;安裝&lt;/h2&gt;
 
