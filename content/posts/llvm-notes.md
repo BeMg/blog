@@ -17,6 +17,13 @@ LLVM是一個完整的編譯器基礎建設(compiler infrastructure)，與`GNU G
 
 本篇文章雖然以LLVM 為標題，可是實際上多半都在整理編譯器的相關知識，畢竟LLVM大部分都是在實做這些編譯器的技術。
 
+## 版本
+
+- OS: Ubuntu 16.04
+- LLVM: 7.0
+- Clang: 7.0 
+- GCC: 5.4
+
 ## 安裝
 
 從原始碼開始從頭編譯
@@ -135,3 +142,4 @@ Clang是llvm官方的front end，主要針對C, C++和Objective-C和等語言而
 
 
 ## 參考資料
+
