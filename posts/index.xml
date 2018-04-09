@@ -103,6 +103,37 @@ yellow open   hw1   l8nmMoxjSYypWv0LZ0IWpA   5   1     530278            0      
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;ul&gt;
+&lt;li&gt;建立一個index&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt;mapping = &#39;&#39;&#39;
+{
+    &amp;quot;settings&amp;quot; : {
+        &amp;quot;number_of_shards&amp;quot; : 1
+    },
+    &amp;quot;mappings&amp;quot; : {
+        &amp;quot;news&amp;quot; : {
+            &amp;quot;properties&amp;quot; : {
+                &amp;quot;body&amp;quot; : { &amp;quot;type&amp;quot; : &amp;quot;text&amp;quot; },
+                &amp;quot;image_link&amp;quot; : {&amp;quot;type&amp;quot; : &amp;quot;text&amp;quot;},
+                &amp;quot;keyword&amp;quot; : {&amp;quot;type&amp;quot; : &amp;quot;text&amp;quot;}, 
+                &amp;quot;post_time&amp;quot; : {&amp;quot;type&amp;quot; : &amp;quot;text&amp;quot;},
+                &amp;quot;title&amp;quot; : {&amp;quot;type&amp;quot;: &amp;quot;text&amp;quot;},
+                &amp;quot;url&amp;quot; : {&amp;quot;type&amp;quot; : &amp;quot;text&amp;quot;}
+            }
+        }
+    }
+}
+&#39;&#39;&#39;
+es = Elasticsearch(timeout=30, max_retries=10, retry_on_timeout=True)
+es.indices.create(index=&#39;hw2&#39;, ignore=400, body=mapping)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;重點在於制定特定的mapping，如果都交給elastic自己管理的話，極有可能會發生錯誤。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
 &lt;li&gt;加入一筆index&lt;/li&gt;
 &lt;/ul&gt;
 
@@ -123,7 +154,7 @@ yellow open   hw1   l8nmMoxjSYypWv0LZ0IWpA   5   1     530278            0      
 &lt;pre&gt;&lt;code&gt;DELETE /index_name
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;pre&gt;&lt;code&gt;成功回傳true
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;curl -XDELETE localhost:9200/[indexname]
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;ul&gt;
@@ -134,7 +165,9 @@ yellow open   hw1   l8nmMoxjSYypWv0LZ0IWpA   5   1     530278            0      
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;blockquote&gt;
-&lt;p&gt;一次只加入一筆資料速度挺慢的，初步推測是因為頻繁進行硬碟I/O的緣故，故一次新增多筆index。有效的解決這個問題&lt;/p&gt;
+&lt;p&gt;一次只加入一筆資料速度挺慢的，初步推測是因為頻繁進行硬碟I/O的緣故，故一次新增多筆index。有效的解決這個問題。&lt;/p&gt;
+
+&lt;p&gt;請小心，bulk不會因為單一筆query錯誤而傳出錯誤訊息，建議先使用小資料進行測試。&lt;/p&gt;
 &lt;/blockquote&gt;
 
 &lt;h2 id=&#34;elasticsearch-py&#34;&gt;elasticsearch-py&lt;/h2&gt;
