@@ -134,6 +134,37 @@ yellow open   hw1   l8nmMoxjSYypWv0LZ0IWpA   5   1     530278            0      
 </code></pre>
 
 <ul>
+<li>建立一個index</li>
+</ul>
+
+<pre><code>mapping = '''
+{
+    &quot;settings&quot; : {
+        &quot;number_of_shards&quot; : 1
+    },
+    &quot;mappings&quot; : {
+        &quot;news&quot; : {
+            &quot;properties&quot; : {
+                &quot;body&quot; : { &quot;type&quot; : &quot;text&quot; },
+                &quot;image_link&quot; : {&quot;type&quot; : &quot;text&quot;},
+                &quot;keyword&quot; : {&quot;type&quot; : &quot;text&quot;}, 
+                &quot;post_time&quot; : {&quot;type&quot; : &quot;text&quot;},
+                &quot;title&quot; : {&quot;type&quot;: &quot;text&quot;},
+                &quot;url&quot; : {&quot;type&quot; : &quot;text&quot;}
+            }
+        }
+    }
+}
+'''
+es = Elasticsearch(timeout=30, max_retries=10, retry_on_timeout=True)
+es.indices.create(index='hw2', ignore=400, body=mapping)
+</code></pre>
+
+<blockquote>
+<p>重點在於制定特定的mapping，如果都交給elastic自己管理的話，極有可能會發生錯誤。</p>
+</blockquote>
+
+<ul>
 <li>加入一筆index</li>
 </ul>
 
@@ -154,7 +185,7 @@ yellow open   hw1   l8nmMoxjSYypWv0LZ0IWpA   5   1     530278            0      
 <pre><code>DELETE /index_name
 </code></pre>
 
-<pre><code>成功回傳true
+<pre><code class="language-shell">curl -XDELETE localhost:9200/[indexname]
 </code></pre>
 
 <ul>
@@ -165,7 +196,9 @@ yellow open   hw1   l8nmMoxjSYypWv0LZ0IWpA   5   1     530278            0      
 </code></pre>
 
 <blockquote>
-<p>一次只加入一筆資料速度挺慢的，初步推測是因為頻繁進行硬碟I/O的緣故，故一次新增多筆index。有效的解決這個問題</p>
+<p>一次只加入一筆資料速度挺慢的，初步推測是因為頻繁進行硬碟I/O的緣故，故一次新增多筆index。有效的解決這個問題。</p>
+
+<p>請小心，bulk不會因為單一筆query錯誤而傳出錯誤訊息，建議先使用小資料進行測試。</p>
 </blockquote>
 
 <h2 id="elasticsearch-py">elasticsearch-py</h2>

@@ -37,6 +37,34 @@ health status index uuid                   pri rep docs.count docs.deleted store
 yellow open   hw1   l8nmMoxjSYypWv0LZ0IWpA   5   1     530278            0      1.2gb          1.2gb
 ```
 
+- 建立一個index
+
+```
+mapping = '''
+{
+    "settings" : {
+        "number_of_shards" : 1
+    },
+    "mappings" : {
+        "news" : {
+            "properties" : {
+                "body" : { "type" : "text" },
+                "image_link" : {"type" : "text"},
+                "keyword" : {"type" : "text"}, 
+                "post_time" : {"type" : "text"},
+                "title" : {"type": "text"},
+                "url" : {"type" : "text"}
+            }
+        }
+    }
+}
+'''
+es = Elasticsearch(timeout=30, max_retries=10, retry_on_timeout=True)
+es.indices.create(index='hw2', ignore=400, body=mapping)
+```
+
+> 重點在於制定特定的mapping，如果都交給elastic自己管理的話，極有可能會發生錯誤。
+
 - 加入一筆index
 
 ```
@@ -55,8 +83,8 @@ curl -XPOST 'locjson't:9200/test/news' -d "{ \"title\": \"yee\", \"body\": 1234 
 DELETE /index_name
 ```
 
-```
-成功回傳true
+```shell
+curl -XDELETE localhost:9200/[indexname]
 ```
 
 - 執行多筆指令(bulk)
@@ -65,7 +93,9 @@ DELETE /index_name
 curl -XPOST 'localhost:9200/_bulk' -d {query}
 ```
 
-> 一次只加入一筆資料速度挺慢的，初步推測是因為頻繁進行硬碟I/O的緣故，故一次新增多筆index。有效的解決這個問題
+> 一次只加入一筆資料速度挺慢的，初步推測是因為頻繁進行硬碟I/O的緣故，故一次新增多筆index。有效的解決這個問題。
+>
+> 請小心，bulk不會因為單一筆query錯誤而傳出錯誤訊息，建議先使用小資料進行測試。
 
 ## elasticsearch-py
 
