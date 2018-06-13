@@ -8,7 +8,6 @@ body, li p {
 h1,h2,h3,h4,h5,h6,header,header.a {
 	text-transform: lowercase;
 	font-family: 'Alegreya Sans SC', sans-serif;
-	margin-bottom: 1.0em;
 }
 
 header,header.a{
@@ -108,7 +107,7 @@ footer {
 h1 {
 	display: block;
 	font-size: 170%;
-	line-height: 1.5;
+	line-height: 1.1;
 	margin-top: 1rem;
 	margin-bottom: 1.5rem;
 	padding-top: 0.02em;
@@ -136,14 +135,14 @@ p {
 }
 
 ul,ol {
-	margin-bottom: 0em;
+	margin-bottom: 1em;
 	padding-left: 1em;
 }
 
 li {
 	line-height: 1.75em;
 	margin-left: 0.75em;
-	list-style-type: inherit;
+	list-style-type: none;
 }
 
 
