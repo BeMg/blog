@@ -6,10 +6,54 @@
     <description>Recent content on BeMg</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 07 Apr 2018 16:22:57 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 06 Jul 2018 13:04:56 +0800</lastBuildDate>
     
         <atom:link href="https://bemg.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Cmder Notes</title>
+      <link>https://bemg.github.io/blog/posts/cmder-notes/</link>
+      <pubDate>Fri, 06 Jul 2018 13:04:56 +0800</pubDate>
+      
+      <guid>https://bemg.github.io/blog/posts/cmder-notes/</guid>
+      <description>
+
+&lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;
+
+&lt;p&gt;在 windows 系統底下，cmd(命令提示字元)是類似於 unix bash 的功能。可是 cmd 看起來實在是不太友善，無論是用法與字體，他的指令用法也是與 unix 有很大的差異。所以在於 windows 系統下，我通常會使用有 gui 的應用程式進行操作(例：git&amp;hellip;)。&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;一點差異：顯示當其目錄的檔案 ls vs dir&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;不過大概在 2016 開始，微軟讓 windwos 10 可以支援 linux 的子系統，被稱為 &lt;code&gt;bash on windows&lt;/code&gt;，裝起來就很像一個只有 bash 的虛擬機器。&lt;/p&gt;
+
+&lt;p&gt;cmder 就是在 cmd 上面在套一層看起來很漂亮的畫面。在搭配上 &lt;code&gt;bash on windows&lt;/code&gt;。期許可以用起來感覺像是真的在 linux 下指令。&lt;/p&gt;
+
+&lt;h2 id=&#34;安裝&#34;&gt;安裝&lt;/h2&gt;
+
+&lt;h3 id=&#34;bash-on-windows&#34;&gt;bash on windows&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;開啟 控制台-開啟或關閉windows功能-適用於windows的linux子系統&lt;/li&gt;
+&lt;li&gt;下載 windows store 中的 ubuntu&lt;/li&gt;
+&lt;li&gt;啟動cmd&lt;/li&gt;
+&lt;li&gt;輸入bash -&amp;gt; 初次使用要進行安裝&lt;/li&gt;
+&lt;li&gt;此後只要輸入 bash 就可以啟動&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;cmder&#34;&gt;cmder&lt;/h3&gt;
+
+&lt;p&gt;cmder 不用安裝，它就是一個資料夾，可以用dropbox還是google driver進行多台電腦同步。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;去&lt;a href=&#34;http://cmder.net/&#34;&gt;官網&lt;/a&gt;下載&lt;/li&gt;
+&lt;li&gt;啟動 /bin/cmder.exe&lt;/li&gt;
+&lt;li&gt;啟動cmder就是啟動cmd -&amp;gt; 所以要打入bash進入 &lt;code&gt;bash on windows&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Selenium notes</title>
