@@ -8,7 +8,6 @@ body, li p {
 h1,h2,h3,h4,h5,h6,header,header.a {
 	text-transform: lowercase;
 	font-family: 'Alegreya Sans SC', sans-serif;
-	margin-bottom: 10px;
 }
 
 header,header.a{
@@ -143,7 +142,7 @@ ul,ol {
 li {
 	line-height: 1.75em;
 	margin-left: 0.75em;
-	list-style-type: disc;
+	list-style-type: none;
 }
 
 
