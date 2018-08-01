@@ -1,7 +1,7 @@
 ---
 title: "Go Notes"
 date: 2018-07-31T20:38:40+08:00
-draft: true
+draft: false
 ---
 
 ## 前言
@@ -75,4 +75,54 @@ for i, v := range [something can be iterated] {
 // _ 是一個特殊的變數，代表直接拋棄，大概就跟/dev/null差不多。
 _ = 5
 
+func func_name(input1 int, input2 string) (output1 int) {
+
+// function body
+
+}
+
 ```
+
+## 使用 net/http package
+
+簡單介紹一下如何使用 golang 取得網頁。 
+
+```c
+// hendle err 真的很麻煩
+resp, err := http.Get("http://example.com/")
+if err != nil {
+	// handle error
+}
+
+// 等到不需要的時候就使用 後面那個指令
+// 有點像是destructor
+defer resp.Body.Close()
+
+// body 為 html 本文
+body, err := ioutil.ReadAll(resp.Body)
+```
+
+## 簡單 goroutine 使用
+
+```c
+
+var flag int;
+
+func do_something() {}
+
+func foo(a []int) {
+    for i, v := range a {
+        go do_something(v)
+    }
+    flag <- 0  // Use channel send the signel.
+}
+
+func main() {
+    a := []int{1, 2, 3, 4, 5}
+    foo(a)
+    <- flag // wait goroutine down.
+}
+
+```
+
+
