@@ -6,10 +6,140 @@
     <description>Recent content in Posts on BeMg</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 06 Jul 2018 13:04:56 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 31 Jul 2018 20:38:40 +0800</lastBuildDate>
     
         <atom:link href="https://bemg.github.io/blog/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Go Notes</title>
+      <link>https://bemg.github.io/blog/posts/go-notes/</link>
+      <pubDate>Tue, 31 Jul 2018 20:38:40 +0800</pubDate>
+      
+      <guid>https://bemg.github.io/blog/posts/go-notes/</guid>
+      <description>
+
+&lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;
+
+&lt;p&gt;簡單的紀錄一下 golang&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;基本語法&lt;/li&gt;
+&lt;li&gt;爬蟲相關&lt;/li&gt;
+&lt;li&gt;使用心得&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;基本語法&#34;&gt;基本語法&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;// 註解的形式與c相同，雙重單斜線為單行註解。
+/* 
+此為多行註解
+*/
+
+// 使用外部函式庫
+// 備註：沒有用到卻宣告會導致錯誤。
+import (
+    &amp;quot;fmt&amp;quot;
+	&amp;quot;io&amp;quot;
+	&amp;quot;io/ioutil&amp;quot;
+	&amp;quot;net/http&amp;quot;
+	&amp;quot;os&amp;quot;
+	&amp;quot;strconv&amp;quot;
+)
+
+// 變數宣告
+// 一樣，沒有使用卻宣告會導致錯誤。
+var a [type] = value
+a := value // 最常用
+var a = value
+
+// 據說會自行推理型態。
+
+// 陣列宣告
+var a [5]int;
+
+// 切片(slice)宣告
+var a []int = {1, 2 ,3, 4};
+a = append(a, 5);
+a[1:2] // get [2];
+
+
+// 就是 c 的 printf
+// golang 習慣函數的頭一個字母為大寫，似乎是隱藏了一些慣例，只要是首字大寫變為 public method 或者 variable。
+//                                                ^ 待確認
+fmt.Printf(&amp;quot;Hello world\n&amp;quot;)
+
+yee := 87
+fmt.Printf(&amp;quot;Yee : %d\n&amp;quot;, yee)
+
+if [condition] {
+    // condition is true then do something
+} else {
+    // condition is false then do something
+}
+
+for i:=0; i&amp;lt;10; i++ {
+    // from 0 to 9
+}
+
+// 也有方便好用的迭代
+for i, v := range [something can be iterated] {
+    // in case int array
+    // i will be index, v will be value
+}
+
+// _ 是一個特殊的變數，代表直接拋棄，大概就跟/dev/null差不多。
+_ = 5
+
+func func_name(input1 int, input2 string) (output1 int) {
+
+// function body
+
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;使用-net-http-package&#34;&gt;使用 net/http package&lt;/h2&gt;
+
+&lt;p&gt;簡單介紹一下如何使用 golang 取得網頁。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;// hendle err 真的很麻煩
+resp, err := http.Get(&amp;quot;http://example.com/&amp;quot;)
+if err != nil {
+	// handle error
+}
+
+// 等到不需要的時候就使用 後面那個指令
+// 有點像是destructor
+defer resp.Body.Close()
+
+// body 為 html 本文
+body, err := ioutil.ReadAll(resp.Body)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;簡單-goroutine-使用&#34;&gt;簡單 goroutine 使用&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;
+var flag int;
+
+func do_something() {}
+
+func foo(a []int) {
+    for i, v := range a {
+        go do_something(v)
+    }
+    flag &amp;lt;- 0  // Use channel send the signel.
+}
+
+func main() {
+    a := []int{1, 2, 3, 4, 5}
+    foo(a)
+    &amp;lt;- flag // wait goroutine down.
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>Cmder Notes</title>
