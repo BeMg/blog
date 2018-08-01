@@ -65,4 +65,10 @@ spike pk main
 
 spike 是一個 riscv 的模擬器，最主要的目標就是在沒有支援 riscv ISA 的處理器上，也可以執行以 riscv machine code 為主的程式。方便程式開發與測試。其本身就是在定義一個符合 riscv 規格的處理器。有 register 有 memory 最大程度的重現真實CPU的行為。
 
-> 當然，實作指令行為
+> 當然，結果正確無誤比起流程正確無誤重要。
+
+- 定義指令編碼與生成mask
+- 描述指令行為
+- 註冊進spike
+- 測試新的指令
+
