@@ -13,10 +13,10 @@
     
     <item>
       <title>Go Notes</title>
-      <link>https://bemg.github.io/blog/posts/go-notes/</link>
+      <link>https://bemg.github.io/blog/posts/golang-notes/</link>
       <pubDate>Tue, 31 Jul 2018 20:38:40 +0800</pubDate>
       
-      <guid>https://bemg.github.io/blog/posts/go-notes/</guid>
+      <guid>https://bemg.github.io/blog/posts/golang-notes/</guid>
       <description>
 
 &lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;
@@ -638,7 +638,7 @@ int main() {
 
 &lt;h3 id=&#34;ast&#34;&gt;AST&lt;/h3&gt;
 
-&lt;p&gt;##Optimizer&lt;/p&gt;
+&lt;h2 id=&#34;optimizer&#34;&gt;Optimizer&lt;/h2&gt;
 
 &lt;h3 id=&#34;ir&#34;&gt;IR&lt;/h3&gt;
 
@@ -649,6 +649,11 @@ int main() {
 &lt;h3 id=&#34;dag&#34;&gt;DAG&lt;/h3&gt;
 
 &lt;h2 id=&#34;參考資料&#34;&gt;參考資料&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://llvm.org/docs/GettingStarted.html&#34;&gt;Getting Started with the LLVM System&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.aosabook.org/en/llvm.html&#34;&gt;The Architecture of Open Source Applications: LLVM&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 </description>
     </item>
     

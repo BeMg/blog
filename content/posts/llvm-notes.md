@@ -125,7 +125,7 @@ Clang是llvm官方的front end，主要針對C, C++和Objective-C和等語言而
 
 ### AST
 
-##Optimizer
+## Optimizer
 
 ### IR
 
@@ -136,10 +136,7 @@ Clang是llvm官方的front end，主要針對C, C++和Objective-C和等語言而
 ### DAG
 
 
-
-
-
-
-
 ## 參考資料
 
+- [Getting Started with the LLVM System](https://llvm.org/docs/GettingStarted.html)
+- [The Architecture of Open Source Applications: LLVM](http://www.aosabook.org/en/llvm.html)
