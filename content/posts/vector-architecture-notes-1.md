@@ -1,5 +1,5 @@
 ---
-title: "Vector Architecture Notes"
+title: "Vector Architecture Notes - (1) VMIPS"
 date: 2018-08-05T12:07:48+08:00
 draft: true
 ---
@@ -8,7 +8,7 @@ draft: true
 
 對於 Vector Architecture 做一下筆記。對於各種不同的 ISA 的 vector extension 進行比較。
 
-- computer architecture a quantitative approach 課本筆記 -> 實際上就是 VMIPS
+- **computer architecture a quantitative approach 課本筆記 -> 實際上就是 VMIPS**
 - riscv vector extension tutorial
 - arm ISA vector extension
 
@@ -18,7 +18,9 @@ VMIPS 是課本作者針對於 MIPS，增加 vector instruction 的擴增板。�
 
 - 硬體架構
 - 指令集分類
-- 對於效能所進行的改進
+- 範例
+- 術語
+- 改進
 
 ### 硬體架構
 
@@ -105,5 +107,21 @@ Y[i] = a*X[i] + Y[i]
 - chime
     - 一個 convey 執行的時間
 
+### 改進
 
+主要就是在提昇效能
 
+- 同一個 clock cycle 執行多個 element
+- 程式的 array 長度並非 64 的倍數
+    - array 的長度有可能會到 run time 才能確定
+    - 需要 VLR 的原因
+- 讓有 IF 的程式也可以向量化
+    - 需要 MASK 的原因
+- 加速資料讀寫
+- 多維陣列支援
+- 稀疏陣列支援 
+
+## 參考資料
+
+- computer architecture a quantitative approach Chp4
+- computer architecture a quantitative approach Appendix G
