@@ -152,9 +152,16 @@ draft: true
 
 ### Vector Data Register 
 
+![](https://i.imgur.com/DkDGEve.png)
+
 - v0-31
 - MAXVL 由實作決定
 - 資料的型態 -> 就指令來看，整數跟浮點數用同一組Register (待研究)
+- 有三種存放資料的方式
+  - 調用 register 時，根據其後綴決定特性。
+  - vector：像是陣列的存放法
+  - scalar：將單一資料將 vector length 放滿 
+  - martix：No Spec，還在規劃中
 
 ### CSR 
 
@@ -181,7 +188,68 @@ draft: true
 
 > vdisable 寄生在 vconfig 上面，等效於 `vconfig 0`
 
+## Example: add two vector
 
+## Mask execution
+
+為了處理在迴圈之中有 IF Statement。也就是在整個 vector 中，有一些 element 是不應該被執行的。
+
+- Mask 存放在一般的 vector data register
+- 就當作 Boolean type 讀取，讀取 LSB (最低的那個bit)做為 Boolean 的值，其他的值就直接忽略。
+- Mask 由 compare operation 產生。
+- 雖然沒有寫得很清楚，可是 `V1` 似乎被預設為存放 mask 的 register。
+
+以 `vfadd.s v5, v3, v4, v0.t`為例
+
+![](https://i.imgur.com/vjt331M.png)
+
+![](https://i.imgur.com/tuN2BsB.png)
+
+> 到底是 v0 還是 v1 ???
+
+- 細節
+  - ![](https://i.imgur.com/5PbWx41.png)
+  - [1] mask 都是基於 v1
+  - assembly 上我猜是為了可讀性。
+  - 真正決定行為的是指令的 encoding insn[26:25] -> m
+  - 後綴規則
+    - `.s` -> 做為 scalar 表示
+    - `.f` -> mask 為 0 時作為 true 看待
+    - `.t` -> mask 為 1 時作為 true 看待 
+
+> 所以每個指令都有四種不一樣的 type ??? 我看 spike 是要扛不住了
+
+## Memory load/store
+
+- Normal
+
+  - ![](https://i.imgur.com/eDW5M2M.png)
+  - ![](https://i.imgur.com/6QKalNr.png)
+
+- Stride
+
+  - 以 `vlsw v5,80(x3,x9)` 為例
+  - x3[80] 為 address 起點
+  - x9為每次取用移動的距離，單位應當為 byte
+  - stride 0 是為合法的(就每一次都在同一個位置)
+  - 不對齊(unaligned)存取也是合法的
+  - ![](https://i.imgur.com/tGCVoY8.png)
+  - ![](https://i.imgur.com/uL3DHxO.png)
+  - ![](https://i.imgur.com/CGAmsPL.png)
+
+- Gather (indexed vector)
+
+  - 以 `vflxw v5, 80(x3,v2) ` 為例
+
+  - 根據 vector 中的值作為 index
+
+  - ![](https://i.imgur.com/Nqbckt3.png)
+
+  - ![](https://i.imgur.com/8M3LjrQ.png)
+
+  - ![](https://i.imgur.com/YmPXDm6.png)
+
+    
 
 ## 參考資料
 
