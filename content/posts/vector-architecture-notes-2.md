@@ -188,7 +188,27 @@ draft: true
 
 > vdisable 寄生在 vconfig 上面，等效於 `vconfig 0`
 
+## 關於 MAXVL
+
+首先要了解，硬體的空間是固定的，可以先假設為供給 vector extension 進行運用的空間有 n byte。而 MAXVL的值是從 `vconfig`設定完之後才能進一步確定的。
+
+能夠影響參數有：
+
+- vregmax -> 設為x
+  - 決定 register 的數量 
+- vemaxw  -> 設為y
+  - 確定 element 的長度
+
+則 MAXVL 的值就會是 
+$$
+MAXVL = \frac{n}{x*y}
+$$
+
+> 待確認正確性
+
 ## Example: add two vector
+
+
 
 ## Mask execution
 
@@ -198,6 +218,7 @@ draft: true
 - 就當作 Boolean type 讀取，讀取 LSB (最低的那個bit)做為 Boolean 的值，其他的值就直接忽略。
 - Mask 由 compare operation 產生。
 - 雖然沒有寫得很清楚，可是 `V1` 似乎被預設為存放 mask 的 register。
+- 絕大多數的指令都可以接受 Mask execution
 
 以 `vfadd.s v5, v3, v4, v0.t`為例
 
@@ -220,6 +241,8 @@ draft: true
 > 所以每個指令都有四種不一樣的 type ??? 我看 spike 是要扛不住了
 
 ## Memory load/store
+
+> 當 RISC-V 在進行 load 時，讀取的長度由指令決定 (word, half word, byte...)，如果 register  element 的大小與指令讀取的大小不相符時，會導致 exception。存放亦然。
 
 - Normal
 
