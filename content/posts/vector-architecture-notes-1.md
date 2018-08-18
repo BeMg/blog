@@ -1,7 +1,7 @@
 ---
 title: "Vector Architecture Notes 1 - VMIPS"
 date: 2018-08-05T12:07:48+08:00
-draft: true
+draft: false
 ---
 
 ## 前言

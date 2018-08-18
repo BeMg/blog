@@ -6,10 +6,317 @@
     <description>Recent content in Posts on BeMg</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 01 Aug 2018 10:32:07 +0800</lastBuildDate>
+    <lastBuildDate>Sun, 05 Aug 2018 12:07:48 +0800</lastBuildDate>
     
         <atom:link href="https://bemg.github.io/blog/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Vector Architecture Notes 1 - VMIPS</title>
+      <link>https://bemg.github.io/blog/posts/vector-architecture-notes-1/</link>
+      <pubDate>Sun, 05 Aug 2018 12:07:48 +0800</pubDate>
+      
+      <guid>https://bemg.github.io/blog/posts/vector-architecture-notes-1/</guid>
+      <description>
+
+&lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;
+
+&lt;p&gt;對於 Vector Architecture 做一下筆記。對於各種不同的 ISA 的 vector extension 進行比較。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;computer architecture a quantitative approach 課本筆記 -&amp;gt; 實際上就是 VMIPS&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;riscv vector extension tutorial&lt;/li&gt;
+&lt;li&gt;arm ISA vector extension&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;vmips&#34;&gt;VMIPS&lt;/h2&gt;
+
+&lt;p&gt;VMIPS 是課本作者針對於 MIPS，增加 vector instruction 的擴增板。描述了大致上的硬體架構與各種針對於效能議題上的探討。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;硬體架構&lt;/li&gt;
+&lt;li&gt;指令集分類&lt;/li&gt;
+&lt;li&gt;範例&lt;/li&gt;
+&lt;li&gt;術語&lt;/li&gt;
+&lt;li&gt;改進&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;硬體架構&#34;&gt;硬體架構&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/MqS7Hjz.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Vector register
+
+&lt;ul&gt;
+&lt;li&gt;預設有 8 個 vector register&lt;/li&gt;
+&lt;li&gt;每個 register 有 64 個 element，每個 element 寬度為 64 bits&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Vector functional units
+
+&lt;ul&gt;
+&lt;li&gt;專門對 vector register 進行加法、減法、乘法、除法、邏輯運算的元件。&lt;/li&gt;
+&lt;li&gt;可以被 pipelined。
+
+&lt;ul&gt;
+&lt;li&gt;這一點後面的章節會提到。就是可以先執行在 vector register 中的第一個 element，而不用等到全部的 element 都讀入 register 才開始執行。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Vector load/store units
+
+&lt;ul&gt;
+&lt;li&gt;在 register 與 memory 之間讀入/寫入資料。&lt;/li&gt;
+&lt;li&gt;一樣是可以被 pipelined。&lt;/li&gt;
+&lt;li&gt;也支援 scalar 的 load/store&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;scalar register
+
+&lt;ul&gt;
+&lt;li&gt;就是 MIPS 中原本的那些 register。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;在此還有兩個特殊的 register 留待後續討論。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;VLR (vector length regist)
+
+&lt;ul&gt;
+&lt;li&gt;處理 vector 長度變化問題。&lt;/li&gt;
+&lt;li&gt;strip mining&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;VM (vector mask)
+
+&lt;ul&gt;
+&lt;li&gt;處理 IF statement -&amp;gt; 有一些 element 可以不用被執行到。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;指令集分類&#34;&gt;指令集分類&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/iJma1jU.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;數值運算
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;op rd, rs1, rs2 // rd[i] = rs1[i] op rs2[i] for all i&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;ADD__.D&lt;/li&gt;
+&lt;li&gt;SUB__.D&lt;/li&gt;
+&lt;li&gt;MUL__.D&lt;/li&gt;
+&lt;li&gt;DIV__.D&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;load/store
+
+&lt;ul&gt;
+&lt;li&gt;普通的從出發點取 VLR 長度的資料 &lt;code&gt;op v1, r1&lt;/code&gt;
+
+&lt;ul&gt;
+&lt;li&gt;LV&lt;/li&gt;
+&lt;li&gt;SV&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;跳著取，為了滿足多維矩陣的存取 (column-base or row-base)
+
+&lt;ul&gt;
+&lt;li&gt;LVWS&lt;/li&gt;
+&lt;li&gt;SVWS&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;對於一個 vector register 中存放特定的 index，並且根據這個 index 去取得特定 memory 位置的值。(為了滿足稀疏矩陣)
+
+&lt;ul&gt;
+&lt;li&gt;LVI&lt;/li&gt;
+&lt;li&gt;SVI&lt;/li&gt;
+&lt;li&gt;CVI&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;設定指令長度
+
+&lt;ul&gt;
+&lt;li&gt;MTCL&lt;/li&gt;
+&lt;li&gt;MFCL&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;設定mask
+
+&lt;ul&gt;
+&lt;li&gt;生成 mask，結果會存在 VM 這個 register 裡面
+
+&lt;ul&gt;
+&lt;li&gt;S&amp;ndash;VV.D -&amp;gt; vector 對 vector&lt;/li&gt;
+&lt;li&gt;S&amp;ndash;VS.D -&amp;gt; vector 對 scalar&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;存放 VM
+
+&lt;ul&gt;
+&lt;li&gt;MVTM&lt;/li&gt;
+&lt;li&gt;MVFM&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;範例&#34;&gt;範例&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;Y[i] = a*X[i] + Y[i] 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;假設陣列 X 與 Y 的起點在 Rx 與 Ry&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;普通的指令
+
+&lt;ul&gt;
+&lt;li&gt;&lt;img src=&#34;https://i.imgur.com/VbbIKuI.png&#34; alt=&#34;&#34; /&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;有 vector instruction 指令
+
+&lt;ul&gt;
+&lt;li&gt;&lt;img src=&#34;https://i.imgur.com/3zl5m5z.png&#34; alt=&#34;&#34; /&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;術語&#34;&gt;術語&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;chained
+
+&lt;ul&gt;
+&lt;li&gt;就是上面提到的可以被 pipeline&lt;/li&gt;
+&lt;li&gt;不用等到整個vector執行完成才能執行下一步&lt;/li&gt;
+&lt;li&gt;可以一個接一個 element 進行&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;convey
+
+&lt;ul&gt;
+&lt;li&gt;特定的 code 區塊，用意在於計算程式執行效率&lt;/li&gt;
+&lt;li&gt;根據 structual hazard 或者 data hazard 進行分隔
+
+&lt;ul&gt;
+&lt;li&gt;碰到這兩個就不能 pipeline 了&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;因為可以pipeline，執行時間大致可以視為 vector 長度&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;chime
+
+&lt;ul&gt;
+&lt;li&gt;一個 convey 執行的時間&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;改進&#34;&gt;改進&lt;/h3&gt;
+
+&lt;p&gt;主要就是在提昇效能&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;同一個 clock cycle 執行多個 element -&amp;gt; Multiple Lane&lt;/li&gt;
+&lt;li&gt;程式的 array 長度並非 64 的倍數 -&amp;gt; Vector-Length Register
+
+&lt;ul&gt;
+&lt;li&gt;array 的長度有可能會到 run time 才能確定&lt;/li&gt;
+&lt;li&gt;需要 VLR 的原因&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;讓有 IF 的程式也可以向量化 -&amp;gt; Vector Mask Register
+
+&lt;ul&gt;
+&lt;li&gt;需要 MASK 的原因&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;加速資料讀寫 -&amp;gt; Memory Bank&lt;/li&gt;
+&lt;li&gt;多維陣列支援 -&amp;gt; Stride&lt;/li&gt;
+&lt;li&gt;稀疏陣列支援 -&amp;gt; Gather-Scatter&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&#34;multiple-lane&#34;&gt;Multiple Lane&lt;/h4&gt;
+
+&lt;p&gt;在一個 clock cycle 執行多個操作，以增進效能。實際上解決方法是相當簡單粗暴的。大致上有兩種方法&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;多個 function unit
+
+&lt;ul&gt;
+&lt;li&gt;&lt;img src=&#34;https://i.imgur.com/Jn9Pgt8.png&#34; alt=&#34;&#34; /&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;多個 lane
+
+&lt;ul&gt;
+&lt;li&gt;&lt;img src=&#34;https://i.imgur.com/kaJDKdV.png&#34; alt=&#34;&#34; /&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;似乎可以兩種一起使用，待研究&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h4 id=&#34;vector-length-register&#34;&gt;Vector-Length Register&lt;/h4&gt;
+
+&lt;p&gt;實際上在寫程式的時候，很難會有需要向量化的區域數量剛好與 register 的最大長度相符合(剛好成倍數)。而且這個長度有可能會到執行階段才能決定。下面這個程式就是一個例子 &lt;code&gt;n&lt;/code&gt; 到執行階段才能確定他的值為何。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;for(int i=0; i&amp;lt;n; i++) {
+    // Do something
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;所以對於 vector 來說，需要一個可以動態調整 vector length 的指令以符合這個需求。在這裡便引入了一個特殊的 register，叫做 VLR (Vector length register)，並且維護另外一個值為 MVL (max vector length)。&lt;/p&gt;
+
+&lt;p&gt;如此一來在面對，與 vector 長度不成倍數的問題時，就可以根據 VLR 的設定進行處理。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/mchlpsb.png&#34; alt=&#34;&#34; /&gt;
+&lt;img src=&#34;https://i.imgur.com/uSgjsve.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&#34;vector-mask-register&#34;&gt;Vector Mask Register&lt;/h4&gt;
+
+&lt;p&gt;在需要向量化的區域中，有時候會包含 IF Statement，也就是說會根據 IF 內容的不同，在一長串的 vector 中，有一些 element 是不會被執行到的。如果要一一按照需求執行，就沒有辦法好好的運用向量化所帶來的優勢。&lt;/p&gt;
+
+&lt;p&gt;但是只要將這個 IF 一次執行完畢，將結果暫存起來，在執行時按照此結果運作即可。在這裡 Vector Mask Register 就是那個存結果的地方。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;for (i=0; i &amp;lt; 64; i++) {
+    if ( X[i] != 0 ) {
+        X[i] = X[i] - Y[i]
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/LmGfTpB.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&#34;memory-bank&#34;&gt;Memory Bank&lt;/h4&gt;
+
+&lt;p&gt;用多個 Memory Bank 衝高 vector Load/Store Unit 的 Bandwidth。&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;待補&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h4 id=&#34;stride&#34;&gt;Stride&lt;/h4&gt;
+
+&lt;p&gt;在多維陣列中，許多時候使用的值並非都是在 memory 的下一格。而是遙遠的某一格。詳看下面範例&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;for (int i=0; i&amp;lt;10; i++) {
+    Z[i] = X[0][i] + Y[i][0];
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;是 X 還是 Y 要去遙遠的地方尋找值是基於你的 memory layout 是 row-base 還是 column-base&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;專門為這個問題設定一個指令，使得程式可以跳著讀取/儲存。&lt;/p&gt;
+
+&lt;h4 id=&#34;gather-scatter&#34;&gt;Gather-Scatter&lt;/h4&gt;
+
+&lt;p&gt;遇到稀疏陣列時的解決方案。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;for (i=0; i&amp;lt;n; i++) {
+    A[K[i]] = A[K[i]] + C[M[i]]
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/UJs4udH.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;參考資料&#34;&gt;參考資料&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Computer Architecture A Quantitative Approach Chp4&lt;/li&gt;
+&lt;li&gt;Computer Architecture A Quantitative Approach Appendix G&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Introduction to Spike</title>
