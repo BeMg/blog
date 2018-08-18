@@ -159,16 +159,27 @@ draft: true
 ### CSR 
 
 - vcfg (WARL->Wrtie Any Values, Reads Legal Values)
-  - 使用指令 `vconfig` 進行設定，
   - vregmax (8 bits)：控制 Vector data register 的數量 (disable 與否)
     - 舉例來說，如果其值為0，則 vector unit disable
     - 其值為2，則 v0, v1 啟用
     - 所以實際上 Vector Data Register 保留了可以擴充到 256 個空間
   - vemaxw (3 bits)：設定單一個 element 有多寬
-    - ![](C:\Users\gccbg\AppData\Local\Temp\1534496075861.png)
+    - ![](https://i.imgur.com/AkauTw2.png)
   - vtypeen (1 bit)：啟動 type extension (功能待補)
+- vxcfg
   - vxcm (1 bit)：fixed point clip mode 
+    - ![](https://i.imgur.com/LIWuEIx.png)
   - vxrm (2 bits)：fixed point rounding mode
+    - ![](https://i.imgur.com/F1HIfM3.png)
+- vl
+  - 設定目前有效的 vector length
+  - 可以使用 `vsetvl` 進行設定
+
+所有的 CSR，都可以藉由 `vconfig` 進行同一設定。
+
+用法：`vconfig imm`
+
+> vdisable 寄生在 vconfig 上面，等效於 `vconfig 0`
 
 
 
