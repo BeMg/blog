@@ -152,7 +152,7 @@ draft: true
 
 ### Vector Data Register 
 
-![](https://i.imgur.com/DkDGEve.png)
+​	
 
 - v0-31
 - MAXVL 由實作決定
