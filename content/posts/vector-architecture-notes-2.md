@@ -275,11 +275,14 @@ $$
   - ![](https://i.imgur.com/YmPXDm6.png)
 
 
-## Fixed-point instruction
+## Fixed-point instruction (待補)
 
-待補，看不懂。出現在 [1] 第五點。看不懂說明，沒有範例，網路上找不到相似的資料。其他份資料都有提到這個類別的 CSR register。但是沒事沒有詳細的說明。
+好像是當 float -> int 時，要進行怎麼樣的處理。
 
-列出來的指令跟正常的有九成像。
+- 直接捨去
+- 四捨五入
+
+沒有實際範例、沒有詳細說明。
 
 ## 參考資料
 
