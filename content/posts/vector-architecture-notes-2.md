@@ -208,7 +208,9 @@ $$
 
 ## Example: add two vector
 
+![](https://i.imgur.com/zfqzafa.png)
 
+![](https://i.imgur.com/9Y2kUY5.png)
 
 ## Mask execution
 
@@ -272,7 +274,12 @@ $$
 
   - ![](https://i.imgur.com/YmPXDm6.png)
 
-    
+
+## Fixed-point instruction
+
+待補，看不懂。出現在 [1] 第五點。看不懂說明，沒有範例，網路上找不到相似的資料。其他份資料都有提到這個類別的 CSR register。但是沒事沒有詳細的說明。
+
+列出來的指令跟正常的有九成像。
 
 ## 參考資料
 
