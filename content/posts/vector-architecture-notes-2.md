@@ -1,7 +1,7 @@
 ---
 title: "Vector Architecture Notes 2 - RISC-V Vector extension"
 date: 2018-08-05T22:49:37+08:00
-draft: true
+draft: false
 ---
 
 ## 前言
@@ -152,7 +152,7 @@ draft: true
 
 ### Vector Data Register 
 
-​	
+	
 
 - v0-31
 - MAXVL 由實作決定

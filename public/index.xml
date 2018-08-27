@@ -105,6 +105,903 @@
     </item>
     
     <item>
+      <title>Vector Architecture Notes SIMDandGPU</title>
+      <link>https://bemg.github.io/blog/posts/vector-architecture-notes-simdandgpu/</link>
+      <pubDate>Sat, 18 Aug 2018 20:55:53 +0800</pubDate>
+      
+      <guid>https://bemg.github.io/blog/posts/vector-architecture-notes-simdandgpu/</guid>
+      <description>
+
+&lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;
+
+&lt;p&gt;對於現行的 SIMD(Single instruction multiply data) 架構進行比較，主要有以下：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Vector instructions&lt;/li&gt;
+&lt;li&gt;SIMD instructions&lt;/li&gt;
+&lt;li&gt;GPU&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;主要的內容取至 computer architecture a quantitative approach chp4.1-4&lt;/p&gt;
+
+&lt;h2 id=&#34;vector-instructions&#34;&gt;Vector instructions&lt;/h2&gt;
+
+&lt;p&gt;請看&lt;a href=&#34;https://bemg.github.io/blog/posts/vector-architecture-notes-1/&#34;&gt;這篇&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;simd-instructions-for-multimedia&#34;&gt;SIMD instructions for multimedia&lt;/h2&gt;
+
+&lt;p&gt;此處的 SIMD instruction 主要是為了 Multimedia 所設計。跟現實中所謂的 SIMD 的定義有一些微妙的差異。如果直接講結論的話，應當可以是這一類 SIMD 為 vector instruction 的 subset。是為了硬體的複雜度與效能上做出的取捨。&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;大多數的 graphics system 會分別使用 8-bits 去表達三原色，在使用一個額外的 8-bits 表達透明度。剛好用完一個 32-bits。&lt;/p&gt;
+
+&lt;p&gt;audio sample (聲音取樣) 通常被表達為 8-bits 或者 16-bits&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;知名的 SIMD for multimedia&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;MMX&lt;/li&gt;
+&lt;li&gt;SSE&lt;/li&gt;
+&lt;li&gt;AVX&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;上述皆是 x86 下的產物，似乎可以額外做一篇筆記了。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&#34;指令&#34;&gt;指令&lt;/h3&gt;
+
+&lt;p&gt;指令的部份一次都支援 256-bits 同時的運算。稍微進行一些換算可以得出。&lt;/p&gt;
+
+&lt;p&gt;可以一次執行&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;32 個 8-bits&lt;/li&gt;
+&lt;li&gt;16 個 16-bits&lt;/li&gt;
+&lt;li&gt;8 個 32-bits&lt;/li&gt;
+&lt;li&gt;4 個 64-bits&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;相較於 vector extension 動不動就是上百個來說確實小多了。&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Instruction category&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Unisgned add/subtract&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Maximum/minimum&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Average&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Shift right/left&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Floating point&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Floating point 沒有一個 element 是 8-bits。所以這部份從 16-bits 開始。細節的部份就之後在探討。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&#34;與vector-的差異&#34;&gt;與Vector 的差異&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Register 數量更少&lt;/li&gt;
+&lt;li&gt;指令運作的長度固定
+
+&lt;ul&gt;
+&lt;li&gt;所以要在多少 width 的資料上進行操作是取決於指令&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;沒有 stride, gather-scatter 等 load/store method&lt;/li&gt;
+&lt;li&gt;沒有 mask&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;絕大多數在 VMIPS 中可以看到用以增進效能的奇招都被移除了。這些功能的減少，會導致編譯器更難以產生出 SIMD code (這裡的SIMD應當是指標題的SIMD)。接下來就是要解釋這樣做的理由。&lt;/p&gt;
+
+&lt;h3 id=&#34;why-simd-instruction&#34;&gt;Why SIMD instruction&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;更簡單的實作&lt;/li&gt;
+&lt;li&gt;比較便宜&lt;/li&gt;
+&lt;li&gt;更少額外的狀態(little extar state)
+
+&lt;ul&gt;
+&lt;li&gt;我猜是指 CSR&lt;/li&gt;
+&lt;li&gt;畢竟長度都被固定了，沒有什麼好記狀態的了&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Vector 需要大量的 memory bandwidth 支撐&lt;/li&gt;
+&lt;li&gt;不會遭遇到 memory access 會產生的 page fault
+
+&lt;ul&gt;
+&lt;li&gt;我想應該就是 cache miss&lt;/li&gt;
+&lt;li&gt;一次 data 的讀寫不會超過一個 page size (憑記憶的 cache 知識，待查證)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;定長的特性，可以更好的制定 media standard (課本片面之詞)&lt;br /&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;example&#34;&gt;Example&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/dQqf7o8.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;基本上就是在進行 &lt;code&gt;Y[i] = a*X[i] + Y[i]&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;.4D&lt;/code&gt; 這一個後綴是只一次對 4 個 element 進行&lt;/li&gt;
+&lt;li&gt;這個舉例是用 MIPS 作為指令的基礎，所以並非實際上的指令集用法&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;gpu&#34;&gt;GPU&lt;/h2&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Vector Architecture Notes 2 - RISC-V Vector extension</title>
+      <link>https://bemg.github.io/blog/posts/vector-architecture-notes-2/</link>
+      <pubDate>Sun, 05 Aug 2018 22:49:37 +0800</pubDate>
+      
+      <guid>https://bemg.github.io/blog/posts/vector-architecture-notes-2/</guid>
+      <description>
+
+&lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;
+
+&lt;p&gt;對於 Vector Architecture 做一下筆記。對於各種不同的 ISA 的 vector extension 進行比較。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;computer architecture a quantitative approach 課本筆記 -&amp;gt; 實際上就是 VMIPS&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;riscv vector extension tutorial&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;arm ISA vector extension&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;risc-v-vector-extension&#34;&gt;RISC-V vector extension&lt;/h2&gt;
+
+&lt;p&gt;規格還在制定中，只有一些 draft 等級的東西在，姑且暫時用這些資料作為參考。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;硬體架構&lt;/li&gt;
+&lt;li&gt;指令集分類&lt;/li&gt;
+&lt;li&gt;範例&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;也就是說很有可能之後通通改掉，直接白研究了 QQ&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&#34;complement-vector-extension-instruction&#34;&gt;Complement vector extension instruction&lt;/h2&gt;
+
+&lt;p&gt;根據[2]，我們可以列出所有的指令如下：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;operation
+
+&lt;ul&gt;
+&lt;li&gt;用途&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;body
+
+&lt;ul&gt;
+&lt;li&gt;指令的代號&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;encoding
+
+&lt;ul&gt;
+&lt;li&gt;是否已經被編碼&lt;/li&gt;
+&lt;li&gt;是某編碼是根據&lt;a href=&#34;https://i.imgur.com/mvJoaeb.png&#34;&gt;這份資料&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;instruction detail
+
+&lt;ul&gt;
+&lt;li&gt;各種派生指令&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;vector-memory-instructions&#34;&gt;Vector Memory Instructions&lt;/h3&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Operation&lt;/th&gt;
+&lt;th&gt;Body&lt;/th&gt;
+&lt;th&gt;Encoding&lt;/th&gt;
+&lt;th&gt;Instructions Detail&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;vector load&lt;/td&gt;
+&lt;td&gt;vl&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;vlb, vlbu, vlh, vlhu, vlw, vlwu, vld, vflh, vflw, vfld&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;vector load, strided&lt;/td&gt;
+&lt;td&gt;vls&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;vlsb, vlsbu, vlsh, vlshu, vlsw, vlswu, vlsd, vflsh, vflsw, vflsd&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;vector load, indexed (gather)&lt;/td&gt;
+&lt;td&gt;vlx&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;vlxb, vlxbu, vlxh, vlxhu, vlxw, vlxwu, vlxd, vflxh, vflxw, vflxd&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;vector store&lt;/td&gt;
+&lt;td&gt;vs&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;vsb, vsh, vsw, vsd&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;vector store, strided&lt;/td&gt;
+&lt;td&gt;vss&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;vssb, vssh, vssw, vssd&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;vector store, indexed (scatter)&lt;/td&gt;
+&lt;td&gt;vsx&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;vsxb, vsxh, vsxw, vsxd&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;vector store, indexed, unorder&lt;/td&gt;
+&lt;td&gt;vsxu&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;vsxub, vsxuh, vsxuw, vsxud&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h3 id=&#34;vector-integer-instructions&#34;&gt;Vector Integer Instructions&lt;/h3&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Operation&lt;/th&gt;
+&lt;th&gt;Body&lt;/th&gt;
+&lt;th&gt;Encoding&lt;/th&gt;
+&lt;th&gt;Instructions&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;add&lt;/td&gt;
+&lt;td&gt;vadd&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;vadd, vaddi, vaddw, vaddiw&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;subtract&lt;/td&gt;
+&lt;td&gt;vsub&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;vsub, vsubw&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;multiply&lt;/td&gt;
+&lt;td&gt;vmul&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;vmul, vmulh, vmulhsu, vmulhu&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;widening multiply&lt;/td&gt;
+&lt;td&gt;???&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;vmulwdn&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;divide&lt;/td&gt;
+&lt;td&gt;vdiv&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;vdiv, vdivu, vrem, vremu&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;shift&lt;/td&gt;
+&lt;td&gt;vs&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;vsll, vslli, vsra, vsrai, vsrl, vsrli&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;logical&lt;/td&gt;
+&lt;td&gt;???&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;vand, vandi, vor, vori, vxor, vxori&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;compare&lt;/td&gt;
+&lt;td&gt;???&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;vseq, vslt, vsltu&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;fixed point&lt;/td&gt;
+&lt;td&gt;vcli&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;vclipb, vclipbu, vcliph, vcliphu, vclipw, vclipwu&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h3 id=&#34;vector-floating-point-instructions&#34;&gt;Vector Floating Point Instructions&lt;/h3&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Operation&lt;/th&gt;
+&lt;th&gt;Body&lt;/th&gt;
+&lt;th&gt;Encoding&lt;/th&gt;
+&lt;th&gt;Instructions&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;add&lt;/td&gt;
+&lt;td&gt;vfadd&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;vfadd.h, vfadd.s, vfadd.d&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;substract&lt;/td&gt;
+&lt;td&gt;vfsub&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;vfsub.h, vfsub.s, vfsub.d&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;multiply&lt;/td&gt;
+&lt;td&gt;vfmul&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;vfmul.h, vfmul.s, vfmul.d&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;divide&lt;/td&gt;
+&lt;td&gt;vfdiv&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;vfdiv.h, vfdiv.s, vfdiv.d&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;sign&lt;/td&gt;
+&lt;td&gt;vfsgn&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;vfsgn{j,jn,jx}.h, vfsgn{j,jn,jx}.s, vfsgn{j,jn,jx}.d&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;max&lt;/td&gt;
+&lt;td&gt;vfmax&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;vfmax.h, vfmax.s, vfmax.d&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;min&lt;/td&gt;
+&lt;td&gt;vfmin&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;vfmin.h, vfmin.s, vfmin.d&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;compare&lt;/td&gt;
+&lt;td&gt;???&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;vfeq.h, vfeq.s, vfeq.d, vltq.h, vflt.s, vflt.d, vfle.h, vfle.s, vfle.d&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;sqrt&lt;/td&gt;
+&lt;td&gt;vfsqrt&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;vfsqrt.h, vfsqrt.s, vfsqrt.d&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;class&lt;/td&gt;
+&lt;td&gt;vfclass&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;vfclass.h, vflcass.s, vfclass.d&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h3 id=&#34;vector-floating-point-multiply-add&#34;&gt;Vector  Floating Point Multiply Add&lt;/h3&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;operation&lt;/th&gt;
+&lt;th&gt;instructions&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;add&lt;/td&gt;
+&lt;td&gt;vfmadd.h, vfmadd.s, vfmadd.d&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;sub&lt;/td&gt;
+&lt;td&gt;vfmsub.h, vfmsub.s, vfmsub.d&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;widening add&lt;/td&gt;
+&lt;td&gt;vfmaddwdn.h, vfmaddwdn.s, vfmaddwdn.d&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;widening sub&lt;/td&gt;
+&lt;td&gt;vfmsubwdn.h, vfmsubwdn.s, vfmsubwdn.d&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h3 id=&#34;vector-convert&#34;&gt;Vector Convert&lt;/h3&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;From Integer to Float&lt;/th&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;To Half&lt;/td&gt;
+&lt;td&gt;vfcvt.h.i, vfcvt.h.u&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;To Single&lt;/td&gt;
+&lt;td&gt;vfcvt.s.i, vfcvt.s.u&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;To Double&lt;/td&gt;
+&lt;td&gt;vfcvt.d.i, vfcvt.d.u&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;From Float to Vemaxw Integer&lt;/th&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;To Signed&lt;/td&gt;
+&lt;td&gt;vfcvt.i.h, vfcvt.i.s, vfcvt.i.d&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;To Unsigned&lt;/td&gt;
+&lt;td&gt;vfcvt.u.h, vfcvt.u.s, vfcvt.u.d&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;From Float to Float&lt;/th&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;To Half&lt;/td&gt;
+&lt;td&gt;vfcvt.h.s, vfcvt.h.d&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;To Single&lt;/td&gt;
+&lt;td&gt;vfcvt.s.h, vfcvt.s.d&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;To Double&lt;/td&gt;
+&lt;td&gt;vfcvt.d.h, vfcvt.d.s&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;From Vemaxw Int to Narrow Int&lt;/th&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;To Byte&lt;/td&gt;
+&lt;td&gt;vcvt.{b,bu}.i&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;To Half&lt;/td&gt;
+&lt;td&gt;vcvt.{h,hu}.i&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;To Word&lt;/td&gt;
+&lt;td&gt;vcvt.{w,wu}.i&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h3 id=&#34;vector-data-movement&#34;&gt;Vector Data Movement&lt;/h3&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Operation&lt;/th&gt;
+&lt;th&gt;Instruction&lt;/th&gt;
+&lt;th&gt;action&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;insert gpr into vector&lt;/td&gt;
+&lt;td&gt;vins vd, rs1, rs2&lt;/td&gt;
+&lt;td&gt;vd[rs2] = rs1&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;insert fp into vector&lt;/td&gt;
+&lt;td&gt;vins vd, fs1, rs2&lt;/td&gt;
+&lt;td&gt;vd[rs2] = fs1&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;extract velem to gpr&lt;/td&gt;
+&lt;td&gt;vext rd, rs1, rs2&lt;/td&gt;
+&lt;td&gt;rd = vs1[rs2]&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;extract velem to fp&lt;/td&gt;
+&lt;td&gt;vext fd, vs1, rs2&lt;/td&gt;
+&lt;td&gt;fd = vs1[rs2]&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;vector-vector merge&lt;/td&gt;
+&lt;td&gt;vmerge vd, vs1, vs2, vm&lt;/td&gt;
+&lt;td&gt;mask picks src&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;vector-gpr merge&lt;/td&gt;
+&lt;td&gt;vmergex vd, rs1, vs2, vm&lt;/td&gt;
+&lt;td&gt;mask picks src&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;vector-fp merge&lt;/td&gt;
+&lt;td&gt;vmergef vd, fs1, vs2, vm&lt;/td&gt;
+&lt;td&gt;mask picks src&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;vector register gather&lt;/td&gt;
+&lt;td&gt;vrgather vd, vs1, vs2, vm&lt;/td&gt;
+&lt;td&gt;vd[i] = vs1[vs2[i]]&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Gpr splat/bcast&lt;/td&gt;
+&lt;td&gt;vsplatx vd, rs1&lt;/td&gt;
+&lt;td&gt;Vd[0..MAXVL] = rs1&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;fpr splat/bcast&lt;/td&gt;
+&lt;td&gt;vsplatf vd, fs1&lt;/td&gt;
+&lt;td&gt;Vd[0..MAXVL] = fs1&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;vector slide down&lt;/td&gt;
+&lt;td&gt;vslidedwn vd, vs1, rs2, vm&lt;/td&gt;
+&lt;td&gt;vd[i] = vs1[rs2+i]&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;vector slide up&lt;/td&gt;
+&lt;td&gt;vslideup vd, vs1, rs2, vm&lt;/td&gt;
+&lt;td&gt;vd[rs2+i] = vs1[i]&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h3 id=&#34;vector-mask-operations&#34;&gt;Vector Mask Operations&lt;/h3&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Operation&lt;/th&gt;
+&lt;th&gt;Instruction&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Find first set bit in mask&lt;/td&gt;
+&lt;td&gt;Vmfirst rd, vs1&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Mask pop count&lt;/td&gt;
+&lt;td&gt;Vmpopc rd, vs1&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Count preceding mask bits&lt;/td&gt;
+&lt;td&gt;Vmiota vd, vm&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Flag before first&lt;/td&gt;
+&lt;td&gt;Vmfbf vd, vs1, vm&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Flag including first&lt;/td&gt;
+&lt;td&gt;Vmfif vd, vs1, vm&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;很明顯可以發現絕大多數的指令都沒有被編碼，這 proposal 也是pro個辛酸的。跟沒有講差不多，更何況還語帶保留的說很有可能會改。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;看看就好。&lt;/p&gt;
+
+&lt;h2 id=&#34;register-design&#34;&gt;Register Design&lt;/h2&gt;
+
+&lt;p&gt;暫存器在 RISC-V vector extension 中主要分為兩種。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Data vector register&lt;/li&gt;
+&lt;li&gt;Control and State Register (CSR)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;vector-data-register&#34;&gt;Vector Data Register&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;v0-31&lt;/li&gt;
+&lt;li&gt;MAXVL 由實作決定&lt;/li&gt;
+&lt;li&gt;資料的型態 -&amp;gt; 就指令來看，整數跟浮點數用同一組Register (待研究)&lt;/li&gt;
+&lt;li&gt;有三種存放資料的方式
+
+&lt;ul&gt;
+&lt;li&gt;調用 register 時，根據其後綴決定特性。&lt;/li&gt;
+&lt;li&gt;vector：像是陣列的存放法&lt;/li&gt;
+&lt;li&gt;scalar：將單一資料將 vector length 放滿&lt;/li&gt;
+&lt;li&gt;martix：No Spec，還在規劃中&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;csr&#34;&gt;CSR&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;vcfg (WARL-&amp;gt;Wrtie Any Values, Reads Legal Values)
+
+&lt;ul&gt;
+&lt;li&gt;vregmax (8 bits)：控制 Vector data register 的數量 (disable 與否)&lt;/li&gt;
+&lt;li&gt;舉例來說，如果其值為0，則 vector unit disable&lt;/li&gt;
+&lt;li&gt;其值為2，則 v0, v1 啟用&lt;/li&gt;
+&lt;li&gt;所以實際上 Vector Data Register 保留了可以擴充到 256 個空間&lt;/li&gt;
+&lt;li&gt;vemaxw (3 bits)：設定單一個 element 有多寬&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://i.imgur.com/AkauTw2.png&#34; alt=&#34;&#34; /&gt;&lt;/li&gt;
+&lt;li&gt;vtypeen (1 bit)：啟動 type extension (功能待補)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;vxcfg
+
+&lt;ul&gt;
+&lt;li&gt;vxcm (1 bit)：fixed point clip mode&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://i.imgur.com/LIWuEIx.png&#34; alt=&#34;&#34; /&gt;&lt;/li&gt;
+&lt;li&gt;vxrm (2 bits)：fixed point rounding mode&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://i.imgur.com/F1HIfM3.png&#34; alt=&#34;&#34; /&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;vl
+
+&lt;ul&gt;
+&lt;li&gt;設定目前有效的 vector length&lt;/li&gt;
+&lt;li&gt;可以使用 &lt;code&gt;vsetvl&lt;/code&gt; 進行設定&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;所有的 CSR，都可以藉由 &lt;code&gt;vconfig&lt;/code&gt; 進行同一設定。&lt;/p&gt;
+
+&lt;p&gt;用法：&lt;code&gt;vconfig imm&lt;/code&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;vdisable 寄生在 vconfig 上面，等效於 &lt;code&gt;vconfig 0&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&#34;關於-maxvl&#34;&gt;關於 MAXVL&lt;/h2&gt;
+
+&lt;p&gt;首先要了解，硬體的空間是固定的，可以先假設為供給 vector extension 進行運用的空間有 n byte。而 MAXVL的值是從 &lt;code&gt;vconfig&lt;/code&gt;設定完之後才能進一步確定的。&lt;/p&gt;
+
+&lt;p&gt;能夠影響參數有：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;vregmax -&amp;gt; 設為x
+
+&lt;ul&gt;
+&lt;li&gt;決定 register 的數量&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;vemaxw  -&amp;gt; 設為y
+
+&lt;ul&gt;
+&lt;li&gt;確定 element 的長度&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;則 MAXVL 的值就會是
+$$
+MAXVL = \frac{n}{x*y}
+$$&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;待確認正確性&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&#34;example-add-two-vector&#34;&gt;Example: add two vector&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/zfqzafa.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/9Y2kUY5.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;mask-execution&#34;&gt;Mask execution&lt;/h2&gt;
+
+&lt;p&gt;為了處理在迴圈之中有 IF Statement。也就是在整個 vector 中，有一些 element 是不應該被執行的。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Mask 存放在一般的 vector data register&lt;/li&gt;
+&lt;li&gt;就當作 Boolean type 讀取，讀取 LSB (最低的那個bit)做為 Boolean 的值，其他的值就直接忽略。&lt;/li&gt;
+&lt;li&gt;Mask 由 compare operation 產生。&lt;/li&gt;
+&lt;li&gt;雖然沒有寫得很清楚，可是 &lt;code&gt;V1&lt;/code&gt; 似乎被預設為存放 mask 的 register。&lt;/li&gt;
+&lt;li&gt;絕大多數的指令都可以接受 Mask execution&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;以 &lt;code&gt;vfadd.s v5, v3, v4, v0.t&lt;/code&gt;為例&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/vjt331M.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/tuN2BsB.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;到底是 v0 還是 v1 ???&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+&lt;li&gt;細節
+
+&lt;ul&gt;
+&lt;li&gt;&lt;img src=&#34;https://i.imgur.com/5PbWx41.png&#34; alt=&#34;&#34; /&gt;&lt;/li&gt;
+&lt;li&gt;[1] mask 都是基於 v1&lt;/li&gt;
+&lt;li&gt;assembly 上我猜是為了可讀性。&lt;/li&gt;
+&lt;li&gt;真正決定行為的是指令的 encoding insn[26:25] -&amp;gt; m&lt;/li&gt;
+&lt;li&gt;後綴規則&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;.s&lt;/code&gt; -&amp;gt; 做為 scalar 表示&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;.f&lt;/code&gt; -&amp;gt; mask 為 0 時作為 true 看待&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;.t&lt;/code&gt; -&amp;gt; mask 為 1 時作為 true 看待&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;所以每個指令都有四種不一樣的 type ??? 我看 spike 是要扛不住了&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&#34;memory-load-store&#34;&gt;Memory load/store&lt;/h2&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;當 RISC-V 在進行 load 時，讀取的長度由指令決定 (word, half word, byte&amp;hellip;)，如果 register  element 的大小與指令讀取的大小不相符時，會導致 exception。存放亦然。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Normal&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;img src=&#34;https://i.imgur.com/eDW5M2M.png&#34; alt=&#34;&#34; /&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://i.imgur.com/6QKalNr.png&#34; alt=&#34;&#34; /&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Stride&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;以 &lt;code&gt;vlsw v5,80(x3,x9)&lt;/code&gt; 為例&lt;/li&gt;
+&lt;li&gt;x3[80] 為 address 起點&lt;/li&gt;
+&lt;li&gt;x9為每次取用移動的距離，單位應當為 byte&lt;/li&gt;
+&lt;li&gt;stride 0 是為合法的(就每一次都在同一個位置)&lt;/li&gt;
+&lt;li&gt;不對齊(unaligned)存取也是合法的&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://i.imgur.com/tGCVoY8.png&#34; alt=&#34;&#34; /&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://i.imgur.com/uL3DHxO.png&#34; alt=&#34;&#34; /&gt;&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://i.imgur.com/CGAmsPL.png&#34; alt=&#34;&#34; /&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Gather (indexed vector)&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;以 &lt;code&gt;vflxw v5, 80(x3,v2)&lt;/code&gt; 為例&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;根據 vector 中的值作為 index&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/Nqbckt3.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/8M3LjrQ.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/YmPXDm6.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;fixed-point-instruction-待補&#34;&gt;Fixed-point instruction (待補)&lt;/h2&gt;
+
+&lt;p&gt;好像是當 float -&amp;gt; int 時，要進行怎麼樣的處理。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;直接捨去&lt;/li&gt;
+&lt;li&gt;四捨五入&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;沒有實際範例、沒有詳細說明。&lt;/p&gt;
+
+&lt;h2 id=&#34;參考資料&#34;&gt;參考資料&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/riscv/riscv-v-spec&#34;&gt;riscv-v-spec&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://drive.google.com/file/d/1fWyhzi5XsjrdamAPZISKH7RwRgc93Q9o/view?usp=sharing&#34;&gt;The RISC-V Vector ISA Tutorial&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://drive.google.com/file/d/164QVrxV5OW4peSvhP6j1POkFOYQ4t6oT/view?usp=sharing&#34;&gt;The RISC-V Vector ISA Update&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+    </item>
+    
+    <item>
       <title>Vector Architecture Notes 1 - VMIPS</title>
       <link>https://bemg.github.io/blog/posts/vector-architecture-notes-1/</link>
       <pubDate>Sun, 05 Aug 2018 12:07:48 +0800</pubDate>

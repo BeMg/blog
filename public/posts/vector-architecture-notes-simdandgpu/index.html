@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<title>Vector Architecture Notes SIMDandGPU</title>
+	
+	<meta name="description" content="">
+	<meta name="image" content="">
+	
+	<meta itemprop="name" content="Vector Architecture Notes SIMDandGPU">
+	<meta itemprop="description" content="">
+	<meta itemprop="image" content="">
+	
+	<meta name="og:title" content="Vector Architecture Notes SIMDandGPU">
+	<meta name="og:description" content="">
+	
+	<meta name="og:url" content="https://bemg.github.io/blog/posts/vector-architecture-notes-simdandgpu/">
+	<meta name="og:site_name" content="Vector Architecture Notes SIMDandGPU">
+	<meta name="og:type" content="article">
+	
+	<meta name="article:tag" content="">
+	<link rel="stylesheet" type="text/css" href="https://bemg.github.io/blog/css/style.css">
+	
+	
+	
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+
+</head>
+
+<body>
+
+<header>
+	
+	<a href="https://bemg.github.io/blog/" style="float: left;color:#777;"><strong>BeMg</strong></a>
+	
+	&nbsp;&nbsp;&nbsp;&nbsp;
+	
+	
+	
+	<a href="https://bemg.github.io/blog/index.xml" style="color:#777;float: right;"><strong><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></strong></a>
+</header>
+
+
+<div id="loadingMask" style="width: 100%; height: 100%; position: fixed; background: #fff;"></div>
+<script>
+function fadeOut(el) {
+  el.style.opacity = 1;
+
+  var last = +new Date();
+  var tick = function() {
+    el.style.opacity = +el.style.opacity - (new Date() - last) / 80;
+    last = +new Date();
+    
+
+    if (el.style.opacity > 0) {
+      (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
+    } else {
+      el.style.display='none';
+    }
+  };
+
+  tick();
+}
+
+function ready(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+         el = document.getElementById('loadingMask');
+         fadeOut(el);
+        var elements = document.querySelectorAll("img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("alt")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("alt"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+
+    } else {
+        document.addEventListener('DOMContentLoaded', fn);
+    }
+}
+window.onload = ready;
+</script>
+
+<div class="content">
+  <h1>Vector Architecture Notes SIMDandGPU <aside></aside></h1>
+  
+
+<h2 id="前言">前言</h2>
+
+<p>對於現行的 SIMD(Single instruction multiply data) 架構進行比較，主要有以下：</p>
+
+<ul>
+<li>Vector instructions</li>
+<li>SIMD instructions</li>
+<li>GPU</li>
+</ul>
+
+<p>主要的內容取至 computer architecture a quantitative approach chp4.1-4</p>
+
+<h2 id="vector-instructions">Vector instructions</h2>
+
+<p>請看<a href="https://bemg.github.io/blog/posts/vector-architecture-notes-1/">這篇</a></p>
+
+<h2 id="simd-instructions-for-multimedia">SIMD instructions for multimedia</h2>
+
+<p>此處的 SIMD instruction 主要是為了 Multimedia 所設計。跟現實中所謂的 SIMD 的定義有一些微妙的差異。如果直接講結論的話，應當可以是這一類 SIMD 為 vector instruction 的 subset。是為了硬體的複雜度與效能上做出的取捨。</p>
+
+<blockquote>
+<p>大多數的 graphics system 會分別使用 8-bits 去表達三原色，在使用一個額外的 8-bits 表達透明度。剛好用完一個 32-bits。</p>
+
+<p>audio sample (聲音取樣) 通常被表達為 8-bits 或者 16-bits</p>
+</blockquote>
+
+<p>知名的 SIMD for multimedia</p>
+
+<ul>
+<li>MMX</li>
+<li>SSE</li>
+<li>AVX</li>
+</ul>
+
+<blockquote>
+<p>上述皆是 x86 下的產物，似乎可以額外做一篇筆記了。</p>
+</blockquote>
+
+<h3 id="指令">指令</h3>
+
+<p>指令的部份一次都支援 256-bits 同時的運算。稍微進行一些換算可以得出。</p>
+
+<p>可以一次執行</p>
+
+<ul>
+<li>32 個 8-bits</li>
+<li>16 個 16-bits</li>
+<li>8 個 32-bits</li>
+<li>4 個 64-bits</li>
+</ul>
+
+<p>相較於 vector extension 動不動就是上百個來說確實小多了。</p>
+
+<table>
+<thead>
+<tr>
+<th>Instruction category</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Unisgned add/subtract</td>
+</tr>
+
+<tr>
+<td>Maximum/minimum</td>
+</tr>
+
+<tr>
+<td>Average</td>
+</tr>
+
+<tr>
+<td>Shift right/left</td>
+</tr>
+
+<tr>
+<td>Floating point</td>
+</tr>
+</tbody>
+</table>
+
+<blockquote>
+<p>Floating point 沒有一個 element 是 8-bits。所以這部份從 16-bits 開始。細節的部份就之後在探討。</p>
+</blockquote>
+
+<h3 id="與vector-的差異">與Vector 的差異</h3>
+
+<ul>
+<li>Register 數量更少</li>
+<li>指令運作的長度固定
+
+<ul>
+<li>所以要在多少 width 的資料上進行操作是取決於指令</li>
+</ul></li>
+<li>沒有 stride, gather-scatter 等 load/store method</li>
+<li>沒有 mask</li>
+</ul>
+
+<p>絕大多數在 VMIPS 中可以看到用以增進效能的奇招都被移除了。這些功能的減少，會導致編譯器更難以產生出 SIMD code (這裡的SIMD應當是指標題的SIMD)。接下來就是要解釋這樣做的理由。</p>
+
+<h3 id="why-simd-instruction">Why SIMD instruction</h3>
+
+<ul>
+<li>更簡單的實作</li>
+<li>比較便宜</li>
+<li>更少額外的狀態(little extar state)
+
+<ul>
+<li>我猜是指 CSR</li>
+<li>畢竟長度都被固定了，沒有什麼好記狀態的了</li>
+</ul></li>
+<li>Vector 需要大量的 memory bandwidth 支撐</li>
+<li>不會遭遇到 memory access 會產生的 page fault
+
+<ul>
+<li>我想應該就是 cache miss</li>
+<li>一次 data 的讀寫不會超過一個 page size (憑記憶的 cache 知識，待查證)</li>
+</ul></li>
+<li>定長的特性，可以更好的制定 media standard (課本片面之詞)<br /></li>
+</ul>
+
+<h3 id="example">Example</h3>
+
+<p><img src="https://i.imgur.com/dQqf7o8.png" alt="" /></p>
+
+<ul>
+<li>基本上就是在進行 <code>Y[i] = a*X[i] + Y[i]</code></li>
+<li><code>.4D</code> 這一個後綴是只一次對 4 個 element 進行</li>
+<li>這個舉例是用 MIPS 作為指令的基礎，所以並非實際上的指令集用法</li>
+</ul>
+
+<h2 id="gpu">GPU</h2>
+
+</div>
+
+
+
+
+<footer>
+	<p>© 2017-2018, all rights reserved.</a>
+</footer>
+</body>
+</html>
