@@ -28,7 +28,7 @@ draft: false
 
 ## 範例 Goroutine and Channel 
 
-```go
+```c
 func main() {
     
     c1 := make(chan int)
@@ -45,7 +45,7 @@ func main() {
 }
 ```
 
-- 調用 goroutine 的關鍵字為 `go` 只能加在一個 method/function 調用之前(待驗證)。用途就是將這個 func 令其在丟進 task pool。
+- 調用 gooutine 的關鍵字為 `go` 只能加在一個 method/function 調用之前(待驗證)。用途就是將這個 func 令其在丟進 task pool。
 - channel 為goroutine之間溝通的管道，我們可以利用其來達成 wait 的效果。
   - channel 的宣告為在變數之前加上 chan，例：chan int
   - channel 的使用上會用 <-，由變數的位置來決定是取用還是寫入
@@ -55,7 +55,7 @@ func main() {
 
 ## 範例 waitgroup, select and timeout
 
-```go
+```c
 func main() {
     var wg snyc.waitgroup
     for i, v := range list_of_string {

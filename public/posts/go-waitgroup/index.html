@@ -122,7 +122,7 @@ window.onload = ready;
 
 <h2 id="範例-goroutine-and-channel">範例 Goroutine and Channel</h2>
 
-<pre><code class="language-go">func main() {
+<pre><code class="language-c">func main() {
     
     c1 := make(chan int)
     go func () {
@@ -139,7 +139,7 @@ window.onload = ready;
 </code></pre>
 
 <ul>
-<li>調用 goroutine 的關鍵字為 <code>go</code> 只能加在一個 method/function 調用之前(待驗證)。用途就是將這個 func 令其在丟進 task pool。</li>
+<li>調用 gooutine 的關鍵字為 <code>go</code> 只能加在一個 method/function 調用之前(待驗證)。用途就是將這個 func 令其在丟進 task pool。</li>
 <li>channel 為goroutine之間溝通的管道，我們可以利用其來達成 wait 的效果。
 
 <ul>
@@ -155,7 +155,7 @@ window.onload = ready;
 
 <h2 id="範例-waitgroup-select-and-timeout">範例 waitgroup, select and timeout</h2>
 
-<pre><code class="language-go">func main() {
+<pre><code class="language-c">func main() {
     var wg snyc.waitgroup
     for i, v := range list_of_string {
         wg.Add(1)
