@@ -45,7 +45,7 @@
 
 &lt;h2 id=&#34;範例-goroutine-and-channel&#34;&gt;範例 Goroutine and Channel&lt;/h2&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;func main() {
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;func main() {
     
     c1 := make(chan int)
     go func () {
@@ -62,7 +62,7 @@
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;ul&gt;
-&lt;li&gt;調用 goroutine 的關鍵字為 &lt;code&gt;go&lt;/code&gt; 只能加在一個 method/function 調用之前(待驗證)。用途就是將這個 func 令其在丟進 task pool。&lt;/li&gt;
+&lt;li&gt;調用 gooutine 的關鍵字為 &lt;code&gt;go&lt;/code&gt; 只能加在一個 method/function 調用之前(待驗證)。用途就是將這個 func 令其在丟進 task pool。&lt;/li&gt;
 &lt;li&gt;channel 為goroutine之間溝通的管道，我們可以利用其來達成 wait 的效果。
 
 &lt;ul&gt;
@@ -78,7 +78,7 @@
 
 &lt;h2 id=&#34;範例-waitgroup-select-and-timeout&#34;&gt;範例 waitgroup, select and timeout&lt;/h2&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;func main() {
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;func main() {
     var wg snyc.waitgroup
     for i, v := range list_of_string {
         wg.Add(1)
