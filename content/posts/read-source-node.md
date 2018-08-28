@@ -13,3 +13,18 @@ draft: true
 - riscv assembler parse operand的部份在 `riscv-binutils-gdb/gas/config/tc-riscv.c`
   - 492行開始 
 
+## 理解 MASK and MATCH
+
+這兩者都是為了建立一個完整指令的編碼而生
+
+- MATCH是確認所有已經被確定的值
+  - opcode
+  - funct
+- MASK
+  - 將可以被確定的編碼設為1
+  - 目的是為了確認是否完全吻合預設好的 encoding
+
+
+
+
+
