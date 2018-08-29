@@ -1,5 +1,5 @@
 ---
-title: "Read Source Node"
+title: "Read Source Note"
 date: 2018-08-22T19:15:37+08:00
 draft: true
 ---
@@ -11,7 +11,10 @@ draft: true
 ## riscv-gun-toolchain
 
 - riscv assembler parse operand的部份在 `riscv-binutils-gdb/gas/config/tc-riscv.c`
-  - 492行開始 
+  - 492行開始
+- md_begin()
+  - 一開始的設定在此，包含 register 的 declare
+  - assembly 開始時會先執行一次進行設定。 
 
 ## 理解 MASK and MATCH
 
