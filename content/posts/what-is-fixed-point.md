@@ -49,7 +49,37 @@ $$
   - 兩個 part 都相除
   - 很容易就會遇到 round 的問題
 
+### 實際上的數值表達形式
+
+實際上在程式中使用 fixed point，scaling factor 存在於指令之中，Integer part 則是 encoding 在 memory。
+
+其表達形式許多種，但是最泛用的形式為 `Qm.n`
+
+- m 代表 Integer part 的 bit 數
+- n 代表 scaling factor 的數值
+
+Example:
+
+- 指令為 Q8.2 
+
+  - 有八個 bits
+  - 要對其 scaling (1/2)
+
+- 所以對於 `0b11010100` 
+
+- $$
+  \frac{1}{2^2} * (2^2 + 2^4 + 2^6 + 2^7) = 53
+  $$
+
+
+> 預設為 unsigned，signed 的就是將其 integer part 用 signed 的方式解讀。
+
+除此之外也有 Qn 的形式，直接使用系統預設的數值表達長度(8, 16, 32 bits...)，只紀錄下 scaling factor 的部份。
+
+
+
 ## 參考資料
 
 - [Fixed-point arithmetic](https://en.wikipedia.org/wiki/Fixed-point_arithmetic)
+- [Fixed-Point Arithmetic: An Introduction](https://courses.cs.washington.edu/courses/cse467/08au/labs/l5/fp.pdf)
 
