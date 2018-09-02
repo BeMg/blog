@@ -6,10 +6,200 @@
     <description>Recent content in Posts on BeMg</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 31 Aug 2018 12:30:33 +0800</lastBuildDate>
+    <lastBuildDate>Sun, 02 Sep 2018 17:57:41 +0800</lastBuildDate>
     
         <atom:link href="https://bemg.github.io/blog/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Vector Architecture Notes 3 - x84</title>
+      <link>https://bemg.github.io/blog/posts/vector-architecture-notes-3/</link>
+      <pubDate>Sun, 02 Sep 2018 17:57:41 +0800</pubDate>
+      
+      <guid>https://bemg.github.io/blog/posts/vector-architecture-notes-3/</guid>
+      <description>
+
+&lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;
+
+&lt;p&gt;對於 Vector Architecture 做一下筆記。對於各種不同的 ISA 的 vector extension 進行比較。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;computer architecture a quantitative approach 課本筆記 -&amp;gt; 實際上就是 VMIPS&lt;/li&gt;
+&lt;li&gt;riscv vector extension tutorial&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;x86&lt;/strong&gt;
+
+&lt;ul&gt;
+&lt;li&gt;MMX&lt;/li&gt;
+&lt;li&gt;SSE&lt;/li&gt;
+&lt;li&gt;AVX&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;arm ISA vector extension&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;x86-simd-history&#34;&gt;X86 SIMD history&lt;/h2&gt;
+
+&lt;p&gt;這個系列指令是由 intel 所開發，順序如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;MMX -&amp;gt; SSE -&amp;gt; AVX
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;皆是基於前者再進行擴充。分類上皆是 SIMD 指令集。版本一大堆。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;MMX (Matrix Math Extension)&lt;/li&gt;
+&lt;li&gt;SSE (Streaming SIMD Extension)
+
+&lt;ul&gt;
+&lt;li&gt;2, 3, 4, 4.1, 4.2&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;AVX (Advanced Vector Extension)
+
+&lt;ul&gt;
+&lt;li&gt;2, 512&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;至於彼此之間有沒有被取代的問題還需要再研究。&lt;/p&gt;
+
+&lt;h2 id=&#34;mmx&#34;&gt;MMX&lt;/h2&gt;
+
+&lt;p&gt;有一些資料稱呼這個指令集的全名為 Matrix Math extensions。不過這個不是很重要的問題。&lt;/p&gt;
+
+&lt;p&gt;主要是用於加速 media 與 communications 應用。&lt;/p&gt;
+
+&lt;h3 id=&#34;架構與暫存器&#34;&gt;架構與暫存器&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/BAmVbSw.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;8 個 64-bits width 的 Reigster -&amp;gt; 被稱呼為 MMX register
+
+&lt;ul&gt;
+&lt;li&gt;MM0~MM7&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://i.imgur.com/Tx9ybIZ.png&#34; alt=&#34;&#34; /&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;8 個 32-bits width 的 general-purpose register
+
+&lt;ul&gt;
+&lt;li&gt;因為 MMX reigster 規定不行作為 address operand。&lt;/li&gt;
+&lt;li&gt;EAX, EBX, ECX, EDX, EBP, ESI, EDI, ESP&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;四種不相同的 data type
+
+&lt;ul&gt;
+&lt;li&gt;packed bytes (8 bits)&lt;/li&gt;
+&lt;li&gt;packed word (16 bits)&lt;/li&gt;
+&lt;li&gt;packed doubleword (32bits)&lt;/li&gt;
+&lt;li&gt;quadword (64 bits)&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://i.imgur.com/nqrXLkP.png&#34; alt=&#34;&#34; /&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;執行模型&#34;&gt;執行模型&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;大多數的指令的operand為 dest src1 src2
+
+&lt;ul&gt;
+&lt;li&gt;&lt;img src=&#34;https://i.imgur.com/JhALka5.png&#34; alt=&#34;1535888169340&#34; /&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;有些說 operand 有兩個，有的說有三個，似乎是因為版本不同。兩個的版本是寫 dest 可以被當作 src2，運算完成後覆蓋原本的資料。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Saturation and Wraparound mode
+
+&lt;ul&gt;
+&lt;li&gt;Saturation&lt;/li&gt;
+&lt;li&gt;設定數值的上限與下限，當運算值超出時鎖死在上下限。&lt;/li&gt;
+&lt;li&gt;Wraparound&lt;/li&gt;
+&lt;li&gt;就讓它overflow，只取需要的 low bits&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://i.imgur.com/dEsjySW.png&#34; alt=&#34;&#34; /&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;指令&#34;&gt;指令&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/O76Gq0Q.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;data transfer
+
+&lt;ul&gt;
+&lt;li&gt;MMX register 與 memory 之間資料傳遞&lt;/li&gt;
+&lt;li&gt;只有 32bits 與 64 bits 兩種&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;arithmetic
+
+&lt;ul&gt;
+&lt;li&gt;加減乘除&lt;/li&gt;
+&lt;li&gt;針對那一種 data type 那一種 saturation mode unsigned or signed 都寫在指令上了&lt;/li&gt;
+&lt;li&gt;比較特殊的指令&lt;/li&gt;
+&lt;li&gt;PMULHW PMULLW (multiply packed signed integers and store high result)
+
+&lt;ul&gt;
+&lt;li&gt;似乎是因為一定會爆，所以可以選說要前 16 bits 還是後 16 bits&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://i.imgur.com/hpbF4Jz.png&#34; alt=&#34;&#34; /&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;PMADDWD (multiply and add packed integers)
+
+&lt;ul&gt;
+&lt;li&gt;&lt;img src=&#34;https://i.imgur.com/ZK7HXlH.png&#34; alt=&#34;&#34; /&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;comparsion
+
+&lt;ul&gt;
+&lt;li&gt;生成一個 mask 裡面放 0 或 1&lt;/li&gt;
+&lt;li&gt;怎麼放待補&lt;/li&gt;
+&lt;li&gt;整個 byte/word/doubleword 放 &lt;sup&gt;1&lt;/sup&gt;&amp;frasl;&lt;sub&gt;0&lt;/sub&gt;&lt;/li&gt;
+&lt;li&gt;或者 第一個 bits 放 &lt;sup&gt;1&lt;/sup&gt;&amp;frasl;&lt;sub&gt;0&lt;/sub&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;conversion
+
+&lt;ul&gt;
+&lt;li&gt;&lt;img src=&#34;https://i.imgur.com/5AIiXKI.png&#34; alt=&#34;&#34; /&gt;&lt;/li&gt;
+&lt;li&gt;doubleword -&amp;gt; word&lt;/li&gt;
+&lt;li&gt;word -&amp;gt; byte&lt;/li&gt;
+&lt;li&gt;saturated 的截斷法&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;unpacking
+
+&lt;ul&gt;
+&lt;li&gt;&lt;img src=&#34;https://i.imgur.com/LzuWYfs.png&#34; alt=&#34;&#34; /&gt;&lt;/li&gt;
+&lt;li&gt;bytes -&amp;gt; word&lt;/li&gt;
+&lt;li&gt;word -&amp;gt; doubleword&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;logical
+
+&lt;ul&gt;
+&lt;li&gt;and, or, xor, andn (疑？怎麼不是 nand)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;shift&lt;/li&gt;
+&lt;li&gt;Empty MMX state instruction
+
+&lt;ul&gt;
+&lt;li&gt;似乎跟 float-point FPU 的運作有關&lt;/li&gt;
+&lt;li&gt;細節待補，暫時視為切換運算模式&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;sse&#34;&gt;SSE&lt;/h2&gt;
+
+&lt;h2 id=&#34;avx&#34;&gt;AVX&lt;/h2&gt;
+
+&lt;h2 id=&#34;參考資料&#34;&gt;參考資料&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-1-manual.html&#34;&gt;Intel® 64 and IA-32 Architectures Software Developer’s Manual vol 1&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.intel.com.tw/content/www/tw/zh/architecture-and-technology/64-ia-32-architectures-software-developer-instruction-set-reference-manual-325383.html&#34;&gt;Intel® 64 and IA-32 Architectures Software Developer’s Manual vol 2&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.intel.com.tw/content/www/tw/zh/architecture-and-technology/64-ia-32-architectures-software-developer-system-programming-manual-325384.html&#34;&gt;Intel® 64 and IA-32 Architectures Software Developer’s Manual vol 3&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>What Is Fixed Point</title>

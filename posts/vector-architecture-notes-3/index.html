@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<title>Vector Architecture Notes 3 - x84</title>
+	
+	<meta name="description" content="">
+	<meta name="image" content="">
+	
+	<meta itemprop="name" content="Vector Architecture Notes 3 - x84">
+	<meta itemprop="description" content="">
+	<meta itemprop="image" content="">
+	
+	<meta name="og:title" content="Vector Architecture Notes 3 - x84">
+	<meta name="og:description" content="">
+	
+	<meta name="og:url" content="https://bemg.github.io/blog/posts/vector-architecture-notes-3/">
+	<meta name="og:site_name" content="Vector Architecture Notes 3 - x84">
+	<meta name="og:type" content="article">
+	
+	<meta name="article:tag" content="">
+	<link rel="stylesheet" type="text/css" href="https://bemg.github.io/blog/css/style.css">
+	
+	
+	
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+
+</head>
+
+<body>
+
+<header>
+	
+	<a href="https://bemg.github.io/blog/" style="float: left;color:#777;"><strong>BeMg</strong></a>
+	
+	&nbsp;&nbsp;&nbsp;&nbsp;
+	
+	
+	
+	<a href="https://bemg.github.io/blog/index.xml" style="color:#777;float: right;"><strong><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></strong></a>
+</header>
+
+
+<div id="loadingMask" style="width: 100%; height: 100%; position: fixed; background: #fff;"></div>
+<script>
+function fadeOut(el) {
+  el.style.opacity = 1;
+
+  var last = +new Date();
+  var tick = function() {
+    el.style.opacity = +el.style.opacity - (new Date() - last) / 80;
+    last = +new Date();
+    
+
+    if (el.style.opacity > 0) {
+      (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
+    } else {
+      el.style.display='none';
+    }
+  };
+
+  tick();
+}
+
+function ready(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+         el = document.getElementById('loadingMask');
+         fadeOut(el);
+        var elements = document.querySelectorAll("img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("alt")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("alt"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+
+    } else {
+        document.addEventListener('DOMContentLoaded', fn);
+    }
+}
+window.onload = ready;
+</script>
+
+<div class="content">
+  <h1>Vector Architecture Notes 3 - x84 <aside></aside></h1>
+  
+
+<h2 id="前言">前言</h2>
+
+<p>對於 Vector Architecture 做一下筆記。對於各種不同的 ISA 的 vector extension 進行比較。</p>
+
+<ul>
+<li>computer architecture a quantitative approach 課本筆記 -&gt; 實際上就是 VMIPS</li>
+<li>riscv vector extension tutorial</li>
+<li><strong>x86</strong>
+
+<ul>
+<li>MMX</li>
+<li>SSE</li>
+<li>AVX</li>
+</ul></li>
+<li>arm ISA vector extension</li>
+</ul>
+
+<h2 id="x86-simd-history">X86 SIMD history</h2>
+
+<p>這個系列指令是由 intel 所開發，順序如下：</p>
+
+<pre><code class="language-c">MMX -&gt; SSE -&gt; AVX
+</code></pre>
+
+<p>皆是基於前者再進行擴充。分類上皆是 SIMD 指令集。版本一大堆。</p>
+
+<ul>
+<li>MMX (Matrix Math Extension)</li>
+<li>SSE (Streaming SIMD Extension)
+
+<ul>
+<li>2, 3, 4, 4.1, 4.2</li>
+</ul></li>
+<li>AVX (Advanced Vector Extension)
+
+<ul>
+<li>2, 512</li>
+</ul></li>
+</ul>
+
+<p>至於彼此之間有沒有被取代的問題還需要再研究。</p>
+
+<h2 id="mmx">MMX</h2>
+
+<p>有一些資料稱呼這個指令集的全名為 Matrix Math extensions。不過這個不是很重要的問題。</p>
+
+<p>主要是用於加速 media 與 communications 應用。</p>
+
+<h3 id="架構與暫存器">架構與暫存器</h3>
+
+<p><img src="https://i.imgur.com/BAmVbSw.png" alt="" /></p>
+
+<ul>
+<li>8 個 64-bits width 的 Reigster -&gt; 被稱呼為 MMX register
+
+<ul>
+<li>MM0~MM7</li>
+<li><img src="https://i.imgur.com/Tx9ybIZ.png" alt="" /></li>
+</ul></li>
+<li>8 個 32-bits width 的 general-purpose register
+
+<ul>
+<li>因為 MMX reigster 規定不行作為 address operand。</li>
+<li>EAX, EBX, ECX, EDX, EBP, ESI, EDI, ESP</li>
+</ul></li>
+<li>四種不相同的 data type
+
+<ul>
+<li>packed bytes (8 bits)</li>
+<li>packed word (16 bits)</li>
+<li>packed doubleword (32bits)</li>
+<li>quadword (64 bits)</li>
+<li><img src="https://i.imgur.com/nqrXLkP.png" alt="" /></li>
+</ul></li>
+</ul>
+
+<h3 id="執行模型">執行模型</h3>
+
+<ul>
+<li>大多數的指令的operand為 dest src1 src2
+
+<ul>
+<li><img src="https://i.imgur.com/JhALka5.png" alt="1535888169340" /></li>
+</ul></li>
+</ul>
+
+<blockquote>
+<p>有些說 operand 有兩個，有的說有三個，似乎是因為版本不同。兩個的版本是寫 dest 可以被當作 src2，運算完成後覆蓋原本的資料。</p>
+</blockquote>
+
+<ul>
+<li>Saturation and Wraparound mode
+
+<ul>
+<li>Saturation</li>
+<li>設定數值的上限與下限，當運算值超出時鎖死在上下限。</li>
+<li>Wraparound</li>
+<li>就讓它overflow，只取需要的 low bits</li>
+<li><img src="https://i.imgur.com/dEsjySW.png" alt="" /></li>
+</ul></li>
+</ul>
+
+<h2 id="指令">指令</h2>
+
+<p><img src="https://i.imgur.com/O76Gq0Q.png" alt="" /></p>
+
+<ul>
+<li>data transfer
+
+<ul>
+<li>MMX register 與 memory 之間資料傳遞</li>
+<li>只有 32bits 與 64 bits 兩種</li>
+</ul></li>
+<li>arithmetic
+
+<ul>
+<li>加減乘除</li>
+<li>針對那一種 data type 那一種 saturation mode unsigned or signed 都寫在指令上了</li>
+<li>比較特殊的指令</li>
+<li>PMULHW PMULLW (multiply packed signed integers and store high result)
+
+<ul>
+<li>似乎是因為一定會爆，所以可以選說要前 16 bits 還是後 16 bits</li>
+<li><img src="https://i.imgur.com/hpbF4Jz.png" alt="" /></li>
+</ul></li>
+<li>PMADDWD (multiply and add packed integers)
+
+<ul>
+<li><img src="https://i.imgur.com/ZK7HXlH.png" alt="" /></li>
+</ul></li>
+</ul></li>
+<li>comparsion
+
+<ul>
+<li>生成一個 mask 裡面放 0 或 1</li>
+<li>怎麼放待補</li>
+<li>整個 byte/word/doubleword 放 <sup>1</sup>&frasl;<sub>0</sub></li>
+<li>或者 第一個 bits 放 <sup>1</sup>&frasl;<sub>0</sub></li>
+</ul></li>
+<li>conversion
+
+<ul>
+<li><img src="https://i.imgur.com/5AIiXKI.png" alt="" /></li>
+<li>doubleword -&gt; word</li>
+<li>word -&gt; byte</li>
+<li>saturated 的截斷法</li>
+</ul></li>
+<li>unpacking
+
+<ul>
+<li><img src="https://i.imgur.com/LzuWYfs.png" alt="" /></li>
+<li>bytes -&gt; word</li>
+<li>word -&gt; doubleword</li>
+</ul></li>
+<li>logical
+
+<ul>
+<li>and, or, xor, andn (疑？怎麼不是 nand)</li>
+</ul></li>
+<li>shift</li>
+<li>Empty MMX state instruction
+
+<ul>
+<li>似乎跟 float-point FPU 的運作有關</li>
+<li>細節待補，暫時視為切換運算模式</li>
+</ul></li>
+</ul>
+
+<h2 id="sse">SSE</h2>
+
+<h2 id="avx">AVX</h2>
+
+<h2 id="參考資料">參考資料</h2>
+
+<ul>
+<li><a href="https://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-1-manual.html">Intel® 64 and IA-32 Architectures Software Developer’s Manual vol 1</a></li>
+<li><a href="https://www.intel.com.tw/content/www/tw/zh/architecture-and-technology/64-ia-32-architectures-software-developer-instruction-set-reference-manual-325383.html">Intel® 64 and IA-32 Architectures Software Developer’s Manual vol 2</a></li>
+<li><a href="https://www.intel.com.tw/content/www/tw/zh/architecture-and-technology/64-ia-32-architectures-software-developer-system-programming-manual-325384.html">Intel® 64 and IA-32 Architectures Software Developer’s Manual vol 3</a></li>
+</ul>
+
+</div>
+
+
+
+
+<footer>
+	<p>© 2017-2018, all rights reserved.</a>
+</footer>
+</body>
+</html>
