@@ -6,10 +6,133 @@
     <description>Recent content in Posts on BeMg</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 27 Aug 2018 11:16:03 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 31 Aug 2018 12:30:33 +0800</lastBuildDate>
     
         <atom:link href="https://bemg.github.io/blog/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title></title>
+      <link>https://bemg.github.io/blog/posts/what-is-fixed-point/</link>
+      <pubDate>Fri, 31 Aug 2018 12:30:33 +0800</pubDate>
+      
+      <guid>https://bemg.github.io/blog/posts/what-is-fixed-point/</guid>
+      <description>
+
+&lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;
+
+&lt;p&gt;因為在閱讀 ISA 的文件時，對於常常出現的名詞不是十分清楚。主要將重點把在：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;fixed point&lt;/li&gt;
+&lt;li&gt;float point&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;fixed-point&#34;&gt;Fixed Point&lt;/h2&gt;
+
+&lt;h3 id=&#34;結構&#34;&gt;結構&lt;/h3&gt;
+
+&lt;p&gt;fixed point 由兩個部份組合&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Integer part&lt;/li&gt;
+&lt;li&gt;Scaling factor part
+
+&lt;ul&gt;
+&lt;li&gt;通常用 10 或者 2 的指數形式表達&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;例如：1.23 在 fixed point 中可以被表達為，1230 與 1/1000。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&#34;操作&#34;&gt;操作&lt;/h3&gt;
+
+&lt;p&gt;如果要轉換從一個 scaling factor 到另外一個不相同的 scaling factor。最簡單的方法就是 fixed point 還原成真正的數值，然後再 scaling 一次。我們可以定義一下各種數值，然後用數學公式來表示這種情況。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;令 I 為原始值的 Integer part&lt;/li&gt;
+&lt;li&gt;令 N 為 目標值&lt;/li&gt;
+&lt;li&gt;令 R 為原始值的 scaling factor&lt;/li&gt;
+&lt;li&gt;令 S 為目標值的 scaling factor&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;$$
+N = I * \frac{R}{S}
+$$&lt;/p&gt;
+
+&lt;p&gt;如果 R 與 S 並非可以整除的關係的話，則必須考慮 Round 的問題。&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Round 好像沒有一個統一的中文翻譯可以用，其含意在於因為各種原因沒有辦法精確的描述一個數值而採用近似的方式表達。Round 就是指從精確到近似的過程。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+&lt;li&gt;加減法
+
+&lt;ul&gt;
+&lt;li&gt;如果有相同的 scaling factor 則直接加減 Integer part 即可&lt;/li&gt;
+&lt;li&gt;不同 scaling factor 則利用上述轉換 scaling factor 的技巧統一 scaling factor&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;乘法
+
+&lt;ul&gt;
+&lt;li&gt;兩個 part 都相乘&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;除法
+
+&lt;ul&gt;
+&lt;li&gt;兩個 part 都相除&lt;/li&gt;
+&lt;li&gt;很容易就會遇到 round 的問題&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;這邊實際還有一個 Saturation arithmetic 的議題，雖然我不大清楚為什麼需要這個功能，但還是在這邊簡述一下。 Saturation 就是讓數值運算時有上限與下限，使其觸碰到邊界時不會發生 overflow/underflow。就讓它卡死在邊界上。&lt;/p&gt;
+
+&lt;h3 id=&#34;實際上的數值表達形式&#34;&gt;實際上的數值表達形式&lt;/h3&gt;
+
+&lt;p&gt;實際上在程式中使用 fixed point，scaling factor 存在於指令之中，Integer part 則是 encoding 在 memory。&lt;/p&gt;
+
+&lt;p&gt;其表達形式許多種，但是最泛用的形式為 &lt;code&gt;Qm.n&lt;/code&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;m 代表 Integer part 的 bit 數&lt;/li&gt;
+&lt;li&gt;n 代表 scaling factor 的數值&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Example:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;指令為 Q8.2&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;有八個 bits&lt;/li&gt;
+&lt;li&gt;要對其 scaling (&lt;sup&gt;1&lt;/sup&gt;&amp;frasl;&lt;sub&gt;2&lt;/sub&gt;)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;所以對於 &lt;code&gt;0b11010100&lt;/code&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;$$
+\frac{1}{2^2} * (2^2 + 2^4 + 2^6 + 2^7) = 53
+$$&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;預設為 unsigned，signed 的就是將其 integer part 用 signed 的方式解讀。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;除此之外也有 Qn 的形式，直接使用系統預設的數值表達長度(8, 16, 32 bits&amp;hellip;)，只紀錄下 scaling factor 的部份。&lt;/p&gt;
+
+&lt;h2 id=&#34;參考資料&#34;&gt;參考資料&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Fixed-point_arithmetic&#34;&gt;Fixed-point arithmetic&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://courses.cs.washington.edu/courses/cse467/08au/labs/l5/fp.pdf&#34;&gt;Fixed-Point Arithmetic: An Introduction&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Saturation_arithmetic&#34;&gt;Saturation arithmetic&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Go goroutine</title>

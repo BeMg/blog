@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<title></title>
+	
+	<meta name="description" content="">
+	<meta name="image" content="">
+	
+	<meta itemprop="name" content="">
+	<meta itemprop="description" content="">
+	<meta itemprop="image" content="">
+	
+	<meta name="og:title" content="">
+	<meta name="og:description" content="">
+	
+	<meta name="og:url" content="https://bemg.github.io/blog/posts/what-is-fixed-point/">
+	<meta name="og:site_name" content="">
+	<meta name="og:type" content="article">
+	
+	<meta name="article:tag" content="">
+	<link rel="stylesheet" type="text/css" href="https://bemg.github.io/blog/css/style.css">
+	
+	
+	
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+
+</head>
+
+<body>
+
+<header>
+	
+	<a href="https://bemg.github.io/blog/" style="float: left;color:#777;"><strong>BeMg</strong></a>
+	
+	&nbsp;&nbsp;&nbsp;&nbsp;
+	
+	
+	
+	<a href="https://bemg.github.io/blog/index.xml" style="color:#777;float: right;"><strong><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></strong></a>
+</header>
+
+
+<div id="loadingMask" style="width: 100%; height: 100%; position: fixed; background: #fff;"></div>
+<script>
+function fadeOut(el) {
+  el.style.opacity = 1;
+
+  var last = +new Date();
+  var tick = function() {
+    el.style.opacity = +el.style.opacity - (new Date() - last) / 80;
+    last = +new Date();
+    
+
+    if (el.style.opacity > 0) {
+      (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
+    } else {
+      el.style.display='none';
+    }
+  };
+
+  tick();
+}
+
+function ready(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+         el = document.getElementById('loadingMask');
+         fadeOut(el);
+        var elements = document.querySelectorAll("img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("alt")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("alt"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+
+    } else {
+        document.addEventListener('DOMContentLoaded', fn);
+    }
+}
+window.onload = ready;
+</script>
+
+<div class="content">
+  <h1> <aside></aside></h1>
+  
+
+<h2 id="前言">前言</h2>
+
+<p>因為在閱讀 ISA 的文件時，對於常常出現的名詞不是十分清楚。主要將重點把在：</p>
+
+<ul>
+<li>fixed point</li>
+<li>float point</li>
+</ul>
+
+<h2 id="fixed-point">Fixed Point</h2>
+
+<h3 id="結構">結構</h3>
+
+<p>fixed point 由兩個部份組合</p>
+
+<ul>
+<li>Integer part</li>
+<li>Scaling factor part
+
+<ul>
+<li>通常用 10 或者 2 的指數形式表達</li>
+</ul></li>
+</ul>
+
+<blockquote>
+<p>例如：1.23 在 fixed point 中可以被表達為，1230 與 1/1000。</p>
+</blockquote>
+
+<h3 id="操作">操作</h3>
+
+<p>如果要轉換從一個 scaling factor 到另外一個不相同的 scaling factor。最簡單的方法就是 fixed point 還原成真正的數值，然後再 scaling 一次。我們可以定義一下各種數值，然後用數學公式來表示這種情況。</p>
+
+<ul>
+<li>令 I 為原始值的 Integer part</li>
+<li>令 N 為 目標值</li>
+<li>令 R 為原始值的 scaling factor</li>
+<li>令 S 為目標值的 scaling factor</li>
+</ul>
+
+<p>$$
+N = I * \frac{R}{S}
+$$</p>
+
+<p>如果 R 與 S 並非可以整除的關係的話，則必須考慮 Round 的問題。</p>
+
+<blockquote>
+<p>Round 好像沒有一個統一的中文翻譯可以用，其含意在於因為各種原因沒有辦法精確的描述一個數值而採用近似的方式表達。Round 就是指從精確到近似的過程。</p>
+</blockquote>
+
+<ul>
+<li>加減法
+
+<ul>
+<li>如果有相同的 scaling factor 則直接加減 Integer part 即可</li>
+<li>不同 scaling factor 則利用上述轉換 scaling factor 的技巧統一 scaling factor</li>
+</ul></li>
+<li>乘法
+
+<ul>
+<li>兩個 part 都相乘</li>
+</ul></li>
+<li>除法
+
+<ul>
+<li>兩個 part 都相除</li>
+<li>很容易就會遇到 round 的問題</li>
+</ul></li>
+</ul>
+
+<p>這邊實際還有一個 Saturation arithmetic 的議題，雖然我不大清楚為什麼需要這個功能，但還是在這邊簡述一下。 Saturation 就是讓數值運算時有上限與下限，使其觸碰到邊界時不會發生 overflow/underflow。就讓它卡死在邊界上。</p>
+
+<h3 id="實際上的數值表達形式">實際上的數值表達形式</h3>
+
+<p>實際上在程式中使用 fixed point，scaling factor 存在於指令之中，Integer part 則是 encoding 在 memory。</p>
+
+<p>其表達形式許多種，但是最泛用的形式為 <code>Qm.n</code></p>
+
+<ul>
+<li>m 代表 Integer part 的 bit 數</li>
+<li>n 代表 scaling factor 的數值</li>
+</ul>
+
+<p>Example:</p>
+
+<ul>
+<li><p>指令為 Q8.2</p>
+
+<ul>
+<li>有八個 bits</li>
+<li>要對其 scaling (<sup>1</sup>&frasl;<sub>2</sub>)</li>
+</ul></li>
+
+<li><p>所以對於 <code>0b11010100</code></p></li>
+
+<li><p>$$
+\frac{1}{2^2} * (2^2 + 2^4 + 2^6 + 2^7) = 53
+$$</p></li>
+</ul>
+
+<blockquote>
+<p>預設為 unsigned，signed 的就是將其 integer part 用 signed 的方式解讀。</p>
+</blockquote>
+
+<p>除此之外也有 Qn 的形式，直接使用系統預設的數值表達長度(8, 16, 32 bits&hellip;)，只紀錄下 scaling factor 的部份。</p>
+
+<h2 id="參考資料">參考資料</h2>
+
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Fixed-point_arithmetic">Fixed-point arithmetic</a></li>
+<li><a href="https://courses.cs.washington.edu/courses/cse467/08au/labs/l5/fp.pdf">Fixed-Point Arithmetic: An Introduction</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Saturation_arithmetic">Saturation arithmetic</a></li>
+</ul>
+
+</div>
+
+
+
+
+<footer>
+	<p>© 2017-2018, all rights reserved.</a>
+</footer>
+</body>
+</html>
