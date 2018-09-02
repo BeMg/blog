@@ -1,7 +1,7 @@
 ---
 \title: "What Is Fixed Point"
 date: 2018-08-31T12:30:33+08:00
-draft: true
+draft: false
 ---
 
 ## 前言
@@ -49,6 +49,8 @@ $$
   - 兩個 part 都相除
   - 很容易就會遇到 round 的問題
 
+這邊實際還有一個 Saturation arithmetic 的議題，雖然我不大清楚為什麼需要這個功能，但還是在這邊簡述一下。 Saturation 就是讓數值運算時有上限與下限，使其觸碰到邊界時不會發生 overflow/underflow。就讓它卡死在邊界上。
+
 ### 實際上的數值表達形式
 
 實際上在程式中使用 fixed point，scaling factor 存在於指令之中，Integer part 則是 encoding 在 memory。
@@ -82,4 +84,5 @@ Example:
 
 - [Fixed-point arithmetic](https://en.wikipedia.org/wiki/Fixed-point_arithmetic)
 - [Fixed-Point Arithmetic: An Introduction](https://courses.cs.washington.edu/courses/cse467/08au/labs/l5/fp.pdf)
+- [Saturation arithmetic](https://en.wikipedia.org/wiki/Saturation_arithmetic)
 

@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://bemg.github.io/blog/posts/what-is-fixed-point/</loc>
+    <lastmod>2018-08-31T12:30:33+08:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://bemg.github.io/blog/posts/go-waitgroup/</loc>
     <lastmod>2018-08-27T11:16:03+08:00</lastmod>
   </url>
@@ -69,7 +74,7 @@
   
   <url>
     <loc>https://bemg.github.io/blog/</loc>
-    <lastmod>2018-08-27T11:16:03+08:00</lastmod>
+    <lastmod>2018-08-31T12:30:33+08:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -80,7 +85,7 @@
   
   <url>
     <loc>https://bemg.github.io/blog/posts/</loc>
-    <lastmod>2018-08-27T11:16:03+08:00</lastmod>
+    <lastmod>2018-08-31T12:30:33+08:00</lastmod>
     <priority>0</priority>
   </url>
   
