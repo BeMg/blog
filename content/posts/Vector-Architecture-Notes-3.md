@@ -84,18 +84,21 @@ MMX -> SSE -> AVX
   - 比較特殊的指令
     - PMULHW PMULLW (multiply packed signed integers and store high result)
       - 似乎是因為一定會爆，所以可以選說要前 16 bits 還是後 16 bits
+      - ![](https://i.imgur.com/hpbF4Jz.png)
     - PMADDWD (multiply and add packed integers)
-      - 16 bits * 16 bits -> 32 bits
-      - 32 bits + 32 bits store into 32 bits
+      - ![](https://i.imgur.com/ZK7HXlH.png)
 - comparsion
   - 生成一個 mask 裡面放 0 或 1
   - 怎麼放待補
     - 整個 byte/word/doubleword 放 1/0
     - 或者 第一個 bits 放 1/0
 - conversion
+  - ![](https://i.imgur.com/5AIiXKI.png)
   - doubleword -> word
   - word -> byte
+  - saturated 的截斷法
 - unpacking
+  - ![](https://i.imgur.com/LzuWYfs.png)
   - bytes -> word
   - word -> doubleword
 - logical
