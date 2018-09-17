@@ -1,7 +1,7 @@
 ---
 title: "Sshfs"
 date: 2018-09-17T13:55:00+08:00
-draft: true
+draft: false
 ---
 
 # sshfs

@@ -6,10 +6,68 @@
     <description>Recent content on BeMg</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 02 Sep 2018 17:57:41 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 17 Sep 2018 13:55:00 +0800</lastBuildDate>
     
         <atom:link href="https://bemg.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Sshfs</title>
+      <link>https://bemg.github.io/blog/posts/sshfs/</link>
+      <pubDate>Mon, 17 Sep 2018 13:55:00 +0800</pubDate>
+      
+      <guid>https://bemg.github.io/blog/posts/sshfs/</guid>
+      <description>
+
+&lt;h1 id=&#34;sshfs&#34;&gt;sshfs&lt;/h1&gt;
+
+&lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;
+
+&lt;p&gt;這是一個與遠端檔案同步的解決方案，最大的特色為伺服器端不需要進行任何的設定。&lt;/p&gt;
+
+&lt;p&gt;功能上是可以在本地同步修改遠端的檔案或者文件，表現的手法是將遠端的資料夾視為一個本地的資料夾，這樣就可以直接像是在修改本地資料一樣修改位於遠端的資料。&lt;/p&gt;
+
+&lt;h2 id=&#34;ubuntu&#34;&gt;ubuntu&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;apt-get install sshfs
+sshfs [username]@[server ip]:[remote dir] [local dir]
+fusermount -u [local dir]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;以上三個指令分別是代表安裝、使用與解除掛載。&lt;/p&gt;
+
+&lt;h2 id=&#34;windows&#34;&gt;windows&lt;/h2&gt;
+
+&lt;p&gt;這個就沒有像 ubuntu 一樣方便的，需要一些進階的輔助程式。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/billziss-gh/sshfs-win&#34;&gt;sshfs-win&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/billziss-gh/winfsp/releases/tag/v1.3&#34;&gt;winfsp&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;[SiriKali](https://mhogomchungu.github.io/sirikali/)&#34;&gt;siriKai&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;前兩個是必須的，第三個為GUI的操控界面用起來可以更的心應手。&lt;/p&gt;
+
+&lt;p&gt;都裝一裝，開 siriKai 起來進行設定。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;create volume
+
+&lt;ul&gt;
+&lt;li&gt;sshfs&lt;/li&gt;
+&lt;li&gt;remote address -&amp;gt; 就是 [usernmae]@[server ip]:[remote dir]&lt;/li&gt;
+&lt;li&gt;Mount point path -&amp;gt; 隨便選一個，沒有它會建立&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Add and done&lt;/li&gt;
+&lt;li&gt;Favorites
+
+&lt;ul&gt;
+&lt;li&gt;點你剛剛加入的volume&lt;/li&gt;
+&lt;li&gt;輸入密碼&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Vector Architecture Notes 3 - x86</title>
