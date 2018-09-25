@@ -196,7 +196,7 @@ draft: true
 * PSHUFW
   * MMX 指令
 
-## Prefetch
+## Cache and Prefetch
 
 可以利用下列指令對於機器進行一些關於資料的提示
 
@@ -223,6 +223,22 @@ draft: true
   * write combining(WC)
   * write back(WB)
   * write through(WT)
+* 這裡只討論 WC
+* 當有 non-temporal data 時
+  * 如果 memory location 已經在 cache hierarchy -> 將其移除
+  * 反之，則應用WC
+* WC 模式
+  * 儲存的行為不會按照程式的順序
+  * 可以累積一下在存，反正暫時不需要這些資料
+  * 但是資料可能不是只給這個程式使用，其他 system agents (example: graphics cards)可能會需要
+  * 可以設定 "fence"，強制某個時間點一定要存好 -> SFENCE
+  * 最終的目的是要讓資料可以有一致性
+
+### Prefetch
+
+![](https://i.imgur.com/XY35eqM.png)
+
+![](https://i.imgur.com/COSQ6Xo.png)
 
 
 
