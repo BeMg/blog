@@ -147,6 +147,8 @@ i32 ** %4 -&amp;gt; pp
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
+&lt;h3 id=&#34;store&#34;&gt;STORE&lt;/h3&gt;
+
 &lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;store i32* %1, i32** %3, align 8
 // %1 -&amp;gt; int x
 // %3 -&amp;gt; int *p
@@ -172,6 +174,14 @@ i32** %3 -&amp;gt; &amp;amp;p
 
 &lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;p = &amp;amp;x;
 &lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;所以從分析的角度看來，store 第二個 operand 會導致向左一格。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&#34;load&#34;&gt;LOAD&lt;/h3&gt;
+
+&lt;p&gt;接著來看看有&lt;/p&gt;
 </description>
     </item>
     

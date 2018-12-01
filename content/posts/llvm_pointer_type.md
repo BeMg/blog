@@ -115,6 +115,8 @@ i32 ** %4 -> pp
   - 因為 reference 是去取得一個constant的位址，dereference 是去取得一個動態的值。
   - 前者可以亂來，後者要靠指令。
 
+### STORE
+
 ```c
 store i32* %1, i32** %3, align 8
 // %1 -> int x
@@ -145,3 +147,8 @@ i32** %3 -> &p
 p = &x;
 ```
 
+> 所以從分析的角度看來，store 第二個 operand 會導致向左一格。
+
+### LOAD
+
+接著來看看有
