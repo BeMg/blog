@@ -48,3 +48,39 @@ draft: true
   111  1024
 ```
 
+## vsetvl 系列指令
+
+```
+vsetvli	rd, rs1, vsewi	# rd = new vl, rs1 = AVL, vsewi = new SEW setting
+vsetvl	rd, rs1, rs2	# rd = new vl, rs1 = AVL, rs2 = vsew value 
+```
+
+接下來如果當 `vl` 超過 `vlmax` 時，我們可以有以下的特性
+
+- vl = AVL if AVL <= VLMAX
+- vl >= ceil(AVL / 2) if  VLMAX < AVL < 2 * VLMAX // 很奇怪，沒有確定到某一個值。我猜應該是等於
+- vl = VLMAX if AVL >= 2 * VLMAX
+
+## Register Grouping and vlmul field
+
+可以根據 vlmul 這一個 CSR(應該是)，去串起多個 Vector register，可以直接的增加 vector length 的長度。
+
+```
+ vlmul  #vregs  vnames   VLMAX
+ 00         32   v0-v31  VBITS/SEW
+ 01         16   v0-v15  2*VBITS/SEW
+ 10          8   v0-v7   4*VBITS/SEW
+ 11          4   v0-v3   8*VBITS/SEW
+```
+
+而 register 被組合起來的結構大致上長這樣
+
+```
+vlmul
+01      [v0,v16],[v1,v17],...,[v15,v31]
+10      [v0,v8,v16,v24],[v1,v9,v17,v24],...,[v7,v15,v23,v31]
+11      [v0,v4,v8,v12,v16,v20,v24],[v1,v5,v9,v13,v17,v21,v24],...,[v3,...,v31]
+```
+
+> 00 就是原本的狀態
+
