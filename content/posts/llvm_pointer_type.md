@@ -1,7 +1,7 @@
 ---
-title: "Llvm_pointer_type"
+ctitle: "Llvm_pointer_type"
 date: 2018-12-01T12:21:14+08:00
-draft: true
+draft: false
 ---
 
 # LLVM pointer type 解析
@@ -62,11 +62,6 @@ printf("%d\n", *p);
 - store
   - 將某個值放入某個address
 
-如此是不是可以得到一種直覺的對應。
-
-- Load -> Reference
-- Store -> dereference
-
 當然實際上還要再更複雜一點。接下來我們來看一下這個LLVM IR範例。
 
 ```c
@@ -119,3 +114,34 @@ i32 ** %4 -> pp
 - 當多一個star的時候為reference，當少一個星時候為dereference，但是實務上只會有多一個星的狀況發生。
   - 因為 reference 是去取得一個constant的位址，dereference 是去取得一個動態的值。
   - 前者可以亂來，後者要靠指令。
+
+```c
+store i32* %1, i32** %3, align 8
+// %1 -> int x
+// %3 -> int *p
+```
+
+我們先回歸所謂 store 指令的定義，store 的本質為，**將一個 value ，存入一個 address 中**。剛好，pointer type 其中的 value 就是 address。所以很容易造成混淆。
+
+我們來逐個 operand 進行分析。
+
+```c
+// %1 -> x
+// x - &x
+// 多一個star，向右一格
+i32* %1 -> &x
+```
+
+```c
+// %3 -> *p
+// *p - p - &p
+// 多一個star，向右一格
+i32** %3 -> &p
+```
+
+但是我們還要考慮store的本質，所以我們是存值回 address of p。
+
+```c
+p = &x;
+```
+
