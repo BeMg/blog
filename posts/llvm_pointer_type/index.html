@@ -224,6 +224,8 @@ i32 ** %4 -&gt; pp
 </ul></li>
 </ul>
 
+<h3 id="store">STORE</h3>
+
 <pre><code class="language-c">store i32* %1, i32** %3, align 8
 // %1 -&gt; int x
 // %3 -&gt; int *p
@@ -249,6 +251,14 @@ i32** %3 -&gt; &amp;p
 
 <pre><code class="language-c">p = &amp;x;
 </code></pre>
+
+<blockquote>
+<p>所以從分析的角度看來，store 第二個 operand 會導致向左一格。</p>
+</blockquote>
+
+<h3 id="load">LOAD</h3>
+
+<p>接著來看看有</p>
 
 </div>
 
