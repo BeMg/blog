@@ -6,10 +6,174 @@
     <description>Recent content on BeMg</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 17 Sep 2018 13:55:00 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 01 Dec 2018 12:21:14 +0800</lastBuildDate>
     
         <atom:link href="https://bemg.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title></title>
+      <link>https://bemg.github.io/blog/posts/llvm_pointer_type/</link>
+      <pubDate>Sat, 01 Dec 2018 12:21:14 +0800</pubDate>
+      
+      <guid>https://bemg.github.io/blog/posts/llvm_pointer_type/</guid>
+      <description>
+
+&lt;h1 id=&#34;llvm-pointer-type-解析&#34;&gt;LLVM pointer type 解析&lt;/h1&gt;
+
+&lt;p&gt;寫個作業發現居然沒有對於 LLVM pointer type 的詳細說明，難怪沒有人要做 compiler，文件都那麼不友善。明明 pointer 是這麼常用的到東西。一堆 dereference 的星星。&lt;/p&gt;
+
+&lt;p&gt;本文基於C language 對於 llvm IR 的轉換進行介紹。&lt;/p&gt;
+
+&lt;h2 id=&#34;目錄&#34;&gt;目錄&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;名詞定義&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;pointer type&lt;/li&gt;
+&lt;li&gt;reference&lt;/li&gt;
+&lt;li&gt;dereference&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;LLVM IR&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;名詞定義&#34;&gt;名詞定義&lt;/h2&gt;
+
+&lt;h3 id=&#34;pointer-type&#34;&gt;Pointer type&lt;/h3&gt;
+
+&lt;p&gt;在C語言中，我們使用 pointer 會是一個指向某一個 address 的 variable。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;int *p;
+int x;
+p = &amp;amp;x;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;reference&#34;&gt;Reference&lt;/h3&gt;
+
+&lt;p&gt;每個變數都有值(value)跟位址(address)，pointer type 只是剛好 value 是某一個 address。所謂的 Reference 就是指用一個關鍵字去取得一個特定變數的address。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;int *p;
+printf(&amp;quot;%p\n&amp;quot;, &amp;amp;p);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;dereference&#34;&gt;dereference&lt;/h3&gt;
+
+&lt;p&gt;這個操作是指 reference 的反向，如果可以從一個變數取得它的位址，那麼也可以從一個位址取得它的值。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;int *p;
+int x = 10;
+p = &amp;amp;x;
+printf(&amp;quot;%d\n&amp;quot;, *p);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;llvm-ir&#34;&gt;LLVM IR&lt;/h2&gt;
+
+&lt;p&gt;但是以上的各種名詞定義都僅僅應用在C語言層級。LLVM IR 更像是一種組合語言，對於組合語言來說，就沒有什麼 Reference、dereference。需要關注的，只有三種指令。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;alloca
+
+&lt;ul&gt;
+&lt;li&gt;宣告一段空間給變數&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;load
+
+&lt;ul&gt;
+&lt;li&gt;從某個address取得其值&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;store
+
+&lt;ul&gt;
+&lt;li&gt;將某個值放入某個address&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;當然實際上還要再更複雜一點。接下來我們來看一下這個LLVM IR範例。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;  // This is C source code
+  int x, y, *p, **pp;
+  p = &amp;amp;x;
+  pp = &amp;amp;p;
+  *pp = &amp;amp;y;
+  *p = 3;
+  **pp = *p;
+
+  // This is LLVM IR transform by clang
+  %1 = alloca i32, align 4
+  %2 = alloca i32, align 4
+  %3 = alloca i32*, align 8
+  %4 = alloca i32**, align 8
+  
+  store i32* %1, i32** %3, align 8
+  
+  store i32** %3, i32*** %4, align 8
+  
+  %5 = load i32**, i32*** %4, align 8
+  store i32* %2, i32** %5, align 8
+  
+  %6 = load i32*, i32** %3, align 8
+  store i32 3, i32* %6, align 4
+  
+  %7 = load i32*, i32** %3, align 8   
+  %8 = load i32, i32* %7, align 4     
+  %9 = load i32**, i32*** %4, align 8 
+  %10 = load i32*, i32** %9, align 8  
+  store i32 %8, i32* %10, align 4
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;我們可以在C語言層級重新看待這段程式碼。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;**pp - *pp - pp - &amp;amp;pp
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;當star數與實際宣告型態相同時，變數是原始型態&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt;i32 %1    -&amp;gt; x
+i32 %2    -&amp;gt; y
+i32 * %3  -&amp;gt; p
+i32 ** %4 -&amp;gt; pp
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;當多一個star的時候為reference，當少一個星時候為dereference，但是實務上只會有多一個星的狀況發生。
+
+&lt;ul&gt;
+&lt;li&gt;因為 reference 是去取得一個constant的位址，dereference 是去取得一個動態的值。&lt;/li&gt;
+&lt;li&gt;前者可以亂來，後者要靠指令。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;store i32* %1, i32** %3, align 8
+// %1 -&amp;gt; int x
+// %3 -&amp;gt; int *p
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;我們先回歸所謂 store 指令的定義，store 的本質為，&lt;strong&gt;將一個 value ，存入一個 address 中&lt;/strong&gt;。剛好，pointer type 其中的 value 就是 address。所以很容易造成混淆。&lt;/p&gt;
+
+&lt;p&gt;我們來逐個 operand 進行分析。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;// %1 -&amp;gt; x
+// x - &amp;amp;x
+// 多一個star，向右一格
+i32* %1 -&amp;gt; &amp;amp;x
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;// %3 -&amp;gt; *p
+// *p - p - &amp;amp;p
+// 多一個star，向右一格
+i32** %3 -&amp;gt; &amp;amp;p
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;但是我們還要考慮store的本質，所以我們是存值回 address of p。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;p = &amp;amp;x;
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>Sshfs</title>
