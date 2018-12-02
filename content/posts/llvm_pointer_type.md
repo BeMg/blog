@@ -1,5 +1,5 @@
 ---
-ctitle: "Llvm_pointer_type"
+title: "llvm_pointer_type"
 date: 2018-12-01T12:21:14+08:00
 draft: false
 ---
@@ -151,4 +151,19 @@ p = &x;
 
 ### LOAD
 
-接著來看看有
+接著來看看有LOAD亂入的狀況。
+
+```c
+ // %4 -> **pp
+ // **pp - *pp - pp - &pp
+ // i32*** %4 -> &pp
+ // Load 是從 address 中取得value
+ // 所以 %5 = load from &pp = pp
+ %5 = load i32**, i32*** %4, align 8
+ // %2 -> y 多一個star -> &y
+ // %5 -> pp -> store 作為 address -> *p  
+ store i32* %2, i32** %5, align 8
+```
+
+
+

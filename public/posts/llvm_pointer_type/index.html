@@ -4,20 +4,20 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	
-	<title></title>
+	<title>llvm_pointer_type</title>
 	
 	<meta name="description" content="">
 	<meta name="image" content="">
 	
-	<meta itemprop="name" content="">
+	<meta itemprop="name" content="llvm_pointer_type">
 	<meta itemprop="description" content="">
 	<meta itemprop="image" content="">
 	
-	<meta name="og:title" content="">
+	<meta name="og:title" content="llvm_pointer_type">
 	<meta name="og:description" content="">
 	
 	<meta name="og:url" content="https://bemg.github.io/blog/posts/llvm_pointer_type/">
-	<meta name="og:site_name" content="">
+	<meta name="og:site_name" content="llvm_pointer_type">
 	<meta name="og:type" content="article">
 	
 	<meta name="article:tag" content="">
@@ -93,7 +93,7 @@ window.onload = ready;
 </script>
 
 <div class="content">
-  <h1> <aside></aside></h1>
+  <h1>llvm_pointer_type <aside></aside></h1>
   
 
 <h1 id="llvm-pointer-type-解析">LLVM pointer type 解析</h1>
@@ -258,7 +258,18 @@ i32** %3 -&gt; &amp;p
 
 <h3 id="load">LOAD</h3>
 
-<p>接著來看看有</p>
+<p>接著來看看有LOAD亂入的狀況。</p>
+
+<pre><code class="language-c"> // %4 -&gt; **pp
+ // **pp - *pp - pp - &amp;pp
+ // i32*** %4 -&gt; &amp;pp
+ // Load 是從 address 中取得value
+ // 所以 %5 = load from &amp;pp = pp
+ %5 = load i32**, i32*** %4, align 8
+ // %2 -&gt; y 多一個star -&gt; &amp;y
+ // %5 -&gt; pp -&gt; store 作為 address -&gt; *p  
+ store i32* %2, i32** %5, align 8
+</code></pre>
 
 </div>
 
