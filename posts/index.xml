@@ -12,7 +12,7 @@
     
     
     <item>
-      <title></title>
+      <title>llvm_pointer_type</title>
       <link>https://bemg.github.io/blog/posts/llvm_pointer_type/</link>
       <pubDate>Sat, 01 Dec 2018 12:21:14 +0800</pubDate>
       
@@ -181,7 +181,18 @@ i32** %3 -&amp;gt; &amp;amp;p
 
 &lt;h3 id=&#34;load&#34;&gt;LOAD&lt;/h3&gt;
 
-&lt;p&gt;接著來看看有&lt;/p&gt;
+&lt;p&gt;接著來看看有LOAD亂入的狀況。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt; // %4 -&amp;gt; **pp
+ // **pp - *pp - pp - &amp;amp;pp
+ // i32*** %4 -&amp;gt; &amp;amp;pp
+ // Load 是從 address 中取得value
+ // 所以 %5 = load from &amp;amp;pp = pp
+ %5 = load i32**, i32*** %4, align 8
+ // %2 -&amp;gt; y 多一個star -&amp;gt; &amp;amp;y
+ // %5 -&amp;gt; pp -&amp;gt; store 作為 address -&amp;gt; *p  
+ store i32* %2, i32** %5, align 8
+&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     
