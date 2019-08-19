@@ -6,10 +6,33 @@
     <description>Recent content in Posts on BeMg</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 01 Dec 2018 12:21:14 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 19 Aug 2019 18:50:01 +0800</lastBuildDate>
     
         <atom:link href="https://bemg.github.io/blog/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Llvm Trick</title>
+      <link>https://bemg.github.io/blog/posts/llvm-trick/</link>
+      <pubDate>Mon, 19 Aug 2019 18:50:01 +0800</pubDate>
+      
+      <guid>https://bemg.github.io/blog/posts/llvm-trick/</guid>
+      <description>
+
+&lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;
+
+&lt;p&gt;LLVM 太多神秘的小技巧了，整理成一篇文章以外之後忘記。&lt;/p&gt;
+
+&lt;p&gt;本篇文章主要以需求導向，根據某個需求要如何用LLVM工具達成，&lt;/p&gt;
+
+&lt;h2 id=&#34;啟用subtarget&#34;&gt;啟用Subtarget&lt;/h2&gt;
+
+&lt;p&gt;這裡以 RISC-V 為例。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;llc --march=riscv32 --mattr=+M,+F file.ll
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>llvm_pointer_type</title>
