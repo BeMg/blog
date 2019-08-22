@@ -25,11 +25,51 @@
 
 &lt;p&gt;本篇文章主要以需求導向，根據某個需求要如何用LLVM工具達成，&lt;/p&gt;
 
-&lt;h2 id=&#34;啟用subtarget&#34;&gt;啟用Subtarget&lt;/h2&gt;
+&lt;h2 id=&#34;llvm-tools-usage&#34;&gt;LLVM Tools Usage&lt;/h2&gt;
+
+&lt;h3 id=&#34;啟用subtarget&#34;&gt;啟用Subtarget&lt;/h3&gt;
 
 &lt;p&gt;這裡以 RISC-V 為例。&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;llc --march=riscv32 --mattr=+M,+F file.ll
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;backend&#34;&gt;Backend&lt;/h2&gt;
+
+&lt;h3 id=&#34;sdtypeprofile&#34;&gt;SDTypeProfile&lt;/h3&gt;
+
+&lt;p&gt;一個 SDNode 的 Type，很多時候會發生 Instruction can not be select 的根本原因就是因為型態對不上。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-Cpp&#34;&gt;// llvm/include/llvm/Target/TargetSelectionDAG.td
+// SDTypeProfile - This profile describes the type requirements of a Selection
+// DAG node.
+class SDTypeProfile&amp;lt;int numresults, int numoperands,
+                    list&amp;lt;SDTypeConstraint&amp;gt; constraints&amp;gt; {
+  int NumResults = numresults;
+  int NumOperands = numoperands;
+  list&amp;lt;SDTypeConstraint&amp;gt; Constraints = constraints;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;第一個是回傳值，第二個是參數，第三個是說明需要的型態為何。&lt;/p&gt;
+
+&lt;p&gt;常用的型態紀錄如下&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-Cpp&#34;&gt;// SDTCisVT - The specified operand has exactly this VT.
+class SDTCisVT&amp;lt;int OpNum, ValueType vt&amp;gt; : SDTypeConstraint&amp;lt;OpNum&amp;gt; {
+  ValueType VT = vt;
+}
+
+class SDTCisPtrTy&amp;lt;int OpNum&amp;gt; : SDTypeConstraint&amp;lt;OpNum&amp;gt;;
+
+// SDTCisInt - The specified operand has integer type.
+class SDTCisInt&amp;lt;int OpNum&amp;gt; : SDTypeConstraint&amp;lt;OpNum&amp;gt;;
+
+// SDTCisFP - The specified operand has floating-point type.
+class SDTCisFP&amp;lt;int OpNum&amp;gt; : SDTypeConstraint&amp;lt;OpNum&amp;gt;;
+
+// SDTCisVec - The specified operand has a vector type.
+class SDTCisVec&amp;lt;int OpNum&amp;gt; : SDTypeConstraint&amp;lt;OpNum&amp;gt;;
 &lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>

@@ -102,11 +102,51 @@ window.onload = ready;
 
 <p>本篇文章主要以需求導向，根據某個需求要如何用LLVM工具達成，</p>
 
-<h2 id="啟用subtarget">啟用Subtarget</h2>
+<h2 id="llvm-tools-usage">LLVM Tools Usage</h2>
+
+<h3 id="啟用subtarget">啟用Subtarget</h3>
 
 <p>這裡以 RISC-V 為例。</p>
 
 <pre><code>llc --march=riscv32 --mattr=+M,+F file.ll
+</code></pre>
+
+<h2 id="backend">Backend</h2>
+
+<h3 id="sdtypeprofile">SDTypeProfile</h3>
+
+<p>一個 SDNode 的 Type，很多時候會發生 Instruction can not be select 的根本原因就是因為型態對不上。</p>
+
+<pre><code class="language-Cpp">// llvm/include/llvm/Target/TargetSelectionDAG.td
+// SDTypeProfile - This profile describes the type requirements of a Selection
+// DAG node.
+class SDTypeProfile&lt;int numresults, int numoperands,
+                    list&lt;SDTypeConstraint&gt; constraints&gt; {
+  int NumResults = numresults;
+  int NumOperands = numoperands;
+  list&lt;SDTypeConstraint&gt; Constraints = constraints;
+}
+</code></pre>
+
+<p>第一個是回傳值，第二個是參數，第三個是說明需要的型態為何。</p>
+
+<p>常用的型態紀錄如下</p>
+
+<pre><code class="language-Cpp">// SDTCisVT - The specified operand has exactly this VT.
+class SDTCisVT&lt;int OpNum, ValueType vt&gt; : SDTypeConstraint&lt;OpNum&gt; {
+  ValueType VT = vt;
+}
+
+class SDTCisPtrTy&lt;int OpNum&gt; : SDTypeConstraint&lt;OpNum&gt;;
+
+// SDTCisInt - The specified operand has integer type.
+class SDTCisInt&lt;int OpNum&gt; : SDTypeConstraint&lt;OpNum&gt;;
+
+// SDTCisFP - The specified operand has floating-point type.
+class SDTCisFP&lt;int OpNum&gt; : SDTypeConstraint&lt;OpNum&gt;;
+
+// SDTCisVec - The specified operand has a vector type.
+class SDTCisVec&lt;int OpNum&gt; : SDTypeConstraint&lt;OpNum&gt;;
 </code></pre>
 
 </div>
