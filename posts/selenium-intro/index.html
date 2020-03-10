@@ -94,44 +94,32 @@ window.onload = ready;
 
 <div class="content">
   <h1>Selenium notes <aside></aside></h1>
-  
-
-<h2 id="前言">前言</h2>
-
+  <h2 id="前言">前言</h2>
 <p>對於使用javascript動態產生的網頁來說，單純的抓取html會缺失許多資訊。我們可以透過selenium執行javascript，生成我們所需要的資訊。</p>
-
 <p>selenium原本是被設計來進行自動化測試的，但是我們只需要它執行javascript的功能。</p>
-
 <h2 id="安裝">安裝</h2>
-
-<pre><code class="language-shell">pip3 install selenium
-</code></pre>
-
-<p>在此使用chrome作為範例。</p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">pip3 install selenium
+</code></pre></div><p>在此使用chrome作為範例。</p>
 <p>到<a href="https://sites.google.com/a/chromium.org/chromedriver/getting-started">官網</a>下載chromedrive。並且將其加入至PATH中，或者在使用時指定其位置。</p>
-
 <h2 id="使用">使用</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">from</span> selenium <span style="color:#f92672">import</span> webdriver
+<span style="color:#f92672">from</span> selenium.webdriver.chrome.options <span style="color:#f92672">import</span> Options
 
-<pre><code class="language-python">from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+<span style="color:#75715e"># 加入參數</span>
+chrome_options <span style="color:#f92672">=</span> Options()
+chrome_options<span style="color:#f92672">.</span>add_argument(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">--headless</span><span style="color:#e6db74">&#34;</span>)
 
-# 加入參數
-chrome_options = Options()
-chrome_options.add_argument(&quot;--headless&quot;)
+<span style="color:#75715e"># 啟動</span>
+drive <span style="color:#f92672">=</span> webdriver<span style="color:#f92672">.</span>Chrome(chrome_options<span style="color:#f92672">=</span>chrome_options)
 
-# 啟動
-drive = webdriver.Chrome(chrome_options=chrome_options)
+<span style="color:#75715e"># 讀取網頁</span>
+drive<span style="color:#f92672">.</span>get(url)
 
-# 讀取網頁
-drive.get(url)
-
-# 取得source
-drive.page_source
+<span style="color:#75715e"># 取得source</span>
+drive<span style="color:#f92672">.</span>page_source
 
 
-</code></pre>
-
+</code></pre></div>
 </div>
 
 
