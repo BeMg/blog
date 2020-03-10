@@ -6,10 +6,19 @@
     <description>Recent content on BeMg</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 19 Aug 2019 18:50:01 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 10 Mar 2020 11:40:01 +0800</lastBuildDate>
     
 	<atom:link href="https://bemg.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Book Reading 2020 03</title>
+      <link>https://bemg.github.io/blog/posts/book-reading-2020-03/</link>
+      <pubDate>Tue, 10 Mar 2020 11:40:01 +0800</pubDate>
+      
+      <guid>https://bemg.github.io/blog/posts/book-reading-2020-03/</guid>
+      <description> 古地中海文明陷落的關鍵：公元前1177年 筷：怪談競演奇物語  </description>
+    </item>
     
     <item>
       <title>Llvm Trick</title>
