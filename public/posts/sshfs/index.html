@@ -94,54 +94,42 @@ window.onload = ready;
 
 <div class="content">
   <h1>Sshfs <aside></aside></h1>
-  
-
-<h1 id="sshfs">sshfs</h1>
-
+  <h1 id="sshfs">sshfs</h1>
 <h2 id="前言">前言</h2>
-
 <p>這是一個與遠端檔案同步的解決方案，最大的特色為伺服器端不需要進行任何的設定。</p>
-
 <p>功能上是可以在本地同步修改遠端的檔案或者文件，表現的手法是將遠端的資料夾視為一個本地的資料夾，這樣就可以直接像是在修改本地資料一樣修改位於遠端的資料。</p>
-
 <h2 id="ubuntu">ubuntu</h2>
-
-<pre><code class="language-c">apt-get install sshfs
-sshfs [username]@[server ip]:[remote dir] [local dir]
-fusermount -u [local dir]
-</code></pre>
-
-<p>以上三個指令分別是代表安裝、使用與解除掛載。</p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">apt<span style="color:#f92672">-</span>get install sshfs
+sshfs [username]<span style="color:#960050;background-color:#1e0010">@</span>[server ip]<span style="color:#f92672">:</span>[remote dir] [local dir]
+fusermount <span style="color:#f92672">-</span>u [local dir]
+</code></pre></div><p>以上三個指令分別是代表安裝、使用與解除掛載。</p>
 <h2 id="windows">windows</h2>
-
 <p>這個就沒有像 ubuntu 一樣方便的，需要一些進階的輔助程式。</p>
-
 <ul>
 <li><a href="https://github.com/billziss-gh/sshfs-win">sshfs-win</a></li>
 <li><a href="https://github.com/billziss-gh/winfsp/releases/tag/v1.3">winfsp</a></li>
-<li><a href="[SiriKali](https://mhogomchungu.github.io/sirikali/)">siriKai</a></li>
+<li><a href="%5BSiriKali%5D(https://mhogomchungu.github.io/sirikali/)">siriKai</a></li>
 </ul>
-
 <p>前兩個是必須的，第三個為GUI的操控界面用起來可以更的心應手。</p>
-
 <p>都裝一裝，開 siriKai 起來進行設定。</p>
-
 <ul>
 <li>create volume
-
 <ul>
-<li>sshfs</li>
+<li>sshfs
+<ul>
 <li>remote address -&gt; 就是 [usernmae]@[server ip]:[remote dir]</li>
 <li>Mount point path -&gt; 隨便選一個，沒有它會建立</li>
-</ul></li>
+</ul>
+</li>
+</ul>
+</li>
 <li>Add and done</li>
 <li>Favorites
-
 <ul>
 <li>點你剛剛加入的volume</li>
 <li>輸入密碼</li>
-</ul></li>
+</ul>
+</li>
 </ul>
 
 </div>

@@ -94,62 +94,49 @@ window.onload = ready;
 
 <div class="content">
   <h1>Vector Architecture Notes 2 - RISC-V Vector extension <aside></aside></h1>
-  
-
-<h2 id="前言">前言</h2>
-
+  <h2 id="前言">前言</h2>
 <p>對於 Vector Architecture 做一下筆記。對於各種不同的 ISA 的 vector extension 進行比較。</p>
-
 <ul>
 <li>computer architecture a quantitative approach 課本筆記 -&gt; 實際上就是 VMIPS</li>
 <li><strong>riscv vector extension tutorial</strong></li>
 <li>arm ISA vector extension</li>
 </ul>
-
 <h2 id="risc-v-vector-extension">RISC-V vector extension</h2>
-
 <p>規格還在制定中，只有一些 draft 等級的東西在，姑且暫時用這些資料作為參考。</p>
-
 <ul>
 <li>硬體架構</li>
 <li>指令集分類</li>
 <li>範例</li>
 </ul>
-
 <blockquote>
 <p>也就是說很有可能之後通通改掉，直接白研究了 QQ</p>
 </blockquote>
-
 <h2 id="complement-vector-extension-instruction">Complement vector extension instruction</h2>
-
 <p>根據[2]，我們可以列出所有的指令如下：</p>
-
 <ul>
 <li>operation
-
 <ul>
 <li>用途</li>
-</ul></li>
+</ul>
+</li>
 <li>body
-
 <ul>
 <li>指令的代號</li>
-</ul></li>
+</ul>
+</li>
 <li>encoding
-
 <ul>
 <li>是否已經被編碼</li>
 <li>是某編碼是根據<a href="https://i.imgur.com/mvJoaeb.png">這份資料</a></li>
-</ul></li>
+</ul>
+</li>
 <li>instruction detail
-
 <ul>
 <li>各種派生指令</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h3 id="vector-memory-instructions">Vector Memory Instructions</h3>
-
 <table>
 <thead>
 <tr>
@@ -159,7 +146,6 @@ window.onload = ready;
 <th>Instructions Detail</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>vector load</td>
@@ -167,42 +153,36 @@ window.onload = ready;
 <td>Yes</td>
 <td>vlb, vlbu, vlh, vlhu, vlw, vlwu, vld, vflh, vflw, vfld</td>
 </tr>
-
 <tr>
 <td>vector load, strided</td>
 <td>vls</td>
 <td>Yes</td>
 <td>vlsb, vlsbu, vlsh, vlshu, vlsw, vlswu, vlsd, vflsh, vflsw, vflsd</td>
 </tr>
-
 <tr>
 <td>vector load, indexed (gather)</td>
 <td>vlx</td>
 <td>Yes</td>
 <td>vlxb, vlxbu, vlxh, vlxhu, vlxw, vlxwu, vlxd, vflxh, vflxw, vflxd</td>
 </tr>
-
 <tr>
 <td>vector store</td>
 <td>vs</td>
 <td>Yes</td>
 <td>vsb, vsh, vsw, vsd</td>
 </tr>
-
 <tr>
 <td>vector store, strided</td>
 <td>vss</td>
 <td>Yes</td>
 <td>vssb, vssh, vssw, vssd</td>
 </tr>
-
 <tr>
 <td>vector store, indexed (scatter)</td>
 <td>vsx</td>
 <td>Yes</td>
 <td>vsxb, vsxh, vsxw, vsxd</td>
 </tr>
-
 <tr>
 <td>vector store, indexed, unorder</td>
 <td>vsxu</td>
@@ -211,9 +191,7 @@ window.onload = ready;
 </tr>
 </tbody>
 </table>
-
 <h3 id="vector-integer-instructions">Vector Integer Instructions</h3>
-
 <table>
 <thead>
 <tr>
@@ -223,7 +201,6 @@ window.onload = ready;
 <th>Instructions</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>add</td>
@@ -231,56 +208,48 @@ window.onload = ready;
 <td>Yes</td>
 <td>vadd, vaddi, vaddw, vaddiw</td>
 </tr>
-
 <tr>
 <td>subtract</td>
 <td>vsub</td>
 <td>Yes</td>
 <td>vsub, vsubw</td>
 </tr>
-
 <tr>
 <td>multiply</td>
 <td>vmul</td>
 <td>No</td>
 <td>vmul, vmulh, vmulhsu, vmulhu</td>
 </tr>
-
 <tr>
 <td>widening multiply</td>
 <td>???</td>
 <td>No</td>
 <td>vmulwdn</td>
 </tr>
-
 <tr>
 <td>divide</td>
 <td>vdiv</td>
 <td>No</td>
 <td>vdiv, vdivu, vrem, vremu</td>
 </tr>
-
 <tr>
 <td>shift</td>
 <td>vs</td>
 <td>No</td>
 <td>vsll, vslli, vsra, vsrai, vsrl, vsrli</td>
 </tr>
-
 <tr>
 <td>logical</td>
 <td>???</td>
 <td>No</td>
 <td>vand, vandi, vor, vori, vxor, vxori</td>
 </tr>
-
 <tr>
 <td>compare</td>
 <td>???</td>
 <td>No</td>
 <td>vseq, vslt, vsltu</td>
 </tr>
-
 <tr>
 <td>fixed point</td>
 <td>vcli</td>
@@ -289,9 +258,7 @@ window.onload = ready;
 </tr>
 </tbody>
 </table>
-
 <h3 id="vector-floating-point-instructions">Vector Floating Point Instructions</h3>
-
 <table>
 <thead>
 <tr>
@@ -301,7 +268,6 @@ window.onload = ready;
 <th>Instructions</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>add</td>
@@ -309,63 +275,54 @@ window.onload = ready;
 <td>No</td>
 <td>vfadd.h, vfadd.s, vfadd.d</td>
 </tr>
-
 <tr>
 <td>substract</td>
 <td>vfsub</td>
 <td>No</td>
 <td>vfsub.h, vfsub.s, vfsub.d</td>
 </tr>
-
 <tr>
 <td>multiply</td>
 <td>vfmul</td>
 <td>No</td>
 <td>vfmul.h, vfmul.s, vfmul.d</td>
 </tr>
-
 <tr>
 <td>divide</td>
 <td>vfdiv</td>
 <td>No</td>
 <td>vfdiv.h, vfdiv.s, vfdiv.d</td>
 </tr>
-
 <tr>
 <td>sign</td>
 <td>vfsgn</td>
 <td>No</td>
 <td>vfsgn{j,jn,jx}.h, vfsgn{j,jn,jx}.s, vfsgn{j,jn,jx}.d</td>
 </tr>
-
 <tr>
 <td>max</td>
 <td>vfmax</td>
 <td>No</td>
 <td>vfmax.h, vfmax.s, vfmax.d</td>
 </tr>
-
 <tr>
 <td>min</td>
 <td>vfmin</td>
 <td>No</td>
 <td>vfmin.h, vfmin.s, vfmin.d</td>
 </tr>
-
 <tr>
 <td>compare</td>
 <td>???</td>
 <td>No</td>
 <td>vfeq.h, vfeq.s, vfeq.d, vltq.h, vflt.s, vflt.d, vfle.h, vfle.s, vfle.d</td>
 </tr>
-
 <tr>
 <td>sqrt</td>
 <td>vfsqrt</td>
 <td>No</td>
 <td>vfsqrt.h, vfsqrt.s, vfsqrt.d</td>
 </tr>
-
 <tr>
 <td>class</td>
 <td>vfclass</td>
@@ -374,9 +331,7 @@ window.onload = ready;
 </tr>
 </tbody>
 </table>
-
-<h3 id="vector-floating-point-multiply-add">Vector  Floating Point Multiply Add</h3>
-
+<h3 id="vector--floating-point-multiply-add">Vector  Floating Point Multiply Add</h3>
 <table>
 <thead>
 <tr>
@@ -384,32 +339,26 @@ window.onload = ready;
 <th>instructions</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>add</td>
 <td>vfmadd.h, vfmadd.s, vfmadd.d</td>
 </tr>
-
 <tr>
 <td>sub</td>
 <td>vfmsub.h, vfmsub.s, vfmsub.d</td>
 </tr>
-
 <tr>
 <td>widening add</td>
 <td>vfmaddwdn.h, vfmaddwdn.s, vfmaddwdn.d</td>
 </tr>
-
 <tr>
 <td>widening sub</td>
 <td>vfmsubwdn.h, vfmsubwdn.s, vfmsubwdn.d</td>
 </tr>
 </tbody>
 </table>
-
 <h3 id="vector-convert">Vector Convert</h3>
-
 <table>
 <thead>
 <tr>
@@ -417,25 +366,21 @@ window.onload = ready;
 <th></th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>To Half</td>
 <td>vfcvt.h.i, vfcvt.h.u</td>
 </tr>
-
 <tr>
 <td>To Single</td>
 <td>vfcvt.s.i, vfcvt.s.u</td>
 </tr>
-
 <tr>
 <td>To Double</td>
 <td>vfcvt.d.i, vfcvt.d.u</td>
 </tr>
 </tbody>
 </table>
-
 <table>
 <thead>
 <tr>
@@ -443,20 +388,17 @@ window.onload = ready;
 <th></th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>To Signed</td>
 <td>vfcvt.i.h, vfcvt.i.s, vfcvt.i.d</td>
 </tr>
-
 <tr>
 <td>To Unsigned</td>
 <td>vfcvt.u.h, vfcvt.u.s, vfcvt.u.d</td>
 </tr>
 </tbody>
 </table>
-
 <table>
 <thead>
 <tr>
@@ -464,25 +406,21 @@ window.onload = ready;
 <th></th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>To Half</td>
 <td>vfcvt.h.s, vfcvt.h.d</td>
 </tr>
-
 <tr>
 <td>To Single</td>
 <td>vfcvt.s.h, vfcvt.s.d</td>
 </tr>
-
 <tr>
 <td>To Double</td>
 <td>vfcvt.d.h, vfcvt.d.s</td>
 </tr>
 </tbody>
 </table>
-
 <table>
 <thead>
 <tr>
@@ -490,27 +428,22 @@ window.onload = ready;
 <th></th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>To Byte</td>
 <td>vcvt.{b,bu}.i</td>
 </tr>
-
 <tr>
 <td>To Half</td>
 <td>vcvt.{h,hu}.i</td>
 </tr>
-
 <tr>
 <td>To Word</td>
 <td>vcvt.{w,wu}.i</td>
 </tr>
 </tbody>
 </table>
-
 <h3 id="vector-data-movement">Vector Data Movement</h3>
-
 <table>
 <thead>
 <tr>
@@ -519,74 +452,62 @@ window.onload = ready;
 <th>action</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>insert gpr into vector</td>
 <td>vins vd, rs1, rs2</td>
 <td>vd[rs2] = rs1</td>
 </tr>
-
 <tr>
 <td>insert fp into vector</td>
 <td>vins vd, fs1, rs2</td>
 <td>vd[rs2] = fs1</td>
 </tr>
-
 <tr>
 <td>extract velem to gpr</td>
 <td>vext rd, rs1, rs2</td>
 <td>rd = vs1[rs2]</td>
 </tr>
-
 <tr>
 <td>extract velem to fp</td>
 <td>vext fd, vs1, rs2</td>
 <td>fd = vs1[rs2]</td>
 </tr>
-
 <tr>
 <td>vector-vector merge</td>
 <td>vmerge vd, vs1, vs2, vm</td>
 <td>mask picks src</td>
 </tr>
-
 <tr>
 <td>vector-gpr merge</td>
 <td>vmergex vd, rs1, vs2, vm</td>
 <td>mask picks src</td>
 </tr>
-
 <tr>
 <td>vector-fp merge</td>
 <td>vmergef vd, fs1, vs2, vm</td>
 <td>mask picks src</td>
 </tr>
-
 <tr>
 <td>vector register gather</td>
 <td>vrgather vd, vs1, vs2, vm</td>
 <td>vd[i] = vs1[vs2[i]]</td>
 </tr>
-
 <tr>
 <td>Gpr splat/bcast</td>
 <td>vsplatx vd, rs1</td>
 <td>Vd[0..MAXVL] = rs1</td>
 </tr>
-
 <tr>
 <td>fpr splat/bcast</td>
 <td>vsplatf vd, fs1</td>
 <td>Vd[0..MAXVL] = fs1</td>
 </tr>
-
 <tr>
 <td>vector slide down</td>
 <td>vslidedwn vd, vs1, rs2, vm</td>
 <td>vd[i] = vs1[rs2+i]</td>
 </tr>
-
 <tr>
 <td>vector slide up</td>
 <td>vslideup vd, vs1, rs2, vm</td>
@@ -594,9 +515,7 @@ window.onload = ready;
 </tr>
 </tbody>
 </table>
-
 <h3 id="vector-mask-operations">Vector Mask Operations</h3>
-
 <table>
 <thead>
 <tr>
@@ -604,142 +523,125 @@ window.onload = ready;
 <th>Instruction</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>Find first set bit in mask</td>
 <td>Vmfirst rd, vs1</td>
 </tr>
-
 <tr>
 <td>Mask pop count</td>
 <td>Vmpopc rd, vs1</td>
 </tr>
-
 <tr>
 <td>Count preceding mask bits</td>
 <td>Vmiota vd, vm</td>
 </tr>
-
 <tr>
 <td>Flag before first</td>
 <td>Vmfbf vd, vs1, vm</td>
 </tr>
-
 <tr>
 <td>Flag including first</td>
 <td>Vmfif vd, vs1, vm</td>
 </tr>
 </tbody>
 </table>
-
 <blockquote>
 <p>很明顯可以發現絕大多數的指令都沒有被編碼，這 proposal 也是pro個辛酸的。跟沒有講差不多，更何況還語帶保留的說很有可能會改。</p>
 </blockquote>
-
 <p>看看就好。</p>
-
 <h2 id="register-design">Register Design</h2>
-
 <p>暫存器在 RISC-V vector extension 中主要分為兩種。</p>
-
 <ul>
 <li>Data vector register</li>
 <li>Control and State Register (CSR)</li>
 </ul>
-
 <h3 id="vector-data-register">Vector Data Register</h3>
-
 <ul>
 <li>v0-31</li>
 <li>MAXVL 由實作決定</li>
 <li>資料的型態 -&gt; 就指令來看，整數跟浮點數用同一組Register (待研究)</li>
 <li>有三種存放資料的方式
-
 <ul>
 <li>調用 register 時，根據其後綴決定特性。</li>
 <li>vector：像是陣列的存放法</li>
 <li>scalar：將單一資料將 vector length 放滿</li>
 <li>martix：No Spec，還在規劃中</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h3 id="csr">CSR</h3>
-
 <ul>
 <li>vcfg (WARL-&gt;Wrtie Any Values, Reads Legal Values)
-
 <ul>
-<li>vregmax (8 bits)：控制 Vector data register 的數量 (disable 與否)</li>
+<li>vregmax (8 bits)：控制 Vector data register 的數量 (disable 與否)
+<ul>
 <li>舉例來說，如果其值為0，則 vector unit disable</li>
 <li>其值為2，則 v0, v1 啟用</li>
 <li>所以實際上 Vector Data Register 保留了可以擴充到 256 個空間</li>
-<li>vemaxw (3 bits)：設定單一個 element 有多寬</li>
-<li><img src="https://i.imgur.com/AkauTw2.png" alt="" /></li>
-<li>vtypeen (1 bit)：啟動 type extension (功能待補)</li>
-</ul></li>
-<li>vxcfg
-
+</ul>
+</li>
+<li>vemaxw (3 bits)：設定單一個 element 有多寬
 <ul>
-<li>vxcm (1 bit)：fixed point clip mode</li>
-<li><img src="https://i.imgur.com/LIWuEIx.png" alt="" /></li>
-<li>vxrm (2 bits)：fixed point rounding mode</li>
-<li><img src="https://i.imgur.com/F1HIfM3.png" alt="" /></li>
-</ul></li>
+<li><img src="https://i.imgur.com/AkauTw2.png" alt=""></li>
+</ul>
+</li>
+<li>vtypeen (1 bit)：啟動 type extension (功能待補)</li>
+</ul>
+</li>
+<li>vxcfg
+<ul>
+<li>vxcm (1 bit)：fixed point clip mode
+<ul>
+<li><img src="https://i.imgur.com/LIWuEIx.png" alt=""></li>
+</ul>
+</li>
+<li>vxrm (2 bits)：fixed point rounding mode
+<ul>
+<li><img src="https://i.imgur.com/F1HIfM3.png" alt=""></li>
+</ul>
+</li>
+</ul>
+</li>
 <li>vl
-
 <ul>
 <li>設定目前有效的 vector length</li>
 <li>可以使用 <code>vsetvl</code> 進行設定</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>所有的 CSR，都可以藉由 <code>vconfig</code> 進行同一設定。</p>
-
 <p>用法：<code>vconfig imm</code></p>
-
 <blockquote>
 <p>vdisable 寄生在 vconfig 上面，等效於 <code>vconfig 0</code></p>
 </blockquote>
-
 <h2 id="關於-maxvl">關於 MAXVL</h2>
-
 <p>首先要了解，硬體的空間是固定的，可以先假設為供給 vector extension 進行運用的空間有 n byte。而 MAXVL的值是從 <code>vconfig</code>設定完之後才能進一步確定的。</p>
-
 <p>能夠影響參數有：</p>
-
 <ul>
 <li>vregmax -&gt; 設為x
-
 <ul>
 <li>決定 register 的數量</li>
-</ul></li>
+</ul>
+</li>
 <li>vemaxw  -&gt; 設為y
-
 <ul>
 <li>確定 element 的長度</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>則 MAXVL 的值就會是
 $$
 MAXVL = \frac{n}{x*y}
 $$</p>
-
 <blockquote>
 <p>待確認正確性</p>
 </blockquote>
-
 <h2 id="example-add-two-vector">Example: add two vector</h2>
-
-<p><img src="https://i.imgur.com/zfqzafa.png" alt="" /></p>
-
-<p><img src="https://i.imgur.com/9Y2kUY5.png" alt="" /></p>
-
+<p><img src="https://i.imgur.com/zfqzafa.png" alt=""></p>
+<p><img src="https://i.imgur.com/9Y2kUY5.png" alt=""></p>
 <h2 id="mask-execution">Mask execution</h2>
-
 <p>為了處理在迴圈之中有 IF Statement。也就是在整個 vector 中，有一些 element 是不應該被執行的。</p>
-
 <ul>
 <li>Mask 存放在一般的 vector data register</li>
 <li>就當作 Boolean type 讀取，讀取 LSB (最低的那個bit)做為 Boolean 的值，其他的值就直接忽略。</li>
@@ -747,91 +649,86 @@ $$</p>
 <li>雖然沒有寫得很清楚，可是 <code>V1</code> 似乎被預設為存放 mask 的 register。</li>
 <li>絕大多數的指令都可以接受 Mask execution</li>
 </ul>
-
 <p>以 <code>vfadd.s v5, v3, v4, v0.t</code>為例</p>
-
-<p><img src="https://i.imgur.com/vjt331M.png" alt="" /></p>
-
-<p><img src="https://i.imgur.com/tuN2BsB.png" alt="" /></p>
-
+<p><img src="https://i.imgur.com/vjt331M.png" alt=""></p>
+<p><img src="https://i.imgur.com/tuN2BsB.png" alt=""></p>
 <blockquote>
 <p>到底是 v0 還是 v1 ???</p>
 </blockquote>
-
 <ul>
 <li>細節
-
 <ul>
-<li><img src="https://i.imgur.com/5PbWx41.png" alt="" /></li>
+<li><img src="https://i.imgur.com/5PbWx41.png" alt=""></li>
 <li>[1] mask 都是基於 v1</li>
 <li>assembly 上我猜是為了可讀性。</li>
 <li>真正決定行為的是指令的 encoding insn[26:25] -&gt; m</li>
-<li>後綴規則</li>
+<li>後綴規則
+<ul>
 <li><code>.s</code> -&gt; 做為 scalar 表示</li>
 <li><code>.f</code> -&gt; mask 為 0 時作為 true 看待</li>
 <li><code>.t</code> -&gt; mask 為 1 時作為 true 看待</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
+</li>
+</ul>
 <blockquote>
 <p>所以每個指令都有四種不一樣的 type ??? 我看 spike 是要扛不住了</p>
 </blockquote>
-
-<h2 id="memory-load-store">Memory load/store</h2>
-
+<h2 id="memory-loadstore">Memory load/store</h2>
 <blockquote>
 <p>當 RISC-V 在進行 load 時，讀取的長度由指令決定 (word, half word, byte&hellip;)，如果 register  element 的大小與指令讀取的大小不相符時，會導致 exception。存放亦然。</p>
 </blockquote>
-
 <ul>
-<li><p>Normal</p>
-
+<li>
+<p>Normal</p>
 <ul>
-<li><img src="https://i.imgur.com/eDW5M2M.png" alt="" /></li>
-<li><img src="https://i.imgur.com/6QKalNr.png" alt="" /></li>
-</ul></li>
-
-<li><p>Stride</p>
-
+<li><img src="https://i.imgur.com/eDW5M2M.png" alt=""></li>
+<li><img src="https://i.imgur.com/6QKalNr.png" alt=""></li>
+</ul>
+</li>
+<li>
+<p>Stride</p>
 <ul>
 <li>以 <code>vlsw v5,80(x3,x9)</code> 為例</li>
 <li>x3[80] 為 address 起點</li>
 <li>x9為每次取用移動的距離，單位應當為 byte</li>
 <li>stride 0 是為合法的(就每一次都在同一個位置)</li>
 <li>不對齊(unaligned)存取也是合法的</li>
-<li><img src="https://i.imgur.com/tGCVoY8.png" alt="" /></li>
-<li><img src="https://i.imgur.com/uL3DHxO.png" alt="" /></li>
-<li><img src="https://i.imgur.com/CGAmsPL.png" alt="" /></li>
-</ul></li>
-
-<li><p>Gather (indexed vector)</p>
-
-<ul>
-<li><p>以 <code>vflxw v5, 80(x3,v2)</code> 為例</p></li>
-
-<li><p>根據 vector 中的值作為 index</p></li>
-
-<li><p><img src="https://i.imgur.com/Nqbckt3.png" alt="" /></p></li>
-
-<li><p><img src="https://i.imgur.com/8M3LjrQ.png" alt="" /></p></li>
-
-<li><p><img src="https://i.imgur.com/YmPXDm6.png" alt="" /></p></li>
-</ul></li>
+<li><img src="https://i.imgur.com/tGCVoY8.png" alt=""></li>
+<li><img src="https://i.imgur.com/uL3DHxO.png" alt=""></li>
+<li><img src="https://i.imgur.com/CGAmsPL.png" alt=""></li>
 </ul>
-
+</li>
+<li>
+<p>Gather (indexed vector)</p>
+<ul>
+<li>
+<p>以 <code>vflxw v5, 80(x3,v2) </code> 為例</p>
+</li>
+<li>
+<p>根據 vector 中的值作為 index</p>
+</li>
+<li>
+<p><img src="https://i.imgur.com/Nqbckt3.png" alt=""></p>
+</li>
+<li>
+<p><img src="https://i.imgur.com/8M3LjrQ.png" alt=""></p>
+</li>
+<li>
+<p><img src="https://i.imgur.com/YmPXDm6.png" alt=""></p>
+</li>
+</ul>
+</li>
+</ul>
 <h2 id="fixed-point-instruction-待補">Fixed-point instruction (待補)</h2>
-
 <p>好像是當 float -&gt; int 時，要進行怎麼樣的處理。</p>
-
 <ul>
 <li>直接捨去</li>
 <li>四捨五入</li>
 </ul>
-
 <p>沒有實際範例、沒有詳細說明。</p>
-
 <h2 id="參考資料">參考資料</h2>
-
 <ol>
 <li><a href="https://github.com/riscv/riscv-v-spec">riscv-v-spec</a></li>
 <li><a href="https://drive.google.com/file/d/1fWyhzi5XsjrdamAPZISKH7RwRgc93Q9o/view?usp=sharing">The RISC-V Vector ISA Tutorial</a></li>

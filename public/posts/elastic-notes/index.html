@@ -94,18 +94,11 @@ window.onload = ready;
 
 <div class="content">
   <h1>Elasticsearch 筆記 <aside></aside></h1>
-  
-
-<h1 id="elasticsearch">elasticsearch</h1>
-
+  <h1 id="elasticsearch">elasticsearch</h1>
 <h2 id="簡介">簡介</h2>
-
 <p>基於java，所以要先裝<code>java &gt;= 8</code>。跑起來之後長的很像一台server，並且透過REST API進行資料的增減與搜尋的<code>query</code>。</p>
-
 <p>傳送給elastic的資料格式以<code>JSON</code>為主。</p>
-
 <p>elastic search 運作起來很像是database 下面簡單列出與database之間的對應關係。</p>
-
 <ul>
 <li>Node &lt;-&gt; DB server</li>
 <li>Index &lt;-&gt; database</li>
@@ -113,30 +106,20 @@ window.onload = ready;
 <li>document &lt;-&gt; row</li>
 <li>Field &lt;-&gt; column</li>
 </ul>
-
 <h2 id="使用">使用</h2>
-
 <p>不經修改，預設<code>elasticsearch</code>會使用<code>localhost:9200</code>作為他的接口。所以可以藉由這個路徑進行操作。</p>
-
 <blockquote>
 <p>官方推薦在<code>terminal</code>使用<code>curl</code>進行操作</p>
 </blockquote>
-
 <ul>
 <li>查看目前有的<code>index</code></li>
 </ul>
-
 <pre><code>GET /_cat/indices?v
-</code></pre>
-
-<pre><code>health status index uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+</code></pre><pre><code>health status index uuid                   pri rep docs.count docs.deleted store.size pri.store.size
 yellow open   hw1   l8nmMoxjSYypWv0LZ0IWpA   5   1     530278            0      1.2gb          1.2gb
-</code></pre>
-
-<ul>
+</code></pre><ul>
 <li>建立一個index</li>
 </ul>
-
 <pre><code>mapping = '''
 {
     &quot;settings&quot; : {
@@ -158,194 +141,147 @@ yellow open   hw1   l8nmMoxjSYypWv0LZ0IWpA   5   1     530278            0      
 '''
 es = Elasticsearch(timeout=30, max_retries=10, retry_on_timeout=True)
 es.indices.create(index='hw2', ignore=400, body=mapping)
-</code></pre>
-
-<blockquote>
+</code></pre><blockquote>
 <p>重點在於制定特定的mapping，如果都交給elastic自己管理的話，極有可能會發生錯誤。</p>
 </blockquote>
-
 <ul>
 <li>加入一筆index</li>
 </ul>
-
 <pre><code>curl -XPOST 'locjson't:9200/test/news' -d &quot;{ \&quot;title\&quot;: \&quot;yee\&quot;, \&quot;body\&quot;: 1234 }&quot; -H 'Content-Type: application/
-</code></pre>
-
-<pre><code>{&quot;_index&quot;:&quot;test&quot;,&quot;_type&quot;:&quot;news&quot;,&quot;_id&quot;:&quot;LCmeGWIBVfCh6W9Xihub&quot;,&quot;_version&quot;:1,&quot;result&quot;:&quot;created&quot;,&quot;_shards&quot;:{&quot;total&quot;:2,&quot;successful&quot;:1,&quot;failed&quot;:0},&quot;_seq_no&quot;:0,&quot;_primary_term&quot;:1}
-</code></pre>
-
-<blockquote>
+</code></pre><pre><code>{&quot;_index&quot;:&quot;test&quot;,&quot;_type&quot;:&quot;news&quot;,&quot;_id&quot;:&quot;LCmeGWIBVfCh6W9Xihub&quot;,&quot;_version&quot;:1,&quot;result&quot;:&quot;created&quot;,&quot;_shards&quot;:{&quot;total&quot;:2,&quot;successful&quot;:1,&quot;failed&quot;:0},&quot;_seq_no&quot;:0,&quot;_primary_term&quot;:1}
+</code></pre><blockquote>
 <p>如果不填入id的話，它會自動給一個隨機的id</p>
 </blockquote>
-
 <ul>
 <li>移除整個index</li>
 </ul>
-
 <pre><code>DELETE /index_name
-</code></pre>
-
-<pre><code class="language-shell">curl -XDELETE localhost:9200/[indexname]
-</code></pre>
-
-<ul>
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">curl -XDELETE localhost:9200/<span style="color:#f92672">[</span>indexname<span style="color:#f92672">]</span>
+</code></pre></div><ul>
 <li>執行多筆指令(bulk)</li>
 </ul>
-
 <pre><code>curl -XPOST 'localhost:9200/_bulk' -d {query}
-</code></pre>
-
-<blockquote>
+</code></pre><blockquote>
 <p>一次只加入一筆資料速度挺慢的，初步推測是因為頻繁進行硬碟I/O的緣故，故一次新增多筆index。有效的解決這個問題。</p>
-
 <p>請小心，bulk不會因為單一筆query錯誤而傳出錯誤訊息，建議先使用小資料進行測試。</p>
 </blockquote>
-
 <h2 id="elasticsearch-py">elasticsearch-py</h2>
-
 <p>網路上有人將上訴的<code>REST API</code>，包裝成python的<code>module</code>。所以可以藉由此套件對elastic進行操作。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">from</span> elasticsearch <span style="color:#f92672">import</span> Elasticsearch
+es <span style="color:#f92672">=</span> Elasticsearch()
 
-<pre><code class="language-python">from elasticsearch import Elasticsearch
-es = Elasticsearch()
+<span style="color:#75715e"># 我只有使用到兩個指令 bulk, search</span>
 
-# 我只有使用到兩個指令 bulk, search
+es<span style="color:#f92672">.</span>bulk(body<span style="color:#f92672">=</span>action)
+es<span style="color:#f92672">.</span>search(index<span style="color:#f92672">=</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">hw1</span><span style="color:#e6db74">&#39;</span>, body<span style="color:#f92672">=</span>{
+     <span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">query</span><span style="color:#e6db74">&#34;</span>: {
 
-es.bulk(body=action)
-es.search(index='hw1', body={
-     &quot;query&quot;: {
+     <span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">multi_match</span><span style="color:#e6db74">&#34;</span>: {
 
-     &quot;multi_match&quot;: {
+     <span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">query</span><span style="color:#e6db74">&#34;</span> : keyword,
 
-     &quot;query&quot; : keyword,
-
-     &quot;fields&quot; : \[&quot;title&quot;, &quot;body&quot;\]
+     <span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">fields</span><span style="color:#e6db74">&#34;</span> : \[<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">title</span><span style="color:#e6db74">&#34;</span>, <span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">body</span><span style="color:#e6db74">&#34;</span>\]
     }
 }
 
-</code></pre>
-
-<h2 id="json-操作">JSON 操作</h2>
-
+</code></pre></div><h2 id="json-操作">JSON 操作</h2>
 <p>由於elasticsearch多使用JSON傳遞資料，在此紀錄一下一些常用的操作。</p>
-
 <ul>
 <li>寫入JSON到檔案</li>
 </ul>
-
-<pre><code class="language-python">with open(filename, &quot;w&quot;) as f:
-    json.dump(data, f, ensure_ascii=False)
-</code></pre>
-
-<blockquote>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#66d9ef">with</span> open(filename, <span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">w</span><span style="color:#e6db74">&#34;</span>) <span style="color:#66d9ef">as</span> f:
+    json<span style="color:#f92672">.</span>dump(data, f, ensure_ascii<span style="color:#f92672">=</span>False)
+</code></pre></div><blockquote>
 <p>ensure_ascii -&gt; 設定為False，中文字才會顯示正常，不然會變成一串不是給人看的英文與數字</p>
 </blockquote>
-
 <ul>
 <li>讀取JSON從檔案</li>
 </ul>
-
-<pre><code class="language-python">with open(filename, &quot;r&quot;) as f:
-    data = json.load(f)
-</code></pre>
-
-<ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#66d9ef">with</span> open(filename, <span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">r</span><span style="color:#e6db74">&#34;</span>) <span style="color:#66d9ef">as</span> f:
+    data <span style="color:#f92672">=</span> json<span style="color:#f92672">.</span>load(f)
+</code></pre></div><ul>
 <li>從object生成JSON</li>
 </ul>
-
-<pre><code class="language-python">j = json.dumps(data)
-</code></pre>
-
-<ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">j <span style="color:#f92672">=</span> json<span style="color:#f92672">.</span>dumps(data)
+</code></pre></div><ul>
 <li>從JSON字串生成object</li>
 </ul>
-
-<pre><code class="language-python">data = json.loads(j)
-</code></pre>
-
-<h2 id="從原始資料到前端">從原始資料到前端</h2>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">data <span style="color:#f92672">=</span> json<span style="color:#f92672">.</span>loads(j)
+</code></pre></div><h2 id="從原始資料到前端">從原始資料到前端</h2>
 <ul>
 <li>從原始資料到JSON檔</li>
 </ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> os
+<span style="color:#f92672">import</span> json
+<span style="color:#f92672">import</span> glob
 
-<pre><code class="language-python">import os
-import json
-import glob
+filename <span style="color:#f92672">=</span> glob<span style="color:#f92672">.</span>glob(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">ettoday*.rec</span><span style="color:#e6db74">&#34;</span>)
 
-filename = glob.glob(&quot;ettoday*.rec&quot;)
+data <span style="color:#f92672">=</span> \[\]
+<span style="color:#66d9ef">for</span> fn <span style="color:#f92672">in</span> filename:
+    cnt <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+    <span style="color:#66d9ef">with</span> open(fn, <span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">r</span><span style="color:#e6db74">&#34;</span>) <span style="color:#66d9ef">as</span> f:
+        <span style="color:#66d9ef">while</span> True:
+            cnt <span style="color:#f92672">+</span><span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+            pos <span style="color:#f92672">=</span> f<span style="color:#f92672">.</span>tell()
+            useless <span style="color:#f92672">=</span> f<span style="color:#f92672">.</span>readline()
+            url <span style="color:#f92672">=</span> f<span style="color:#f92672">.</span>readline()
+            url <span style="color:#f92672">=</span> url\[<span style="color:#ae81ff">3</span>:\]
+            url <span style="color:#f92672">=</span> url<span style="color:#f92672">.</span>strip(<span style="color:#e6db74"></span><span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">n</span><span style="color:#e6db74">&#39;</span>)
+            title <span style="color:#f92672">=</span> f<span style="color:#f92672">.</span>readline()
+            title <span style="color:#f92672">=</span> title\[<span style="color:#ae81ff">3</span>:\]
+            title <span style="color:#f92672">=</span> title<span style="color:#f92672">.</span>strip(<span style="color:#e6db74"></span><span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">n</span><span style="color:#e6db74">&#39;</span>)
+            useless <span style="color:#f92672">=</span> f<span style="color:#f92672">.</span>readline()
+            maintext <span style="color:#f92672">=</span> f<span style="color:#f92672">.</span>readline()
+            maintext <span style="color:#f92672">=</span> maintext<span style="color:#f92672">.</span>strip()
+            after_pos <span style="color:#f92672">=</span> f<span style="color:#f92672">.</span>tell()
+            <span style="color:#66d9ef">print</span>(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{}: {}</span><span style="color:#e6db74">&#34;</span><span style="color:#f92672">.</span>format(fn, cnt))
+            \<span style="color:#75715e"># print(&#34;{}:{}:{}&#34;.format(url, title, maintext))</span>
+            <span style="color:#66d9ef">if</span> pos <span style="color:#f92672">==</span> after_pos:
+                <span style="color:#66d9ef">break</span>
+            <span style="color:#66d9ef">else</span>:
+                data<span style="color:#f92672">.</span>append({
+                    <span style="color:#e6db74"></span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">url</span><span style="color:#e6db74">&#39;</span>:url, 
+                    <span style="color:#e6db74"></span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">title</span><span style="color:#e6db74">&#39;</span>:title, 
+                    <span style="color:#e6db74"></span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">body</span><span style="color:#e6db74">&#39;</span>:maintext})
 
-data = \[\]
-for fn in filename:
-    cnt = 0
-    with open(fn, &quot;r&quot;) as f:
-        while True:
-            cnt += 1
-            pos = f.tell()
-            useless = f.readline()
-            url = f.readline()
-            url = url\[3:\]
-            url = url.strip('\\n')
-            title = f.readline()
-            title = title\[3:\]
-            title = title.strip('\\n')
-            useless = f.readline()
-            maintext = f.readline()
-            maintext = maintext.strip()
-            after_pos = f.tell()
-            print(&quot;{}: {}&quot;.format(fn, cnt))
-            \# print(&quot;{}:{}:{}&quot;.format(url, title, maintext))
-            if pos == after_pos:
-                break
-            else:
-                data.append({
-                    'url':url, 
-                    'title':title, 
-                    'body':maintext})
-
-with open('news.json', &quot;w&quot;) as f:
-    json.dump(data, f, ensure_ascii=False)
-</code></pre>
-
-<ul>
+<span style="color:#66d9ef">with</span> open(<span style="color:#e6db74"></span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">news.json</span><span style="color:#e6db74">&#39;</span>, <span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">w</span><span style="color:#e6db74">&#34;</span>) <span style="color:#66d9ef">as</span> f:
+    json<span style="color:#f92672">.</span>dump(data, f, ensure_ascii<span style="color:#f92672">=</span>False)
+</code></pre></div><ul>
 <li>從json讀取進elastic</li>
 </ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">from</span> elasticsearch <span style="color:#f92672">import</span> Elasticsearch
+<span style="color:#f92672">import</span> json
 
-<pre><code class="language-python">from elasticsearch import Elasticsearch
-import json
+<span style="color:#66d9ef">with</span> open(<span style="color:#e6db74"></span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">./news_data/news.json</span><span style="color:#e6db74">&#39;</span>) <span style="color:#66d9ef">as</span> f:
+    Data <span style="color:#f92672">=</span> json<span style="color:#f92672">.</span>load(f)
 
-with open('./news_data/news.json') as f:
-    Data = json.load(f)
-
-es = Elasticsearch()
+es <span style="color:#f92672">=</span> Elasticsearch()
     
-action = ''
-cnt = 0
-for data in Data:
-    query = '{&quot;index&quot;: {&quot;\_index&quot;: &quot;hw1&quot;, &quot;\_type&quot;: &quot;news&quot;}}\\n' + json.dumps(data, ensure_ascii=False)
-    action += query + '\\n'
-    cnt += 1
-    print(cnt)
-    if cnt % 1000 == 0:
-        es.bulk(body=action)
-        action = ''
+action <span style="color:#f92672">=</span> <span style="color:#e6db74"></span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">&#39;</span>
+cnt <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+<span style="color:#66d9ef">for</span> data <span style="color:#f92672">in</span> Data:
+    query <span style="color:#f92672">=</span> <span style="color:#e6db74"></span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">{</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">index</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">: {</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">\</span><span style="color:#e6db74">_index</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">: </span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">hw1</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">, </span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">\</span><span style="color:#e6db74">_type</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">: </span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">news</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">}}</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">n</span><span style="color:#e6db74">&#39;</span> <span style="color:#f92672">+</span> json<span style="color:#f92672">.</span>dumps(data, ensure_ascii<span style="color:#f92672">=</span>False)
+    action <span style="color:#f92672">+</span><span style="color:#f92672">=</span> query <span style="color:#f92672">+</span> <span style="color:#e6db74"></span><span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">n</span><span style="color:#e6db74">&#39;</span>
+    cnt <span style="color:#f92672">+</span><span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+    <span style="color:#66d9ef">print</span>(cnt)
+    <span style="color:#66d9ef">if</span> cnt <span style="color:#f92672">%</span> <span style="color:#ae81ff">1000</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
+        es<span style="color:#f92672">.</span>bulk(body<span style="color:#f92672">=</span>action)
+        action <span style="color:#f92672">=</span> <span style="color:#e6db74"></span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">&#39;</span>
 
-es.bulk(body=action)
-</code></pre>
-
-<ul>
+es<span style="color:#f92672">.</span>bulk(body<span style="color:#f92672">=</span>action)
+</code></pre></div><ul>
 <li>對elastic執行query</li>
 </ul>
-
-<pre><code class="language-python">def query(keyword): 
-    es = Elasticsearch() 
-    tmp = es.search(index='hw1', body={ &quot;query&quot;: { &quot;multi_match&quot;: { &quot;query&quot; : keyword, &quot;fields&quot; : [&quot;title&quot;, &quot;body&quot;] } } }) 
-    tmp = tmp['hits']['hits'] 
-    res = [] 
-    for i in tmp: 
-        res.append(i['_source']) 
-    return res
-</code></pre>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">query</span>(keyword): 
+    es <span style="color:#f92672">=</span> Elasticsearch() 
+    tmp <span style="color:#f92672">=</span> es<span style="color:#f92672">.</span>search(index<span style="color:#f92672">=</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">hw1</span><span style="color:#e6db74">&#39;</span>, body<span style="color:#f92672">=</span>{ <span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">query</span><span style="color:#e6db74">&#34;</span>: { <span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">multi_match</span><span style="color:#e6db74">&#34;</span>: { <span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">query</span><span style="color:#e6db74">&#34;</span> : keyword, <span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">fields</span><span style="color:#e6db74">&#34;</span> : [<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">title</span><span style="color:#e6db74">&#34;</span>, <span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">body</span><span style="color:#e6db74">&#34;</span>] } } }) 
+    tmp <span style="color:#f92672">=</span> tmp[<span style="color:#e6db74"></span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">hits</span><span style="color:#e6db74">&#39;</span>][<span style="color:#e6db74"></span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">hits</span><span style="color:#e6db74">&#39;</span>] 
+    res <span style="color:#f92672">=</span> [] 
+    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> tmp: 
+        res<span style="color:#f92672">.</span>append(i[<span style="color:#e6db74"></span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">_source</span><span style="color:#e6db74">&#39;</span>]) 
+    <span style="color:#66d9ef">return</span> res
+</code></pre></div>
 </div>
 
 

@@ -94,14 +94,9 @@ window.onload = ready;
 
 <div class="content">
   <h1>Go goroutine <aside></aside></h1>
-  
-
-<h2 id="前言">前言</h2>
-
+  <h2 id="前言">前言</h2>
 <p>這篇文章會包含 goroutine 的一些用法與需要注意的要點。</p>
-
 <p>在這個問題上，我們需要釐清的重點在於</p>
-
 <ul>
 <li>goroutine</li>
 <li>channel</li>
@@ -109,76 +104,63 @@ window.onload = ready;
 <li>waitgroup</li>
 <li>timeout</li>
 </ul>
-
 <p><code>goroutine</code>是 golang 中一個重要的 feature，概念上就是從程式語言的層次上支援 coroutine 的功能。可以在低成本(不論是硬體或者是程式撰寫的部份)的情況下大量的使用平行化。</p>
-
 <p>從最近使用的感想上來說，可以理解為，被指定由<code>goroutine</code>方法執行的程式區塊，是被直接丟進另外一個<code>task pool</code> 中等待電腦去執行它。至於 golang 是如何實現讓這些大量的 task 去榨乾所有的運算支援大概可以再寫一篇文章來討論。</p>
-
 <p>被放出去的執行的程式，我們可以使用 channel 作為傳遞資料的管道，也可以作為一種 wait 的方法。當有多個 coroutine 同時在背景執行時，且每個 coroutine 個別的結果需要分別處理時，就可以利用 select 去接 channel 並且分開來處理。</p>
-
 <p>當不需要分開處理又需要等待所有的coroutine執行完畢。就簡單的使用 sync.waitgroup 去執行與等待。</p>
-
 <p>在每個執行的程式之中，有些程式可能會卡死，原因很多，像是網路不通阿。要取得的東西太大&hellip;總之，如果讓整個程式就卡在這裡的話，就沒有加速的意義了。所以需要一個timeout來限制最長的執行時間，如果時間到 coroutine 卻還沒有執行完成，那就進行其他的處理。</p>
-
 <h2 id="範例-goroutine-and-channel">範例 Goroutine and Channel</h2>
-
-<pre><code class="language-c">func main() {
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">func <span style="color:#a6e22e">main</span>() {
     
-    c1 := make(chan int)
+    c1 :<span style="color:#f92672">=</span> make(chan <span style="color:#66d9ef">int</span>)
     go func () {
-        c1 &lt;- do_something_computer1() 
+        c1 <span style="color:#f92672">&lt;</span><span style="color:#f92672">-</span> do_something_computer1() 
     }()
     
-    c2 := make(chan int)
+    c2 :<span style="color:#f92672">=</span> make(chan <span style="color:#66d9ef">int</span>)
     go func () {
-        c2 &lt;- do_something_computer2()
+        c2 <span style="color:#f92672">&lt;</span><span style="color:#f92672">-</span> do_something_computer2()
     }()
     
-    result := &lt;-c1 + &lt;-c2
+    result :<span style="color:#f92672">=</span> <span style="color:#f92672">&lt;</span><span style="color:#f92672">-</span>c1 <span style="color:#f92672">+</span> <span style="color:#f92672">&lt;</span><span style="color:#f92672">-</span>c2
 }
-</code></pre>
-
-<ul>
+</code></pre></div><ul>
 <li>調用 gooutine 的關鍵字為 <code>go</code> 只能加在一個 method/function 調用之前(待驗證)。用途就是將這個 func 令其在丟進 task pool。</li>
 <li>channel 為goroutine之間溝通的管道，我們可以利用其來達成 wait 的效果。
-
 <ul>
 <li>channel 的宣告為在變數之前加上 chan，例：chan int</li>
 <li>channel 的使用上會用 &lt;-，由變數的位置來決定是取用還是寫入</li>
-</ul></li>
+</ul>
+</li>
 <li>系統會等到c1與c2都執行完成才會結束。</li>
 </ul>
-
 <blockquote>
 <p>如果不 wait，執行過程不會等待 goroutine 執行結束與否就直接 exit</p>
 </blockquote>
-
 <h2 id="範例-waitgroup-select-and-timeout">範例 waitgroup, select and timeout</h2>
-
-<pre><code class="language-c">func main() {
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">func <span style="color:#a6e22e">main</span>() {
     var wg snyc.waitgroup
-    for i, v := range list_of_string {
-        wg.Add(1)
-        go func (s string, wg *sync.waitgroup) {
+    <span style="color:#66d9ef">for</span> i, v :<span style="color:#f92672">=</span> range list_of_string {
+        wg.Add(<span style="color:#ae81ff">1</span>)
+        go func (s string, wg <span style="color:#f92672">*</span>sync.waitgroup) {
             do_something(s)
             wg.Done()
         }(v, wg)
     }
-    c1 = make(chan int)
+    c1 <span style="color:#f92672">=</span> make(chan <span style="color:#66d9ef">int</span>)
     go func () {
         wg.Wait()
         close(c1)
     }()
     
     select {
-    case &lt;- c1:
-        fmt.Printf(&quot;Success.\n&quot;)
-    case &lt;- time.After(100 * time.Second):
-        fmt.Printf(&quot;Timeout\n&quot;)
+    <span style="color:#66d9ef">case</span> <span style="color:#f92672">&lt;</span><span style="color:#f92672">-</span> c1:
+        fmt.Printf(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">Success.</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>)
+    <span style="color:#66d9ef">case</span> <span style="color:#f92672">&lt;</span><span style="color:#f92672">-</span> time.After(<span style="color:#ae81ff">100</span> <span style="color:#f92672">*</span> time.Second)<span style="color:#f92672">:</span>
+        fmt.Printf(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">Timeout</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>)
     }
 }
-</code></pre>
-
+</code></pre></div>
 </div>
 
 

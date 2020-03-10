@@ -94,183 +94,140 @@ window.onload = ready;
 
 <div class="content">
   <h1>llvm_pointer_type <aside></aside></h1>
-  
-
-<h1 id="llvm-pointer-type-解析">LLVM pointer type 解析</h1>
-
+  <h1 id="llvm-pointer-type-解析">LLVM pointer type 解析</h1>
 <p>寫個作業發現居然沒有對於 LLVM pointer type 的詳細說明，難怪沒有人要做 compiler，文件都那麼不友善。明明 pointer 是這麼常用的到東西。一堆 dereference 的星星。</p>
-
 <p>本文基於C language 對於 llvm IR 的轉換進行介紹。</p>
-
 <h2 id="目錄">目錄</h2>
-
 <ul>
-<li><p>名詞定義</p>
-
-<ul>
-<li>pointer type</li>
-<li>reference</li>
-<li>dereference</li>
-</ul></li>
-
-<li><p>LLVM IR</p></li>
+<li>
+<p>名詞定義</p>
+</li>
+<li>
+<p>pointer type</p>
+</li>
+<li>
+<p>reference</p>
+</li>
+<li>
+<p>dereference</p>
+</li>
+<li>
+<p>LLVM IR</p>
+</li>
 </ul>
-
 <h2 id="名詞定義">名詞定義</h2>
-
 <h3 id="pointer-type">Pointer type</h3>
-
 <p>在C語言中，我們使用 pointer 會是一個指向某一個 address 的 variable。</p>
-
-<pre><code class="language-c">int *p;
-int x;
-p = &amp;x;
-</code></pre>
-
-<h3 id="reference">Reference</h3>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>p;
+<span style="color:#66d9ef">int</span> x;
+p <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span>x;
+</code></pre></div><h3 id="reference">Reference</h3>
 <p>每個變數都有值(value)跟位址(address)，pointer type 只是剛好 value 是某一個 address。所謂的 Reference 就是指用一個關鍵字去取得一個特定變數的address。</p>
-
-<pre><code class="language-c">int *p;
-printf(&quot;%p\n&quot;, &amp;p);
-</code></pre>
-
-<h3 id="dereference">dereference</h3>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>p;
+printf(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">%p</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, <span style="color:#f92672">&amp;</span>p);
+</code></pre></div><h3 id="dereference">dereference</h3>
 <p>這個操作是指 reference 的反向，如果可以從一個變數取得它的位址，那麼也可以從一個位址取得它的值。</p>
-
-<pre><code class="language-c">int *p;
-int x = 10;
-p = &amp;x;
-printf(&quot;%d\n&quot;, *p);
-</code></pre>
-
-<h2 id="llvm-ir">LLVM IR</h2>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>p;
+<span style="color:#66d9ef">int</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>;
+p <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span>x;
+printf(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">%d</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, <span style="color:#f92672">*</span>p);
+</code></pre></div><h2 id="llvm-ir">LLVM IR</h2>
 <p>但是以上的各種名詞定義都僅僅應用在C語言層級。LLVM IR 更像是一種組合語言，對於組合語言來說，就沒有什麼 Reference、dereference。需要關注的，只有三種指令。</p>
-
 <ul>
 <li>alloca
-
 <ul>
 <li>宣告一段空間給變數</li>
-</ul></li>
+</ul>
+</li>
 <li>load
-
 <ul>
 <li>從某個address取得其值</li>
-</ul></li>
+</ul>
+</li>
 <li>store
-
 <ul>
 <li>將某個值放入某個address</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>當然實際上還要再更複雜一點。接下來我們來看一下這個LLVM IR範例。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">  <span style="color:#75715e">// This is C source code
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">int</span> x, y, <span style="color:#f92672">*</span>p, <span style="color:#f92672">*</span><span style="color:#f92672">*</span>pp;
+  p <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span>x;
+  pp <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span>p;
+  <span style="color:#f92672">*</span>pp <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span>y;
+  <span style="color:#f92672">*</span>p <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span>;
+  <span style="color:#f92672">*</span><span style="color:#f92672">*</span>pp <span style="color:#f92672">=</span> <span style="color:#f92672">*</span>p;
 
-<pre><code class="language-c">  // This is C source code
-  int x, y, *p, **pp;
-  p = &amp;x;
-  pp = &amp;p;
-  *pp = &amp;y;
-  *p = 3;
-  **pp = *p;
-
-  // This is LLVM IR transform by clang
-  %1 = alloca i32, align 4
-  %2 = alloca i32, align 4
-  %3 = alloca i32*, align 8
-  %4 = alloca i32**, align 8
+  <span style="color:#75715e">// This is LLVM IR transform by clang
+</span><span style="color:#75715e"></span>  <span style="color:#f92672">%</span><span style="color:#ae81ff">1</span> <span style="color:#f92672">=</span> alloca i32, align <span style="color:#ae81ff">4</span>
+  <span style="color:#f92672">%</span><span style="color:#ae81ff">2</span> <span style="color:#f92672">=</span> alloca i32, align <span style="color:#ae81ff">4</span>
+  <span style="color:#f92672">%</span><span style="color:#ae81ff">3</span> <span style="color:#f92672">=</span> alloca i32<span style="color:#f92672">*</span>, align <span style="color:#ae81ff">8</span>
+  <span style="color:#f92672">%</span><span style="color:#ae81ff">4</span> <span style="color:#f92672">=</span> alloca i32<span style="color:#f92672">*</span><span style="color:#f92672">*</span>, align <span style="color:#ae81ff">8</span>
   
-  store i32* %1, i32** %3, align 8
+  store i32<span style="color:#f92672">*</span> <span style="color:#f92672">%</span><span style="color:#ae81ff">1</span>, i32<span style="color:#f92672">*</span><span style="color:#f92672">*</span> <span style="color:#f92672">%</span><span style="color:#ae81ff">3</span>, align <span style="color:#ae81ff">8</span>
   
-  store i32** %3, i32*** %4, align 8
+  store i32<span style="color:#f92672">*</span><span style="color:#f92672">*</span> <span style="color:#f92672">%</span><span style="color:#ae81ff">3</span>, i32<span style="color:#f92672">*</span><span style="color:#f92672">*</span><span style="color:#f92672">*</span> <span style="color:#f92672">%</span><span style="color:#ae81ff">4</span>, align <span style="color:#ae81ff">8</span>
   
-  %5 = load i32**, i32*** %4, align 8
-  store i32* %2, i32** %5, align 8
+  <span style="color:#f92672">%</span><span style="color:#ae81ff">5</span> <span style="color:#f92672">=</span> load i32<span style="color:#f92672">*</span><span style="color:#f92672">*</span>, i32<span style="color:#f92672">*</span><span style="color:#f92672">*</span><span style="color:#f92672">*</span> <span style="color:#f92672">%</span><span style="color:#ae81ff">4</span>, align <span style="color:#ae81ff">8</span>
+  store i32<span style="color:#f92672">*</span> <span style="color:#f92672">%</span><span style="color:#ae81ff">2</span>, i32<span style="color:#f92672">*</span><span style="color:#f92672">*</span> <span style="color:#f92672">%</span><span style="color:#ae81ff">5</span>, align <span style="color:#ae81ff">8</span>
   
-  %6 = load i32*, i32** %3, align 8
-  store i32 3, i32* %6, align 4
+  <span style="color:#f92672">%</span><span style="color:#ae81ff">6</span> <span style="color:#f92672">=</span> load i32<span style="color:#f92672">*</span>, i32<span style="color:#f92672">*</span><span style="color:#f92672">*</span> <span style="color:#f92672">%</span><span style="color:#ae81ff">3</span>, align <span style="color:#ae81ff">8</span>
+  store i32 <span style="color:#ae81ff">3</span>, i32<span style="color:#f92672">*</span> <span style="color:#f92672">%</span><span style="color:#ae81ff">6</span>, align <span style="color:#ae81ff">4</span>
   
-  %7 = load i32*, i32** %3, align 8   
-  %8 = load i32, i32* %7, align 4     
-  %9 = load i32**, i32*** %4, align 8 
-  %10 = load i32*, i32** %9, align 8  
-  store i32 %8, i32* %10, align 4
-</code></pre>
-
-<p>我們可以在C語言層級重新看待這段程式碼。</p>
-
+  <span style="color:#f92672">%</span><span style="color:#ae81ff">7</span> <span style="color:#f92672">=</span> load i32<span style="color:#f92672">*</span>, i32<span style="color:#f92672">*</span><span style="color:#f92672">*</span> <span style="color:#f92672">%</span><span style="color:#ae81ff">3</span>, align <span style="color:#ae81ff">8</span>   
+  <span style="color:#f92672">%</span><span style="color:#ae81ff">8</span> <span style="color:#f92672">=</span> load i32, i32<span style="color:#f92672">*</span> <span style="color:#f92672">%</span><span style="color:#ae81ff">7</span>, align <span style="color:#ae81ff">4</span>     
+  <span style="color:#f92672">%</span><span style="color:#ae81ff">9</span> <span style="color:#f92672">=</span> load i32<span style="color:#f92672">*</span><span style="color:#f92672">*</span>, i32<span style="color:#f92672">*</span><span style="color:#f92672">*</span><span style="color:#f92672">*</span> <span style="color:#f92672">%</span><span style="color:#ae81ff">4</span>, align <span style="color:#ae81ff">8</span> 
+  <span style="color:#f92672">%</span><span style="color:#ae81ff">10</span> <span style="color:#f92672">=</span> load i32<span style="color:#f92672">*</span>, i32<span style="color:#f92672">*</span><span style="color:#f92672">*</span> <span style="color:#f92672">%</span><span style="color:#ae81ff">9</span>, align <span style="color:#ae81ff">8</span>  
+  store i32 <span style="color:#f92672">%</span><span style="color:#ae81ff">8</span>, i32<span style="color:#f92672">*</span> <span style="color:#f92672">%</span><span style="color:#ae81ff">10</span>, align <span style="color:#ae81ff">4</span>
+</code></pre></div><p>我們可以在C語言層級重新看待這段程式碼。</p>
 <pre><code>**pp - *pp - pp - &amp;pp
-</code></pre>
-
-<ul>
+</code></pre><ul>
 <li>當star數與實際宣告型態相同時，變數是原始型態</li>
 </ul>
-
 <pre><code>i32 %1    -&gt; x
 i32 %2    -&gt; y
 i32 * %3  -&gt; p
 i32 ** %4 -&gt; pp
-</code></pre>
-
-<ul>
+</code></pre><ul>
 <li>當多一個star的時候為reference，當少一個星時候為dereference，但是實務上只會有多一個星的狀況發生。
-
 <ul>
 <li>因為 reference 是去取得一個constant的位址，dereference 是去取得一個動態的值。</li>
 <li>前者可以亂來，後者要靠指令。</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h3 id="store">STORE</h3>
-
-<pre><code class="language-c">store i32* %1, i32** %3, align 8
-// %1 -&gt; int x
-// %3 -&gt; int *p
-</code></pre>
-
-<p>我們先回歸所謂 store 指令的定義，store 的本質為，<strong>將一個 value ，存入一個 address 中</strong>。剛好，pointer type 其中的 value 就是 address。所以很容易造成混淆。</p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">store i32<span style="color:#f92672">*</span> <span style="color:#f92672">%</span><span style="color:#ae81ff">1</span>, i32<span style="color:#f92672">*</span><span style="color:#f92672">*</span> <span style="color:#f92672">%</span><span style="color:#ae81ff">3</span>, align <span style="color:#ae81ff">8</span>
+<span style="color:#75715e">// %1 -&gt; int x
+</span><span style="color:#75715e"></span><span style="color:#75715e">// %3 -&gt; int *p
+</span></code></pre></div><p>我們先回歸所謂 store 指令的定義，store 的本質為，<strong>將一個 value ，存入一個 address 中</strong>。剛好，pointer type 其中的 value 就是 address。所以很容易造成混淆。</p>
 <p>我們來逐個 operand 進行分析。</p>
-
-<pre><code class="language-c">// %1 -&gt; x
-// x - &amp;x
-// 多一個star，向右一格
-i32* %1 -&gt; &amp;x
-</code></pre>
-
-<pre><code class="language-c">// %3 -&gt; *p
-// *p - p - &amp;p
-// 多一個star，向右一格
-i32** %3 -&gt; &amp;p
-</code></pre>
-
-<p>但是我們還要考慮store的本質，所以我們是存值回 address of p。</p>
-
-<pre><code class="language-c">p = &amp;x;
-</code></pre>
-
-<blockquote>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e">// %1 -&gt; x
+</span><span style="color:#75715e"></span><span style="color:#75715e">// x - &amp;x
+</span><span style="color:#75715e"></span><span style="color:#75715e">// 多一個star，向右一格
+</span><span style="color:#75715e"></span>i32<span style="color:#f92672">*</span> <span style="color:#f92672">%</span><span style="color:#ae81ff">1</span> <span style="color:#f92672">-</span><span style="color:#f92672">&gt;</span> <span style="color:#f92672">&amp;</span>x
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e">// %3 -&gt; *p
+</span><span style="color:#75715e"></span><span style="color:#75715e">// *p - p - &amp;p
+</span><span style="color:#75715e"></span><span style="color:#75715e">// 多一個star，向右一格
+</span><span style="color:#75715e"></span>i32<span style="color:#f92672">*</span><span style="color:#f92672">*</span> <span style="color:#f92672">%</span><span style="color:#ae81ff">3</span> <span style="color:#f92672">-</span><span style="color:#f92672">&gt;</span> <span style="color:#f92672">&amp;</span>p
+</code></pre></div><p>但是我們還要考慮store的本質，所以我們是存值回 address of p。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">p <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span>x;
+</code></pre></div><blockquote>
 <p>所以從分析的角度看來，store 第二個 operand 會導致向左一格。</p>
 </blockquote>
-
 <h3 id="load">LOAD</h3>
-
 <p>接著來看看有LOAD亂入的狀況。</p>
-
-<pre><code class="language-c"> // %4 -&gt; **pp
- // **pp - *pp - pp - &amp;pp
- // i32*** %4 -&gt; &amp;pp
- // Load 是從 address 中取得value
- // 所以 %5 = load from &amp;pp = pp
- %5 = load i32**, i32*** %4, align 8
- // %2 -&gt; y 多一個star -&gt; &amp;y
- // %5 -&gt; pp -&gt; store 作為 address -&gt; *p  
- store i32* %2, i32** %5, align 8
-</code></pre>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"> <span style="color:#75715e">// %4 -&gt; **pp
+</span><span style="color:#75715e"></span> <span style="color:#75715e">// **pp - *pp - pp - &amp;pp
+</span><span style="color:#75715e"></span> <span style="color:#75715e">// i32*** %4 -&gt; &amp;pp
+</span><span style="color:#75715e"></span> <span style="color:#75715e">// Load 是從 address 中取得value
+</span><span style="color:#75715e"></span> <span style="color:#75715e">// 所以 %5 = load from &amp;pp = pp
+</span><span style="color:#75715e"></span> <span style="color:#f92672">%</span><span style="color:#ae81ff">5</span> <span style="color:#f92672">=</span> load i32<span style="color:#f92672">*</span><span style="color:#f92672">*</span>, i32<span style="color:#f92672">*</span><span style="color:#f92672">*</span><span style="color:#f92672">*</span> <span style="color:#f92672">%</span><span style="color:#ae81ff">4</span>, align <span style="color:#ae81ff">8</span>
+ <span style="color:#75715e">// %2 -&gt; y 多一個star -&gt; &amp;y
+</span><span style="color:#75715e"></span> <span style="color:#75715e">// %5 -&gt; pp -&gt; store 作為 address -&gt; *p  
+</span><span style="color:#75715e"></span> store i32<span style="color:#f92672">*</span> <span style="color:#f92672">%</span><span style="color:#ae81ff">2</span>, i32<span style="color:#f92672">*</span><span style="color:#f92672">*</span> <span style="color:#f92672">%</span><span style="color:#ae81ff">5</span>, align <span style="color:#ae81ff">8</span>
+</code></pre></div>
 </div>
 
 

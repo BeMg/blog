@@ -94,61 +94,43 @@ window.onload = ready;
 
 <div class="content">
   <h1>Llvm Trick <aside></aside></h1>
-  
-
-<h2 id="前言">前言</h2>
-
+  <h2 id="前言">前言</h2>
 <p>LLVM 太多神秘的小技巧了，整理成一篇文章以外之後忘記。</p>
-
 <p>本篇文章主要以需求導向，根據某個需求要如何用LLVM工具達成，</p>
-
 <h2 id="llvm-tools-usage">LLVM Tools Usage</h2>
-
 <h3 id="啟用subtarget">啟用Subtarget</h3>
-
 <p>這裡以 RISC-V 為例。</p>
-
 <pre><code>llc --march=riscv32 --mattr=+M,+F file.ll
-</code></pre>
-
-<h2 id="backend">Backend</h2>
-
+</code></pre><h2 id="backend">Backend</h2>
 <h3 id="sdtypeprofile">SDTypeProfile</h3>
-
 <p>一個 SDNode 的 Type，很多時候會發生 Instruction can not be select 的根本原因就是因為型態對不上。</p>
-
-<pre><code class="language-Cpp">// llvm/include/llvm/Target/TargetSelectionDAG.td
-// SDTypeProfile - This profile describes the type requirements of a Selection
-// DAG node.
-class SDTypeProfile&lt;int numresults, int numoperands,
-                    list&lt;SDTypeConstraint&gt; constraints&gt; {
-  int NumResults = numresults;
-  int NumOperands = numoperands;
-  list&lt;SDTypeConstraint&gt; Constraints = constraints;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Cpp" data-lang="Cpp"><span style="color:#75715e">// llvm/include/llvm/Target/TargetSelectionDAG.td
+</span><span style="color:#75715e"></span><span style="color:#75715e">// SDTypeProfile - This profile describes the type requirements of a Selection
+</span><span style="color:#75715e"></span><span style="color:#75715e">// DAG node.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SDTypeProfile</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span> numresults, <span style="color:#66d9ef">int</span> numoperands,
+                    list<span style="color:#f92672">&lt;</span>SDTypeConstraint<span style="color:#f92672">&gt;</span> constraints<span style="color:#f92672">&gt;</span> {
+  <span style="color:#66d9ef">int</span> NumResults <span style="color:#f92672">=</span> numresults;
+  <span style="color:#66d9ef">int</span> NumOperands <span style="color:#f92672">=</span> numoperands;
+  list<span style="color:#f92672">&lt;</span>SDTypeConstraint<span style="color:#f92672">&gt;</span> Constraints <span style="color:#f92672">=</span> constraints;
 }
-</code></pre>
-
-<p>第一個是回傳值，第二個是參數，第三個是說明需要的型態為何。</p>
-
+</code></pre></div><p>第一個是回傳值，第二個是參數，第三個是說明需要的型態為何。</p>
 <p>常用的型態紀錄如下</p>
-
-<pre><code class="language-Cpp">// SDTCisVT - The specified operand has exactly this VT.
-class SDTCisVT&lt;int OpNum, ValueType vt&gt; : SDTypeConstraint&lt;OpNum&gt; {
-  ValueType VT = vt;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Cpp" data-lang="Cpp"><span style="color:#75715e">// SDTCisVT - The specified operand has exactly this VT.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SDTCisVT</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span> OpNum, ValueType vt<span style="color:#f92672">&gt;</span> <span style="color:#f92672">:</span> SDTypeConstraint<span style="color:#f92672">&lt;</span>OpNum<span style="color:#f92672">&gt;</span> {
+  ValueType VT <span style="color:#f92672">=</span> vt;
 }
 
-class SDTCisPtrTy&lt;int OpNum&gt; : SDTypeConstraint&lt;OpNum&gt;;
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SDTCisPtrTy</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span> OpNum<span style="color:#f92672">&gt;</span> <span style="color:#f92672">:</span> SDTypeConstraint<span style="color:#f92672">&lt;</span>OpNum<span style="color:#f92672">&gt;</span>;
 
-// SDTCisInt - The specified operand has integer type.
-class SDTCisInt&lt;int OpNum&gt; : SDTypeConstraint&lt;OpNum&gt;;
+<span style="color:#75715e">// SDTCisInt - The specified operand has integer type.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SDTCisInt</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span> OpNum<span style="color:#f92672">&gt;</span> <span style="color:#f92672">:</span> SDTypeConstraint<span style="color:#f92672">&lt;</span>OpNum<span style="color:#f92672">&gt;</span>;
 
-// SDTCisFP - The specified operand has floating-point type.
-class SDTCisFP&lt;int OpNum&gt; : SDTypeConstraint&lt;OpNum&gt;;
+<span style="color:#75715e">// SDTCisFP - The specified operand has floating-point type.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SDTCisFP</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span> OpNum<span style="color:#f92672">&gt;</span> <span style="color:#f92672">:</span> SDTypeConstraint<span style="color:#f92672">&lt;</span>OpNum<span style="color:#f92672">&gt;</span>;
 
-// SDTCisVec - The specified operand has a vector type.
-class SDTCisVec&lt;int OpNum&gt; : SDTypeConstraint&lt;OpNum&gt;;
-</code></pre>
-
+<span style="color:#75715e">// SDTCisVec - The specified operand has a vector type.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SDTCisVec</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span> OpNum<span style="color:#f92672">&gt;</span> <span style="color:#f92672">:</span> SDTypeConstraint<span style="color:#f92672">&lt;</span>OpNum<span style="color:#f92672">&gt;</span>;
+</code></pre></div>
 </div>
 
 
