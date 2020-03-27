@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<title>Llvm Trick</title>
+	
+	<meta name="description" content="">
+	<meta name="image" content="">
+	
+	<meta itemprop="name" content="Llvm Trick">
+	<meta itemprop="description" content="">
+	<meta itemprop="image" content="">
+	
+	<meta name="og:title" content="Llvm Trick">
+	<meta name="og:description" content="">
+	
+	<meta name="og:url" content="https://bemg.github.io/blog/llvm-trick/">
+	<meta name="og:site_name" content="Llvm Trick">
+	<meta name="og:type" content="article">
+	
+	<meta name="article:tag" content="">
+	<link rel="stylesheet" type="text/css" href="https://bemg.github.io/blog/css/style.css">
+	
+	
+	
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+
+</head>
+
+<body>
+
+<header>
+	
+	<a href="https://bemg.github.io/blog/" style="float: left;color:#777;"><strong>BeMg</strong></a>
+	
+	&nbsp;&nbsp;&nbsp;&nbsp;
+	
+	
+	
+	<a href="https://bemg.github.io/blog/index.xml" style="color:#777;float: right;"><strong><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></strong></a>
+</header>
+
+
+<div id="loadingMask" style="width: 100%; height: 100%; position: fixed; background: #fff;"></div>
+<script>
+function fadeOut(el) {
+  el.style.opacity = 1;
+
+  var last = +new Date();
+  var tick = function() {
+    el.style.opacity = +el.style.opacity - (new Date() - last) / 80;
+    last = +new Date();
+    
+
+    if (el.style.opacity > 0) {
+      (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
+    } else {
+      el.style.display='none';
+    }
+  };
+
+  tick();
+}
+
+function ready(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+         el = document.getElementById('loadingMask');
+         fadeOut(el);
+        var elements = document.querySelectorAll("img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("alt")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("alt"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+
+    } else {
+        document.addEventListener('DOMContentLoaded', fn);
+    }
+}
+window.onload = ready;
+</script>
+
+<div class="content">
+  <h1>Llvm Trick <aside></aside></h1>
+  <h2 id="前言">前言</h2>
+<p>LLVM 太多神秘的小技巧了，整理成一篇文章以外之後忘記。</p>
+<p>本篇文章主要以需求導向，根據某個需求要如何用LLVM工具達成，</p>
+<h2 id="llvm-tools-usage">LLVM Tools Usage</h2>
+<h3 id="啟用subtarget">啟用Subtarget</h3>
+<p>這裡以 RISC-V 為例。</p>
+<pre><code>llc --march=riscv32 --mattr=+M,+F file.ll
+</code></pre><h2 id="backend">Backend</h2>
+<h3 id="sdtypeprofile">SDTypeProfile</h3>
+<p>一個 SDNode 的 Type，很多時候會發生 Instruction can not be select 的根本原因就是因為型態對不上。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Cpp" data-lang="Cpp"><span style="color:#75715e">// llvm/include/llvm/Target/TargetSelectionDAG.td
+</span><span style="color:#75715e"></span><span style="color:#75715e">// SDTypeProfile - This profile describes the type requirements of a Selection
+</span><span style="color:#75715e"></span><span style="color:#75715e">// DAG node.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SDTypeProfile</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span> numresults, <span style="color:#66d9ef">int</span> numoperands,
+                    list<span style="color:#f92672">&lt;</span>SDTypeConstraint<span style="color:#f92672">&gt;</span> constraints<span style="color:#f92672">&gt;</span> {
+  <span style="color:#66d9ef">int</span> NumResults <span style="color:#f92672">=</span> numresults;
+  <span style="color:#66d9ef">int</span> NumOperands <span style="color:#f92672">=</span> numoperands;
+  list<span style="color:#f92672">&lt;</span>SDTypeConstraint<span style="color:#f92672">&gt;</span> Constraints <span style="color:#f92672">=</span> constraints;
+}
+</code></pre></div><p>第一個是回傳值，第二個是參數，第三個是說明需要的型態為何。</p>
+<p>常用的型態紀錄如下</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Cpp" data-lang="Cpp"><span style="color:#75715e">// SDTCisVT - The specified operand has exactly this VT.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SDTCisVT</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span> OpNum, ValueType vt<span style="color:#f92672">&gt;</span> <span style="color:#f92672">:</span> SDTypeConstraint<span style="color:#f92672">&lt;</span>OpNum<span style="color:#f92672">&gt;</span> {
+  ValueType VT <span style="color:#f92672">=</span> vt;
+}
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SDTCisPtrTy</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span> OpNum<span style="color:#f92672">&gt;</span> <span style="color:#f92672">:</span> SDTypeConstraint<span style="color:#f92672">&lt;</span>OpNum<span style="color:#f92672">&gt;</span>;
+
+<span style="color:#75715e">// SDTCisInt - The specified operand has integer type.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SDTCisInt</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span> OpNum<span style="color:#f92672">&gt;</span> <span style="color:#f92672">:</span> SDTypeConstraint<span style="color:#f92672">&lt;</span>OpNum<span style="color:#f92672">&gt;</span>;
+
+<span style="color:#75715e">// SDTCisFP - The specified operand has floating-point type.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SDTCisFP</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span> OpNum<span style="color:#f92672">&gt;</span> <span style="color:#f92672">:</span> SDTypeConstraint<span style="color:#f92672">&lt;</span>OpNum<span style="color:#f92672">&gt;</span>;
+
+<span style="color:#75715e">// SDTCisVec - The specified operand has a vector type.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SDTCisVec</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span> OpNum<span style="color:#f92672">&gt;</span> <span style="color:#f92672">:</span> SDTypeConstraint<span style="color:#f92672">&lt;</span>OpNum<span style="color:#f92672">&gt;</span>;
+</code></pre></div>
+</div>
+
+
+
+
+<footer>
+	<p>© 2017-2018, all rights reserved.</a>
+</footer>
+</body>
+</html>

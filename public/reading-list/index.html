@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<title>閱讀列表</title>
+	
+	<meta name="description" content="">
+	<meta name="image" content="">
+	
+	<meta itemprop="name" content="閱讀列表">
+	<meta itemprop="description" content="">
+	<meta itemprop="image" content="">
+	
+	<meta name="og:title" content="閱讀列表">
+	<meta name="og:description" content="">
+	
+	<meta name="og:url" content="https://bemg.github.io/blog/reading-list/">
+	<meta name="og:site_name" content="閱讀列表">
+	<meta name="og:type" content="article">
+	
+	<meta name="article:tag" content="">
+	<link rel="stylesheet" type="text/css" href="https://bemg.github.io/blog/css/style.css">
+	
+	
+	
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+
+</head>
+
+<body>
+
+<header>
+	
+	<a href="https://bemg.github.io/blog/" style="float: left;color:#777;"><strong>BeMg</strong></a>
+	
+	&nbsp;&nbsp;&nbsp;&nbsp;
+	
+	
+	
+	<a href="https://bemg.github.io/blog/index.xml" style="color:#777;float: right;"><strong><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></strong></a>
+</header>
+
+
+<div id="loadingMask" style="width: 100%; height: 100%; position: fixed; background: #fff;"></div>
+<script>
+function fadeOut(el) {
+  el.style.opacity = 1;
+
+  var last = +new Date();
+  var tick = function() {
+    el.style.opacity = +el.style.opacity - (new Date() - last) / 80;
+    last = +new Date();
+    
+
+    if (el.style.opacity > 0) {
+      (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
+    } else {
+      el.style.display='none';
+    }
+  };
+
+  tick();
+}
+
+function ready(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+         el = document.getElementById('loadingMask');
+         fadeOut(el);
+        var elements = document.querySelectorAll("img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("alt")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("alt"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+
+    } else {
+        document.addEventListener('DOMContentLoaded', fn);
+    }
+}
+window.onload = ready;
+</script>
+
+<div class="content">
+  <h1>閱讀列表 <aside></aside></h1>
+  <p>紀錄一下看過的書，心有餘力會新增對於每本書的評價。</p>
+<p>多少會有暴雷的風險，如果有這方面的顧慮就別看了。</p>
+<h2 id="歷史類">歷史類</h2>
+<ul>
+<li>海都物語
+<ul>
+<li>描寫威尼斯共和國從建國到亡國的興亡史，很明顯的看得出作者對於威尼斯有許多個人情感存在，各種對於威尼斯來說負面的歷史事件都會勇於辯護(例：第四次十字軍東征，威尼斯用計驅使聯軍去攻打君士坦丁堡，順利扶持支持威尼斯的政權;後期，威尼斯對於鄂圖曼土耳其的壓迫，動不動就想要暗殺其領袖，真不知道作者前面描寫那麼多威尼斯因為貿易需要所以兼容並蓄是為了什麼，最後還不是要動刀動槍)，不過也在其中得到了一些從國中以來的困惑。當初國中世界史章節的封面有一張十字軍攻陷君士坦丁堡的畫，可是在於國中歷史課本之中根本沒有去解釋有著大義的十字軍為什麼需要去攻陷有著東羅馬帝國的首都。</li>
+</ul>
+</li>
+</ul>
+<h2 id="小說">小說</h2>
+<ul>
+<li>文學少女
+<ul>
+<li>拿許多知名的經典小說的情節去進行重新的演繹，不過在沒有看過採用的經典的讀者而言，或多或少會失去部份的樂趣。表面上是對於經典情節的重新詮釋，深處其實在於主角的心理陰影(「心葉，你一定不懂吧。」)與女主角布局到最後一集的深意，本傳前後有8本，不算少，看的到是挺輕鬆的，沒有壓力與需要重覆理解的章節。</li>
+</ul>
+</li>
+<li>大典
+<ul>
+<li>一本用近現代科技去寫的科幻小說，前面看起來鋪陳不錯，可是一到中間的轉折看起來就很勉強。先不論其過於牽強的情節，這本書想要告訴讀者的主題是，集權國家藉由科技的力量控制國家的極致後，會發生什麼事情。根據作者推想之後得出的結論是，操作科技的技術人員會成為最大的漏洞，而集權也會因為這份過強的科技輕易的覆滅。</li>
+</ul>
+</li>
+<li>吃掉死神的少女
+<ul>
+<li>整體看來，著實過於著重在對於戰爭殘酷的描寫，用於去陪襯主角的瘋狂與已經不屬於人的心態。整體的步調顯得沉悶，我給予的評價並沒有如同網路上的評價一樣高。過度描寫的血腥場景只會造成閱讀的障礙。相較之下，對於其他配角的描寫就出色了許多，一如主角的副官在尋找一個可以用來信仰的英雄;軍官為了家族的榮光不惜動用各種狡計;走頭無路的國王對於臣子的寬容。比起主角都更加的像個人。</li>
+</ul>
+</li>
+<li>盜夢偵探</li>
+<li>新本格魔法少女莉絲佳
+<ul>
+<li>因為作者是西尾維新，所以一開始就有預感這不會是什麼正常的魔法少女，主角群肯定都是一些人格異常的傢伙。實際看下來也實際如此。雖然主角群人格異常，可是並沒有脫離古典魔法少女的公式(事件-&gt;嘗試解決-&gt;失敗-&gt;交給魔法少女變身作結)，可是至今這個系列只有兩本，感受不到西尾維新的誠意阿。</li>
+</ul>
+</li>
+<li>黑暗的左手
+<ul>
+<li>科幻。虛構的星球。虛構的新人類。移除了人與人之間於性別的隔閡。</li>
+</ul>
+</li>
+<li>阿特拉斯聳聳肩
+<ul>
+<li>這本書是遊戲 bioshock 的靈感來源，可以說是這本小說的續集，在演示如果這個所謂有能力的人所建構出來的烏托邦成真其後續的結果。原書鼓吹自由主義，右派的極致。相信個人的努力遠超過環境的影響。</li>
+</ul>
+</li>
+<li>駭客與畫家
+<ul>
+<li>我認為過譽了。全書有將近一半的篇幅都在吹捧作者在成立公司期間的豐功偉業。另外一半在談作者所認知的世界應該是怎麼樣運作的。</li>
+</ul>
+</li>
+</ul>
+<h2 id="其他非虛構">其他非虛構</h2>
+<ul>
+<li>老科技的全球史</li>
+<li>娛樂至死 : 追求表象﹑歡笑和激情的電視時代</li>
+</ul>
+
+</div>
+
+
+
+
+<footer>
+	<p>© 2017-2018, all rights reserved.</a>
+</footer>
+</body>
+</html>

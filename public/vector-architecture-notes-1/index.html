@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<title>Vector Architecture Notes 1 - VMIPS</title>
+	
+	<meta name="description" content="">
+	<meta name="image" content="">
+	
+	<meta itemprop="name" content="Vector Architecture Notes 1 - VMIPS">
+	<meta itemprop="description" content="">
+	<meta itemprop="image" content="">
+	
+	<meta name="og:title" content="Vector Architecture Notes 1 - VMIPS">
+	<meta name="og:description" content="">
+	
+	<meta name="og:url" content="https://bemg.github.io/blog/vector-architecture-notes-1/">
+	<meta name="og:site_name" content="Vector Architecture Notes 1 - VMIPS">
+	<meta name="og:type" content="article">
+	
+	<meta name="article:tag" content="">
+	<link rel="stylesheet" type="text/css" href="https://bemg.github.io/blog/css/style.css">
+	
+	
+	
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+
+</head>
+
+<body>
+
+<header>
+	
+	<a href="https://bemg.github.io/blog/" style="float: left;color:#777;"><strong>BeMg</strong></a>
+	
+	&nbsp;&nbsp;&nbsp;&nbsp;
+	
+	
+	
+	<a href="https://bemg.github.io/blog/index.xml" style="color:#777;float: right;"><strong><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></strong></a>
+</header>
+
+
+<div id="loadingMask" style="width: 100%; height: 100%; position: fixed; background: #fff;"></div>
+<script>
+function fadeOut(el) {
+  el.style.opacity = 1;
+
+  var last = +new Date();
+  var tick = function() {
+    el.style.opacity = +el.style.opacity - (new Date() - last) / 80;
+    last = +new Date();
+    
+
+    if (el.style.opacity > 0) {
+      (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
+    } else {
+      el.style.display='none';
+    }
+  };
+
+  tick();
+}
+
+function ready(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+         el = document.getElementById('loadingMask');
+         fadeOut(el);
+        var elements = document.querySelectorAll("img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("alt")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("alt"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+
+    } else {
+        document.addEventListener('DOMContentLoaded', fn);
+    }
+}
+window.onload = ready;
+</script>
+
+<div class="content">
+  <h1>Vector Architecture Notes 1 - VMIPS <aside></aside></h1>
+  <h2 id="前言">前言</h2>
+<p>對於 Vector Architecture 做一下筆記。對於各種不同的 ISA 的 vector extension 進行比較。</p>
+<ul>
+<li><strong>computer architecture a quantitative approach 課本筆記 -&gt; 實際上就是 VMIPS</strong></li>
+<li>riscv vector extension tutorial</li>
+<li>arm ISA vector extension</li>
+</ul>
+<h2 id="vmips">VMIPS</h2>
+<p>VMIPS 是課本作者針對於 MIPS，增加 vector instruction 的擴增板。描述了大致上的硬體架構與各種針對於效能議題上的探討。</p>
+<ul>
+<li>硬體架構</li>
+<li>指令集分類</li>
+<li>範例</li>
+<li>術語</li>
+<li>改進</li>
+</ul>
+<h3 id="硬體架構">硬體架構</h3>
+<p><img src="https://i.imgur.com/MqS7Hjz.png" alt=""></p>
+<ul>
+<li>Vector register
+<ul>
+<li>預設有 8 個 vector register</li>
+<li>每個 register 有 64 個 element，每個 element 寬度為 64 bits</li>
+</ul>
+</li>
+<li>Vector functional units
+<ul>
+<li>專門對 vector register 進行加法、減法、乘法、除法、邏輯運算的元件。</li>
+<li>可以被 pipelined。
+<ul>
+<li>這一點後面的章節會提到。就是可以先執行在 vector register 中的第一個 element，而不用等到全部的 element 都讀入 register 才開始執行。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Vector load/store units
+<ul>
+<li>在 register 與 memory 之間讀入/寫入資料。</li>
+<li>一樣是可以被 pipelined。</li>
+<li>也支援 scalar 的 load/store</li>
+</ul>
+</li>
+<li>scalar register
+<ul>
+<li>就是 MIPS 中原本的那些 register。</li>
+</ul>
+</li>
+</ul>
+<p>在此還有兩個特殊的 register 留待後續討論。</p>
+<ul>
+<li>VLR (vector length regist)
+<ul>
+<li>處理 vector 長度變化問題。</li>
+<li>strip mining</li>
+</ul>
+</li>
+<li>VM (vector mask)
+<ul>
+<li>處理 IF statement -&gt; 有一些 element 可以不用被執行到。</li>
+</ul>
+</li>
+</ul>
+<h3 id="指令集分類">指令集分類</h3>
+<p><img src="https://i.imgur.com/iJma1jU.png" alt=""></p>
+<ul>
+<li>數值運算
+<ul>
+<li><code>op rd, rs1, rs2 // rd[i] = rs1[i] op rs2[i] for all i</code></li>
+<li>ADD__.D</li>
+<li>SUB__.D</li>
+<li>MUL__.D</li>
+<li>DIV__.D</li>
+</ul>
+</li>
+<li>load/store
+<ul>
+<li>普通的從出發點取 VLR 長度的資料 <code>op v1, r1</code>
+<ul>
+<li>LV</li>
+<li>SV</li>
+</ul>
+</li>
+<li>跳著取，為了滿足多維矩陣的存取 (column-base or row-base)
+<ul>
+<li>LVWS</li>
+<li>SVWS</li>
+</ul>
+</li>
+<li>對於一個 vector register 中存放特定的 index，並且根據這個 index 去取得特定 memory 位置的值。(為了滿足稀疏矩陣)
+<ul>
+<li>LVI</li>
+<li>SVI</li>
+<li>CVI</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>設定指令長度
+<ul>
+<li>MTCL</li>
+<li>MFCL</li>
+</ul>
+</li>
+<li>設定mask
+<ul>
+<li>生成 mask，結果會存在 VM 這個 register 裡面
+<ul>
+<li>S&ndash;VV.D -&gt; vector 對 vector</li>
+<li>S&ndash;VS.D -&gt; vector 對 scalar</li>
+</ul>
+</li>
+<li>存放 VM
+<ul>
+<li>MVTM</li>
+<li>MVFM</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="範例">範例</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">Y[i] <span style="color:#f92672">=</span> a<span style="color:#f92672">*</span>X[i] <span style="color:#f92672">+</span> Y[i] 
+</code></pre></div><p>假設陣列 X 與 Y 的起點在 Rx 與 Ry</p>
+<ul>
+<li>普通的指令
+<ul>
+<li><img src="https://i.imgur.com/VbbIKuI.png" alt=""></li>
+</ul>
+</li>
+<li>有 vector instruction 指令
+<ul>
+<li><img src="https://i.imgur.com/3zl5m5z.png" alt=""></li>
+</ul>
+</li>
+</ul>
+<h3 id="術語">術語</h3>
+<ul>
+<li>chained
+<ul>
+<li>就是上面提到的可以被 pipeline</li>
+<li>不用等到整個vector執行完成才能執行下一步</li>
+<li>可以一個接一個 element 進行</li>
+</ul>
+</li>
+<li>convey
+<ul>
+<li>特定的 code 區塊，用意在於計算程式執行效率</li>
+<li>根據 structual hazard 或者 data hazard 進行分隔
+<ul>
+<li>碰到這兩個就不能 pipeline 了</li>
+</ul>
+</li>
+<li>因為可以pipeline，執行時間大致可以視為 vector 長度</li>
+</ul>
+</li>
+<li>chime
+<ul>
+<li>一個 convey 執行的時間</li>
+</ul>
+</li>
+</ul>
+<h3 id="改進">改進</h3>
+<p>主要就是在提昇效能</p>
+<ul>
+<li>同一個 clock cycle 執行多個 element -&gt; Multiple Lane</li>
+<li>程式的 array 長度並非 64 的倍數 -&gt; Vector-Length Register
+<ul>
+<li>array 的長度有可能會到 run time 才能確定</li>
+<li>需要 VLR 的原因</li>
+</ul>
+</li>
+<li>讓有 IF 的程式也可以向量化 -&gt; Vector Mask Register
+<ul>
+<li>需要 MASK 的原因</li>
+</ul>
+</li>
+<li>加速資料讀寫 -&gt; Memory Bank</li>
+<li>多維陣列支援 -&gt; Stride</li>
+<li>稀疏陣列支援 -&gt; Gather-Scatter</li>
+</ul>
+<h4 id="multiple-lane">Multiple Lane</h4>
+<p>在一個 clock cycle 執行多個操作，以增進效能。實際上解決方法是相當簡單粗暴的。大致上有兩種方法</p>
+<ul>
+<li>多個 function unit
+<ul>
+<li><img src="https://i.imgur.com/Jn9Pgt8.png" alt=""></li>
+</ul>
+</li>
+<li>多個 lane
+<ul>
+<li><img src="https://i.imgur.com/kaJDKdV.png" alt=""></li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>似乎可以兩種一起使用，待研究</p>
+</blockquote>
+<h4 id="vector-length-register">Vector-Length Register</h4>
+<p>實際上在寫程式的時候，很難會有需要向量化的區域數量剛好與 register 的最大長度相符合(剛好成倍數)。而且這個長度有可能會到執行階段才能決定。下面這個程式就是一個例子 <code>n</code> 到執行階段才能確定他的值為何。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">int</span> i<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>; i<span style="color:#f92672">&lt;</span>n; i<span style="color:#f92672">+</span><span style="color:#f92672">+</span>) {
+    <span style="color:#75715e">// Do something
+</span><span style="color:#75715e"></span>}
+</code></pre></div><p>所以對於 vector 來說，需要一個可以動態調整 vector length 的指令以符合這個需求。在這裡便引入了一個特殊的 register，叫做 VLR (Vector length register)，並且維護另外一個值為 MVL (max vector length)。</p>
+<p>如此一來在面對，與 vector 長度不成倍數的問題時，就可以根據 VLR 的設定進行處理。</p>
+<p><img src="https://i.imgur.com/mchlpsb.png" alt="">
+<img src="https://i.imgur.com/uSgjsve.png" alt=""></p>
+<h4 id="vector-mask-register">Vector Mask Register</h4>
+<p>在需要向量化的區域中，有時候會包含 IF Statement，也就是說會根據 IF 內容的不同，在一長串的 vector 中，有一些 element 是不會被執行到的。如果要一一按照需求執行，就沒有辦法好好的運用向量化所帶來的優勢。</p>
+<p>但是只要將這個 IF 一次執行完畢，將結果暫存起來，在執行時按照此結果運作即可。在這裡 Vector Mask Register 就是那個存結果的地方。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">for</span> (i<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">64</span>; i<span style="color:#f92672">+</span><span style="color:#f92672">+</span>) {
+    <span style="color:#66d9ef">if</span> ( X[i] <span style="color:#f92672">!</span><span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span> ) {
+        X[i] <span style="color:#f92672">=</span> X[i] <span style="color:#f92672">-</span> Y[i]
+    }
+}
+</code></pre></div><p><img src="https://i.imgur.com/LmGfTpB.png" alt=""></p>
+<h4 id="memory-bank">Memory Bank</h4>
+<p>用多個 Memory Bank 衝高 vector Load/Store Unit 的 Bandwidth。</p>
+<blockquote>
+<p>待補</p>
+</blockquote>
+<h4 id="stride">Stride</h4>
+<p>在多維陣列中，許多時候使用的值並非都是在 memory 的下一格。而是遙遠的某一格。詳看下面範例</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>; i<span style="color:#f92672">&lt;</span><span style="color:#ae81ff">10</span>; i<span style="color:#f92672">+</span><span style="color:#f92672">+</span>) {
+    Z[i] <span style="color:#f92672">=</span> X[<span style="color:#ae81ff">0</span>][i] <span style="color:#f92672">+</span> Y[i][<span style="color:#ae81ff">0</span>];
+}
+</code></pre></div><blockquote>
+<p>是 X 還是 Y 要去遙遠的地方尋找值是基於你的 memory layout 是 row-base 還是 column-base</p>
+</blockquote>
+<p>專門為這個問題設定一個指令，使得程式可以跳著讀取/儲存。</p>
+<h4 id="gather-scatter">Gather-Scatter</h4>
+<p>遇到稀疏陣列時的解決方案。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">for</span> (i<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>; i<span style="color:#f92672">&lt;</span>n; i<span style="color:#f92672">+</span><span style="color:#f92672">+</span>) {
+    A[K[i]] <span style="color:#f92672">=</span> A[K[i]] <span style="color:#f92672">+</span> C[M[i]]
+}
+</code></pre></div><p><img src="https://i.imgur.com/UJs4udH.png" alt=""></p>
+<h2 id="參考資料">參考資料</h2>
+<ul>
+<li>Computer Architecture A Quantitative Approach Chp4</li>
+<li>Computer Architecture A Quantitative Approach Appendix G</li>
+</ul>
+
+</div>
+
+
+
+
+<footer>
+	<p>© 2017-2018, all rights reserved.</a>
+</footer>
+</body>
+</html>
