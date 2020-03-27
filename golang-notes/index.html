@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<title>Go Notes</title>
+	
+	<meta name="description" content="">
+	<meta name="image" content="">
+	
+	<meta itemprop="name" content="Go Notes">
+	<meta itemprop="description" content="">
+	<meta itemprop="image" content="">
+	
+	<meta name="og:title" content="Go Notes">
+	<meta name="og:description" content="">
+	
+	<meta name="og:url" content="https://bemg.github.io/blog/golang-notes/">
+	<meta name="og:site_name" content="Go Notes">
+	<meta name="og:type" content="article">
+	
+	<meta name="article:tag" content="">
+	<link rel="stylesheet" type="text/css" href="https://bemg.github.io/blog/css/style.css">
+	
+	
+	
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+
+</head>
+
+<body>
+
+<header>
+	
+	<a href="https://bemg.github.io/blog/" style="float: left;color:#777;"><strong>BeMg</strong></a>
+	
+	&nbsp;&nbsp;&nbsp;&nbsp;
+	
+	
+	
+	<a href="https://bemg.github.io/blog/index.xml" style="color:#777;float: right;"><strong><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></strong></a>
+</header>
+
+
+<div id="loadingMask" style="width: 100%; height: 100%; position: fixed; background: #fff;"></div>
+<script>
+function fadeOut(el) {
+  el.style.opacity = 1;
+
+  var last = +new Date();
+  var tick = function() {
+    el.style.opacity = +el.style.opacity - (new Date() - last) / 80;
+    last = +new Date();
+    
+
+    if (el.style.opacity > 0) {
+      (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
+    } else {
+      el.style.display='none';
+    }
+  };
+
+  tick();
+}
+
+function ready(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+         el = document.getElementById('loadingMask');
+         fadeOut(el);
+        var elements = document.querySelectorAll("img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("alt")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("alt"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+
+    } else {
+        document.addEventListener('DOMContentLoaded', fn);
+    }
+}
+window.onload = ready;
+</script>
+
+<div class="content">
+  <h1>Go Notes <aside></aside></h1>
+  <h2 id="前言">前言</h2>
+<p>簡單的紀錄一下 golang</p>
+<ul>
+<li>基本語法</li>
+<li>爬蟲相關</li>
+<li>使用心得</li>
+</ul>
+<h2 id="基本語法">基本語法</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e">// 註解的形式與c相同，雙重單斜線為單行註解。
+</span><span style="color:#75715e"></span><span style="color:#75715e">/* 
+</span><span style="color:#75715e">此為多行註解
+</span><span style="color:#75715e">*/</span>
+
+<span style="color:#75715e">// 使用外部函式庫
+</span><span style="color:#75715e"></span><span style="color:#75715e">// 備註：沒有用到卻宣告會導致錯誤。
+</span><span style="color:#75715e"></span>import (
+    <span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">fmt</span><span style="color:#e6db74">&#34;</span>
+	<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">io</span><span style="color:#e6db74">&#34;</span>
+	<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">io/ioutil</span><span style="color:#e6db74">&#34;</span>
+	<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">net/http</span><span style="color:#e6db74">&#34;</span>
+	<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">os</span><span style="color:#e6db74">&#34;</span>
+	<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">strconv</span><span style="color:#e6db74">&#34;</span>
+)
+
+<span style="color:#75715e">// 變數宣告
+</span><span style="color:#75715e"></span><span style="color:#75715e">// 一樣，沒有使用卻宣告會導致錯誤。
+</span><span style="color:#75715e"></span>var a [type] <span style="color:#f92672">=</span> value
+a :<span style="color:#f92672">=</span> value <span style="color:#75715e">// 最常用
+</span><span style="color:#75715e"></span>var a <span style="color:#f92672">=</span> value
+
+<span style="color:#75715e">// 據說會自行推理型態。
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e">// 陣列宣告
+</span><span style="color:#75715e"></span>var a [<span style="color:#ae81ff">5</span>]<span style="color:#66d9ef">int</span>;
+
+<span style="color:#75715e">// 切片(slice)宣告
+</span><span style="color:#75715e"></span>var a []<span style="color:#66d9ef">int</span> <span style="color:#f92672">=</span> {<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span> ,<span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>};
+a <span style="color:#f92672">=</span> append(a, <span style="color:#ae81ff">5</span>);
+a[<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">2</span>] <span style="color:#75715e">// get [2];
+</span><span style="color:#75715e"></span>
+
+<span style="color:#75715e">// 就是 c 的 printf
+</span><span style="color:#75715e"></span><span style="color:#75715e">// golang 習慣函數的頭一個字母為大寫，似乎是隱藏了一些慣例，只要是首字大寫變為 public method 或者 variable。
+</span><span style="color:#75715e"></span><span style="color:#75715e">//                                                ^ 待確認
+</span><span style="color:#75715e"></span>fmt.Printf(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">Hello world</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>)
+
+yee :<span style="color:#f92672">=</span> <span style="color:#ae81ff">87</span>
+fmt.Printf(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">Yee : %d</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, yee)
+
+<span style="color:#66d9ef">if</span> [condition] {
+    <span style="color:#75715e">// condition is true then do something
+</span><span style="color:#75715e"></span>} <span style="color:#66d9ef">else</span> {
+    <span style="color:#75715e">// condition is false then do something
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#66d9ef">for</span> i:<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>; i<span style="color:#f92672">&lt;</span><span style="color:#ae81ff">10</span>; i<span style="color:#f92672">+</span><span style="color:#f92672">+</span> {
+    <span style="color:#75715e">// from 0 to 9
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#75715e">// 也有方便好用的迭代
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">for</span> i, v :<span style="color:#f92672">=</span> range [something can be iterated] {
+    <span style="color:#75715e">// in case int array
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// i will be index, v will be value
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#75715e">// _ 是一個特殊的變數，代表直接拋棄，大概就跟/dev/null差不多。
+</span><span style="color:#75715e"></span>_ <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>
+
+func func_name(input1 <span style="color:#66d9ef">int</span>, input2 string) (output1 <span style="color:#66d9ef">int</span>) {
+
+<span style="color:#75715e">// function body
+</span><span style="color:#75715e"></span>
+}
+
+</code></pre></div><h2 id="使用-nethttp-package">使用 net/http package</h2>
+<p>簡單介紹一下如何使用 golang 取得網頁。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e">// hendle err 真的很麻煩
+</span><span style="color:#75715e"></span>resp, err :<span style="color:#f92672">=</span> http.Get(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">http://example.com/</span><span style="color:#e6db74">&#34;</span>)
+<span style="color:#66d9ef">if</span> err <span style="color:#f92672">!</span><span style="color:#f92672">=</span> nil {
+	<span style="color:#75715e">// handle error
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#75715e">// 等到不需要的時候就使用 後面那個指令
+</span><span style="color:#75715e"></span><span style="color:#75715e">// 有點像是destructor
+</span><span style="color:#75715e"></span>defer resp.Body.Close()
+
+<span style="color:#75715e">// body 為 html 本文
+</span><span style="color:#75715e"></span>body, err :<span style="color:#f92672">=</span> ioutil.ReadAll(resp.Body)
+</code></pre></div><h2 id="簡單-goroutine-使用">簡單 goroutine 使用</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">
+var flag <span style="color:#66d9ef">int</span>;
+
+func <span style="color:#a6e22e">do_something</span>() {}
+
+func <span style="color:#a6e22e">foo</span>(a []<span style="color:#66d9ef">int</span>) {
+    <span style="color:#66d9ef">for</span> i, v :<span style="color:#f92672">=</span> range a {
+        go do_something(v)
+    }
+    flag <span style="color:#f92672">&lt;</span><span style="color:#f92672">-</span> <span style="color:#ae81ff">0</span>  <span style="color:#75715e">// Use channel send the signel.
+</span><span style="color:#75715e"></span>}
+
+func <span style="color:#a6e22e">main</span>() {
+    a :<span style="color:#f92672">=</span> []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>}
+    foo(a)
+    <span style="color:#f92672">&lt;</span><span style="color:#f92672">-</span> flag <span style="color:#75715e">// wait goroutine down.
+</span><span style="color:#75715e"></span>}
+
+</code></pre></div>
+</div>
+
+
+
+
+<footer>
+	<p>© 2017-2018, all rights reserved.</a>
+</footer>
+</body>
+</html>

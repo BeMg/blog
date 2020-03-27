@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<title>英文學習</title>
+	
+	<meta name="description" content="">
+	<meta name="image" content="">
+	
+	<meta itemprop="name" content="英文學習">
+	<meta itemprop="description" content="">
+	<meta itemprop="image" content="">
+	
+	<meta name="og:title" content="英文學習">
+	<meta name="og:description" content="">
+	
+	<meta name="og:url" content="https://bemg.github.io/blog/learn-english/">
+	<meta name="og:site_name" content="英文學習">
+	<meta name="og:type" content="article">
+	
+	<meta name="article:tag" content="">
+	<link rel="stylesheet" type="text/css" href="https://bemg.github.io/blog/css/style.css">
+	
+	
+	
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+
+</head>
+
+<body>
+
+<header>
+	
+	<a href="https://bemg.github.io/blog/" style="float: left;color:#777;"><strong>BeMg</strong></a>
+	
+	&nbsp;&nbsp;&nbsp;&nbsp;
+	
+	
+	
+	<a href="https://bemg.github.io/blog/index.xml" style="color:#777;float: right;"><strong><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></strong></a>
+</header>
+
+
+<div id="loadingMask" style="width: 100%; height: 100%; position: fixed; background: #fff;"></div>
+<script>
+function fadeOut(el) {
+  el.style.opacity = 1;
+
+  var last = +new Date();
+  var tick = function() {
+    el.style.opacity = +el.style.opacity - (new Date() - last) / 80;
+    last = +new Date();
+    
+
+    if (el.style.opacity > 0) {
+      (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
+    } else {
+      el.style.display='none';
+    }
+  };
+
+  tick();
+}
+
+function ready(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+         el = document.getElementById('loadingMask');
+         fadeOut(el);
+        var elements = document.querySelectorAll("img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("alt")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("alt"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+
+    } else {
+        document.addEventListener('DOMContentLoaded', fn);
+    }
+}
+window.onload = ready;
+</script>
+
+<div class="content">
+  <h1>英文學習 <aside></aside></h1>
+  <p>紀錄一下到目前為止對於英文學習的心得與方法。</p>
+<h2 id="前言">前言</h2>
+<p>英文對我來說很困難，從小學就有的科目而言，長達十幾年的學習。依舊仍然停滯在沒有辦法自在運用的程度。</p>
+<p>直到近期才真正的正視英文能力的養成。故在此紀錄我從2017/07開始至今的英文學習歷程。希望可以給有相同困擾的人一個努力的方向。</p>
+<h2 id="本文">本文</h2>
+<h3 id="目標">目標</h3>
+<p>我對於學習英文的第一階段目標是</p>
+<ul>
+<li>閱讀原文文章</li>
+<li>看英文影片</li>
+</ul>
+<p>也就是聽與讀的部份。</p>
+<p>在技術的方面，由英文所撰寫的第一手文章，其數量與正確度比起經過翻譯的第二手文章來說，都高上許多。</p>
+<p>故先以這兩項能力為目前的目標。</p>
+<h3 id="閱讀">閱讀</h3>
+<p>閱讀所使用的材料多半取自於新聞與技術文章。而在閱讀的過程中，我意識到了英文能力低落的關鍵，單字量完全不足，在一句英文句子有高達三個單字完全無法理解的情況下，要理解其想要傳達的含意簡直是癡人說夢。</p>
+<h3 id="聽力">聽力</h3>
+<p>我用來練習的影片多半來自於youtube</p>
+<ul>
+<li><a href="https://www.youtube.com/channel/UCCODtTcd5M1JavPCOr_Uydg">Extra Credits</a>
+<ul>
+<li>這個頻道有很多的關於歷史與遊戲機制設計的影片。</li>
+</ul>
+</li>
+</ul>
+<p>很遺憾的是，很多時候沒有辦法聽懂內容跟單字量有相當高的相關，根本就不理解那個單字，是要怎麼可以從一連串的發音中辨識出來想要提供的含意。</p>
+<blockquote>
+<p>根據我一個英文很好的同學表示，裡面的單字水準真的是比較高。或許該找一下有沒有比較符合我這個英文水準的好頻道。</p>
+</blockquote>
+<h2 id="現階段的努力">現階段的努力</h2>
+<p>總結上述的問題，充實我的英文單字量是刻不容緩的工作。</p>
+<p>起先我拿出了我塵封已久的高中7000單字書，步上了過去高中的單字學習法。重溫了高中的單字學習的過程中，我進行了幾項對於方法的修正。我不再要求可以對於英文單字每一個字母都可以熟記，雖然因為在於高中時期需要熟記拼字才可以有辦法成功的寫英文考卷。</p>
+<blockquote>
+<p>很快的，7000單字都已經被我輸入到anki之中了，現在就是見識它的威力的時刻。</p>
+</blockquote>
+<p>我使用了一些輔助的被單字軟體</p>
+<ul>
+<li>anki
+<ul>
+<li>免費的，可以用xml或者css客製化字卡的外觀。並且遵循著學習遺忘曲線進行單字的複習。</li>
+<li>我現在的設置為50個新單字 250 複習的單字</li>
+</ul>
+</li>
+</ul>
+<h2 id="更新">更新</h2>
+<ul>
+<li>2018/03/27
+<ul>
+<li>得到了一些新的想法，對於單字卡來說。正面：一個生字搭配一個例句，背面：單字的中文解釋。這樣的搭配可以有效的記憶中文解釋，而且這個搭配也是正常閱讀的時候所擁有的上下文。</li>
+</ul>
+</li>
+</ul>
+
+</div>
+
+
+
+
+<footer>
+	<p>© 2017-2018, all rights reserved.</a>
+</footer>
+</body>
+</html>

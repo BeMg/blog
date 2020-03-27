@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<title>LLVM 筆記 (更新中)</title>
+	
+	<meta name="description" content="">
+	<meta name="image" content="">
+	
+	<meta itemprop="name" content="LLVM 筆記 (更新中)">
+	<meta itemprop="description" content="">
+	<meta itemprop="image" content="">
+	
+	<meta name="og:title" content="LLVM 筆記 (更新中)">
+	<meta name="og:description" content="">
+	
+	<meta name="og:url" content="https://bemg.github.io/blog/llvm-notes/">
+	<meta name="og:site_name" content="LLVM 筆記 (更新中)">
+	<meta name="og:type" content="article">
+	
+	<meta name="article:tag" content="">
+	<link rel="stylesheet" type="text/css" href="https://bemg.github.io/blog/css/style.css">
+	
+	
+	
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+
+</head>
+
+<body>
+
+<header>
+	
+	<a href="https://bemg.github.io/blog/" style="float: left;color:#777;"><strong>BeMg</strong></a>
+	
+	&nbsp;&nbsp;&nbsp;&nbsp;
+	
+	
+	
+	<a href="https://bemg.github.io/blog/index.xml" style="color:#777;float: right;"><strong><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></strong></a>
+</header>
+
+
+<div id="loadingMask" style="width: 100%; height: 100%; position: fixed; background: #fff;"></div>
+<script>
+function fadeOut(el) {
+  el.style.opacity = 1;
+
+  var last = +new Date();
+  var tick = function() {
+    el.style.opacity = +el.style.opacity - (new Date() - last) / 80;
+    last = +new Date();
+    
+
+    if (el.style.opacity > 0) {
+      (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
+    } else {
+      el.style.display='none';
+    }
+  };
+
+  tick();
+}
+
+function ready(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+         el = document.getElementById('loadingMask');
+         fadeOut(el);
+        var elements = document.querySelectorAll("img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("alt")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("alt"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+
+    } else {
+        document.addEventListener('DOMContentLoaded', fn);
+    }
+}
+window.onload = ready;
+</script>
+
+<div class="content">
+  <h1>LLVM 筆記 (更新中) <aside></aside></h1>
+  <h2 id="目錄">目錄</h2>
+<ul>
+<li>前言</li>
+<li>架構</li>
+<li>實驗</li>
+<li>參考資料</li>
+</ul>
+<h2 id="前言">前言</h2>
+<p>LLVM是一個完整的編譯器基礎建設(compiler infrastructure)，與<code>GNU GCC</code>相比，最大的差異在於大量的將compile的過程高度模組化，可以進行任意的抽換。從 source code 到 machine code，每一個階段都有相對應的module。</p>
+<p>本篇文章雖然以LLVM 為標題，可是實際上多半都在整理編譯器的相關知識，畢竟LLVM大部分都是在實做這些編譯器的技術。</p>
+<h2 id="版本">版本</h2>
+<ul>
+<li>OS: Ubuntu 16.04</li>
+<li>LLVM: 7.0</li>
+<li>Clang: 7.0</li>
+<li>GCC: 5.4</li>
+</ul>
+<h2 id="安裝">安裝</h2>
+<p>從原始碼開始從頭編譯</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">apt-get update
+apt-get install -y sudo subversion python-dev g++ cmake
+svn co http://llvm.org/svn/llvm-project/llvm/trunk llvm
+cd llvm/tools
+svn co http://llvm.org/svn/llvm-project/cfe/trunk clang
+cd ../..
+cd llvm/tools/clang/tools
+svn co http://llvm.org/svn/llvm-project/clang-tools-extra/trunk extra
+cd ../../../..
+cd llvm/tools
+svn co http://llvm.org/svn/llvm-project/lld/trunk lld
+cd ../..
+cd llvm
+mkdir build
+cd build
+cmake -G <span style="color:#e6db74">&#34;Unix Makefiles&#34;</span> -DCMAKE_BUILD_TYPE<span style="color:#f92672">=</span>Release ..
+make
+</code></pre></div><h2 id="架構">架構</h2>
+<h3 id="compiler-架構">compiler 架構</h3>
+<p>在常見的compiler中，常見這類三段式的設計。
+<img src="https://i.imgur.com/miah8lO.png" alt=""></p>
+<ul>
+<li>FrontEnd
+<ul>
+<li>將Source code 轉換為 IR or AST</li>
+<li>包含lexer、parser</li>
+<li>lexer： Regular Expression</li>
+<li>parser：Context-free grammar -&gt; ANTLR 之類的</li>
+</ul>
+</li>
+<li>Optimizer
+<ul>
+<li>針對於IR進行最佳化，以追求更快的效能或者節省資源。</li>
+<li>在有中間語言的情況下，不需要針對每一種target language撰寫優化。</li>
+<li>也不需要撰寫多種不同的語言轉換。</li>
+</ul>
+</li>
+<li>BackEnd
+<ul>
+<li>將IR 轉換為 target language</li>
+<li>instruction selection</li>
+<li>register allocation</li>
+<li>instruction scheduling</li>
+</ul>
+</li>
+</ul>
+<p>而 LLVM 也是按照這三個階段的 compiler 設計為基準開發而成。</p>
+<h3 id="llvm-的-架構">LLVM 的 架構</h3>
+<p>Source code -&gt; clang(lexer -&gt; parser -&gt; AST) -&gt; LLVM IR -&gt; LLVM bitcode -&gt; object code(machine code) -&gt; linker</p>
+<h3 id="實際跑一次看看">實際跑一次看看</h3>
+<p>而用實際上的llvm的module，達成從</p>
+<pre><code>        clang            llvm-as                 lli
+C code -------&gt; llvm IR ---------&gt; llvm bitcode -----&gt; result
+                          llc                 GNU ld
+                llvm IR -------&gt; object code --------&gt; binary file
+                        | llc                          GNU gcc
+                        -------&gt; naive assembly code ----------&gt; binary file
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e">#</span><span style="color:#75715e">include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span><span style="color:#75715e">#</span><span style="color:#75715e">include</span> <span style="color:#75715e">&lt;string.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">int</span> a <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">5</span>;
+    <span style="color:#66d9ef">int</span> b <span style="color:#f92672">=</span> a <span style="color:#f92672">+</span> <span style="color:#ae81ff">10</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">30</span>;
+    <span style="color:#66d9ef">int</span> c <span style="color:#f92672">=</span> a <span style="color:#f92672">*</span> b <span style="color:#f92672">+</span> <span style="color:#ae81ff">30</span> <span style="color:#f92672">+</span> a;
+    
+    <span style="color:#66d9ef">char</span> s[<span style="color:#ae81ff">100</span>];
+    sprintf(s, <span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">%d</span><span style="color:#e6db74">&#34;</span>, c);
+    puts(s);
+
+    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+}
+</code></pre></div><blockquote>
+<p>執行結果為366</p>
+</blockquote>
+<p>clang利用特定指令使其在編譯過程中停止，並且生成中間產物。</p>
+<ul>
+<li><code>clang -emit-llvm -c test.c</code></li>
+<li><code>clang -emit-Optimizerllvm -S test.c</code></li>
+</ul>
+<p><img src="https://i.imgur.com/bRy0JPr.png" alt="test.ll"></p>
+<h2 id="front-end">Front End</h2>
+<p>Clang是llvm官方的front end，主要針對C, C++和Objective-C和等語言而作。最主要負責的工作為將source code 轉換成 AST (Abstract Syntax Tree)，在將其轉換為 llvm IR。</p>
+<p>雖然說是前端，不過實際上的使用的時候可以加入多樣參數，完成編譯程式的每一個環節。</p>
+<blockquote>
+<p>在編譯期間加入 -### 參數可以查看clang究竟調用了多少額外的工具</p>
+</blockquote>
+<h3 id="ast">AST</h3>
+<h2 id="optimizer">Optimizer</h2>
+<h3 id="ir">IR</h3>
+<h3 id="ssa">SSA</h3>
+<h2 id="back-end">Back End</h2>
+<h3 id="dag">DAG</h3>
+<h2 id="參考資料">參考資料</h2>
+<ul>
+<li><a href="https://llvm.org/docs/GettingStarted.html">Getting Started with the LLVM System</a></li>
+<li><a href="http://www.aosabook.org/en/llvm.html">The Architecture of Open Source Applications: LLVM</a></li>
+</ul>
+
+</div>
+
+
+
+
+<footer>
+	<p>© 2017-2018, all rights reserved.</a>
+</footer>
+</body>
+</html>

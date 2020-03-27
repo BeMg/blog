@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<title>Fcitx 輸入法與新酷音</title>
+	
+	<meta name="description" content="">
+	<meta name="image" content="">
+	
+	<meta itemprop="name" content="Fcitx 輸入法與新酷音">
+	<meta itemprop="description" content="">
+	<meta itemprop="image" content="">
+	
+	<meta name="og:title" content="Fcitx 輸入法與新酷音">
+	<meta name="og:description" content="">
+	
+	<meta name="og:url" content="https://bemg.github.io/blog/fcitx-input-method/">
+	<meta name="og:site_name" content="Fcitx 輸入法與新酷音">
+	<meta name="og:type" content="article">
+	
+	<meta name="article:tag" content="">
+	<link rel="stylesheet" type="text/css" href="https://bemg.github.io/blog/css/style.css">
+	
+	
+	
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+
+</head>
+
+<body>
+
+<header>
+	
+	<a href="https://bemg.github.io/blog/" style="float: left;color:#777;"><strong>BeMg</strong></a>
+	
+	&nbsp;&nbsp;&nbsp;&nbsp;
+	
+	
+	
+	<a href="https://bemg.github.io/blog/index.xml" style="color:#777;float: right;"><strong><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></strong></a>
+</header>
+
+
+<div id="loadingMask" style="width: 100%; height: 100%; position: fixed; background: #fff;"></div>
+<script>
+function fadeOut(el) {
+  el.style.opacity = 1;
+
+  var last = +new Date();
+  var tick = function() {
+    el.style.opacity = +el.style.opacity - (new Date() - last) / 80;
+    last = +new Date();
+    
+
+    if (el.style.opacity > 0) {
+      (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
+    } else {
+      el.style.display='none';
+    }
+  };
+
+  tick();
+}
+
+function ready(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+         el = document.getElementById('loadingMask');
+         fadeOut(el);
+        var elements = document.querySelectorAll("img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("alt")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("alt"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+
+    } else {
+        document.addEventListener('DOMContentLoaded', fn);
+    }
+}
+window.onload = ready;
+</script>
+
+<div class="content">
+  <h1>Fcitx 輸入法與新酷音 <aside></aside></h1>
+  <p>在ubuntu底下有內建輸入法ibus，但是其使用上的體驗與在windows上的新注音輸入法有比較大的隔閡，用起來不是很習慣。在尋找更好的輸入法時，有嘗試過gcin與Rime。下面分別說說他們的缺點。</p>
+<ul>
+<li>gcin
+<ul>
+<li>這個輸入法沒有辦法自動學習正確的詞彙，以及一開始預設的字典挺小的。用起來時常會打錯字，需要細心的一一修正，用起來不是很方便。</li>
+</ul>
+</li>
+<li>rime
+<ul>
+<li>在字典的自動修正上與新詞彙的學習上都較為良好，但是在輸入法的使用上，rime並不會限制你的輸入，也就是說就算你輸入了一連串完全沒有待選字的注音，它還是會讓你繼續輸入，很大程度上要求你字字輸入清楚，用起來壓力很大。</li>
+</ul>
+</li>
+</ul>
+<h2 id="fcitx">fcitx</h2>
+<p>於是乎我就找到了另外一款兼具gcin輸入方式與rime的詞彙精準度的輸入法 新酷音。下面簡單的介紹如何安裝與使用。</p>
+<h3 id="安裝">安裝</h3>
+<pre><code>sudo apt-get install fcitx fcitx-chewing fcitx-anthy
+</code></pre><ul>
+<li>fcitx 是輸入法框架</li>
+<li>chewing 是新酷音</li>
+<li>anthy 是一款日文輸入法</li>
+</ul>
+<h3 id="設定">設定</h3>
+<p>System setting -&gt; language support -&gt; language tab -&gt; Keyboard input method system -&gt; 調整為fcitx</p>
+<p>如果沒有跳出fctix，請重新登入系統。</p>
+<p>開啟 fcitx 的 configue 加入，fcitx-chewing與fcitx-anthy。</p>
+<h3 id="操作">操作</h3>
+<ul>
+<li><code>ctrl-space</code> fcitx的啟用與關閉
+<ul>
+<li>常用於切換成英文輸入</li>
+</ul>
+</li>
+<li><code>ctrl-shift</code> 在fcitx啟動的情況下，循環切換設定的輸入法</li>
+</ul>
+
+</div>
+
+
+
+
+<footer>
+	<p>© 2017-2018, all rights reserved.</a>
+</footer>
+</body>
+</html>
