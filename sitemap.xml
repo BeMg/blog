@@ -8,97 +8,102 @@
   </url>
   
   <url>
-    <loc>https://bemg.github.io/blog/book-reading-2020-03/</loc>
+    <loc>https://bemg.github.io/blog/posts/book-reading-2020-03/</loc>
     <lastmod>2020-03-10T11:40:01+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://bemg.github.io/blog/llvm-trick/</loc>
+    <loc>https://bemg.github.io/blog/posts/</loc>
+    <lastmod>2020-03-10T11:40:01+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://bemg.github.io/blog/posts/llvm-trick/</loc>
     <lastmod>2019-08-19T18:50:01+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://bemg.github.io/blog/llvm_pointer_type/</loc>
+    <loc>https://bemg.github.io/blog/posts/llvm_pointer_type/</loc>
     <lastmod>2018-12-01T12:21:14+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://bemg.github.io/blog/sshfs/</loc>
+    <loc>https://bemg.github.io/blog/posts/sshfs/</loc>
     <lastmod>2018-09-17T13:55:00+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://bemg.github.io/blog/vector-architecture-notes-3/</loc>
+    <loc>https://bemg.github.io/blog/posts/vector-architecture-notes-3/</loc>
     <lastmod>2018-09-02T17:57:41+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://bemg.github.io/blog/what-is-fixed-point/</loc>
+    <loc>https://bemg.github.io/blog/posts/what-is-fixed-point/</loc>
     <lastmod>2018-08-31T12:30:33+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://bemg.github.io/blog/go-waitgroup/</loc>
+    <loc>https://bemg.github.io/blog/posts/go-waitgroup/</loc>
     <lastmod>2018-08-27T11:16:03+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://bemg.github.io/blog/vector-architecture-notes-simdandgpu/</loc>
+    <loc>https://bemg.github.io/blog/posts/vector-architecture-notes-simdandgpu/</loc>
     <lastmod>2018-08-18T20:55:53+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://bemg.github.io/blog/vector-architecture-notes-2/</loc>
+    <loc>https://bemg.github.io/blog/posts/vector-architecture-notes-2/</loc>
     <lastmod>2018-08-05T22:49:37+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://bemg.github.io/blog/vector-architecture-notes-1/</loc>
+    <loc>https://bemg.github.io/blog/posts/vector-architecture-notes-1/</loc>
     <lastmod>2018-08-05T12:07:48+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://bemg.github.io/blog/introduction-to-spike/</loc>
+    <loc>https://bemg.github.io/blog/posts/introduction-to-spike/</loc>
     <lastmod>2018-08-01T10:32:07+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://bemg.github.io/blog/golang-notes/</loc>
+    <loc>https://bemg.github.io/blog/posts/golang-notes/</loc>
     <lastmod>2018-07-31T20:38:40+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://bemg.github.io/blog/cmder-notes/</loc>
+    <loc>https://bemg.github.io/blog/posts/cmder-notes/</loc>
     <lastmod>2018-07-06T13:04:56+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://bemg.github.io/blog/selenium-intro/</loc>
+    <loc>https://bemg.github.io/blog/posts/selenium-intro/</loc>
     <lastmod>2018-04-07T16:22:57+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://bemg.github.io/blog/elastic-notes/</loc>
+    <loc>https://bemg.github.io/blog/posts/elastic-notes/</loc>
     <lastmod>2018-02-28T13:22:58+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://bemg.github.io/blog/llvm-notes/</loc>
+    <loc>https://bemg.github.io/blog/posts/llvm-notes/</loc>
     <lastmod>2018-02-26T19:03:58+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://bemg.github.io/blog/fcitx-input-method/</loc>
+    <loc>https://bemg.github.io/blog/posts/fcitx-input-method/</loc>
     <lastmod>2018-02-25T12:04:05+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://bemg.github.io/blog/reading-list/</loc>
+    <loc>https://bemg.github.io/blog/posts/reading-list/</loc>
     <lastmod>2018-02-20T13:46:39+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://bemg.github.io/blog/learn-english/</loc>
+    <loc>https://bemg.github.io/blog/posts/learn-english/</loc>
     <lastmod>2018-02-20T13:46:33+08:00</lastmod>
   </url>
   
